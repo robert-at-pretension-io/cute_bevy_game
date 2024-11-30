@@ -99,7 +99,7 @@ impl ColorGenerator {
 
 #[derive(Component)]
 struct Ball {
-    size: BallSize,
+    variant: BallVariant,
     glow_phase: f32,
     color_phase: f32,
     pulse_phase: f32,
@@ -213,47 +213,108 @@ fn update_explosion_particles(
 const BASE_BALL_SIZE: f32 = 40.0;
 
 #[derive(Copy, Clone, PartialEq)]
-enum BallSize {
-    Tiny,
-    Small,
-    Medium,
-    Large,
-    Huge,
-    Super,
+enum BallVariant {
+    // Tier 1
+    Basic,      // (was Tiny)
+    Happy,      // (was Small)
+    Silly,      // (was Medium)
+    
+    // Tier 2
+    Cool,       // (was Large)
+    Star,       // (was Huge)
+    Rainbow,    // (new!)
+    
+    // Tier 3
+    Sparkle,    // (new!)
+    Heart,      // (new!)
+    Galaxy,     // (new!)
+    
+    // Tier 4
+    Diamond,    // (new!)
+    Crown,      // (new!)
+    
+    // Victory
+    Ultimate,   // (was Super)
 }
 
-impl BallSize {
+impl BallVariant {
     fn size(&self) -> f32 {
         let ratio = match self {
-            BallSize::Tiny => 1.0,
-            BallSize::Small => 1.5,
-            BallSize::Medium => 2.0,
-            BallSize::Large => 4.0,
-            BallSize::Huge => 6.0,
-            BallSize::Super => 7.0,
+            // Tier 1 (smallest)
+            BallVariant::Basic => 1.0,
+            BallVariant::Happy => 1.2,
+            BallVariant::Silly => 1.4,
+            
+            // Tier 2 (medium)
+            BallVariant::Cool => 1.8,
+            BallVariant::Star => 2.0,
+            BallVariant::Rainbow => 2.2,
+            
+            // Tier 3 (large)
+            BallVariant::Sparkle => 2.6,
+            BallVariant::Heart => 2.8,
+            BallVariant::Galaxy => 3.0,
+            
+            // Tier 4 (extra large)
+            BallVariant::Diamond => 3.5,
+            BallVariant::Crown => 4.0,
+            
+            // Victory size
+            BallVariant::Ultimate => 5.0,
         };
         BASE_BALL_SIZE * ratio
     }
 
     fn sprite_path(&self) -> &'static str {
         match self {
-            BallSize::Tiny => "sad_sprite.png",
-            BallSize::Small => "angry_sprite.png", 
-            BallSize::Medium => "surprise_sprite.png",
-            BallSize::Large => "happy_sprite.png",
-            BallSize::Huge => "love_sprite.png",
-            BallSize::Super => "win_sprite.png", // Reuse love sprite or add new one
+            BallVariant::Basic => "basic_sprite.png",
+            BallVariant::Happy => "happy_sprite.png",
+            BallVariant::Silly => "silly_sprite.png",
+            BallVariant::Cool => "cool_sprite.png",
+            BallVariant::Star => "star_sprite.png",
+            BallVariant::Rainbow => "rainbow_sprite.png",
+            BallVariant::Sparkle => "sparkle_sprite.png",
+            BallVariant::Heart => "heart_sprite.png",
+            BallVariant::Galaxy => "galaxy_sprite.png",
+            BallVariant::Diamond => "diamond_sprite.png",
+            BallVariant::Crown => "crown_sprite.png",
+            BallVariant::Ultimate => "ultimate_sprite.png",
         }
     }
-    
+
+    fn next_variant(&self) -> Option<Self> {
+        match self {
+            // Tier 1 combinations
+            BallVariant::Basic => Some(BallVariant::Happy),
+            BallVariant::Happy => Some(BallVariant::Silly),
+            BallVariant::Silly => Some(BallVariant::Cool),
+            
+            // Tier 2 combinations
+            BallVariant::Cool => Some(BallVariant::Star),
+            BallVariant::Star => Some(BallVariant::Rainbow),
+            BallVariant::Rainbow => Some(BallVariant::Sparkle),
+            
+            // Tier 3 combinations
+            BallVariant::Sparkle => Some(BallVariant::Heart),
+            BallVariant::Heart => Some(BallVariant::Galaxy),
+            BallVariant::Galaxy => Some(BallVariant::Diamond),
+            
+            // Tier 4 combinations
+            BallVariant::Diamond => Some(BallVariant::Crown),
+            BallVariant::Crown => Some(BallVariant::Ultimate),
+            
+            // Ultimate is the final form
+            BallVariant::Ultimate => None,
+        }
+    }
+
     fn random() -> Self {
         use rand::Rng;
         let mut rng = rand::thread_rng();
-        match rng.gen_range(0..4) {
-            0 => BallSize::Tiny,
-            1 => BallSize::Small,
-            2 => BallSize::Medium,
-            _ => BallSize::Large, // Never randomly spawn Huge or Super
+        match rng.gen_range(0..3) {
+            0 => BallVariant::Basic,
+            1 => BallVariant::Happy,
+            _ => BallVariant::Silly,
         }
     }
 }
@@ -429,10 +490,10 @@ fn update_preview(
 fn spawn_ball_at(
     commands: &mut Commands,
     asset_server: &AssetServer,
-    size: BallSize,
+    variant: BallVariant,
     position: Vec3,
 ) -> Entity {
-    let ball_size = size.size();
+    let ball_size = variant.size();
 
     use rand::Rng;
     let mut rng = rand::thread_rng();
@@ -448,7 +509,7 @@ fn spawn_ball_at(
 
     commands.spawn((
         Ball { 
-            size,
+            variant,
             glow_phase: rng.gen_range(0.0..std::f32::consts::TAU),
             color_phase: rng.gen_range(0.0..std::f32::consts::TAU),
             pulse_phase: rng.gen_range(0.0..std::f32::consts::TAU),
@@ -780,44 +841,46 @@ fn handle_ball_collisions(
             // }
         
 
-            if ball1.size == ball2.size {
+            if ball1.variant == ball2.variant {
                 let position = (transform1.translation + transform2.translation) / 2.0;
-                
-                if ball1.size == BallSize::Huge {
-                    // Win condition - create Super ball and trigger win state
+                    
+                if let Some(next_variant) = ball1.variant.next_variant() {
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
-                    
-                    // Create the Super ball
-                    let new_ball = spawn_ball_at(&mut commands, &asset_server, BallSize::Super, position);
-                    commands.entity(new_ball).insert(CollisionEffect {
-                        timer: Timer::from_seconds(0.3, TimerMode::Once),
-                        initial_scale: Vec3::ONE,
-                    });
-                    
-                    // Trigger win effects
-                    spawn_explosion(&mut commands, position, Color::srgba(1.0, 1.0, 0.0, 1.0));
-                    commands.spawn(AudioBundle {
-                        source: game_sounds.pop.clone(),
-                        settings: PlaybackSettings::DESPAWN,
-                        ..default()
-                    });
-                    
-                    // Trigger win state
-                    next_state.set(GameState::Win);
-                    continue;
+                        
+                    if next_variant == BallVariant::Ultimate {
+                        // Create the Ultimate ball
+                        let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
+                        commands.entity(new_ball).insert(CollisionEffect {
+                            timer: Timer::from_seconds(0.3, TimerMode::Once),
+                            initial_scale: Vec3::ONE,
+                        });
+                            
+                        // Trigger win effects
+                        spawn_explosion(&mut commands, position, Color::srgba(1.0, 1.0, 0.0, 1.0));
+                        commands.spawn(AudioBundle {
+                            source: game_sounds.pop.clone(),
+                            settings: PlaybackSettings::DESPAWN,
+                            ..default()
+                        });
+                            
+                        // Trigger win state
+                        next_state.set(GameState::Win);
+                    } else {
+                        // Normal combination
+                        let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
+                        commands.entity(new_ball).insert(CollisionEffect {
+                            timer: Timer::from_seconds(0.3, TimerMode::Once),
+                            initial_scale: Vec3::ONE,
+                        });
+                            
+                        commands.spawn(AudioBundle {
+                            source: game_sounds.collision.clone(),
+                            settings: PlaybackSettings::DESPAWN,
+                            ..default()
+                        });
+                    }
                 }
-
-                let midpoint = (transform1.translation + transform2.translation) / 2.0;
-                
-                let new_size = match ball1.size {
-                    BallSize::Tiny => BallSize::Small,
-                    BallSize::Small => BallSize::Medium,
-                    BallSize::Medium => BallSize::Large,
-                    BallSize::Large => BallSize::Huge,
-                    BallSize::Huge => BallSize::Super,
-                    BallSize::Super => BallSize::Super
-                };
                 
                 if commands.get_entity(e1).is_some() {
                     commands.entity(e1).despawn();
