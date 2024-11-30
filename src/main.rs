@@ -76,16 +76,16 @@ fn spawn_explosion(
     use rand::Rng;
     let mut rng = rand::thread_rng();
     
-    // Random number of particles between 100 and 1000
-    let num_particles = rng.gen_range(100..1000);
+    // Reduced number of particles for better performance
+    let num_particles = rng.gen_range(50..200);
     
     for _ in 0..num_particles {
         let angle = rng.gen::<f32>() * PI * 2.0;
-        let speed = rng.gen_range(100.0..400.0); // Random speed
+        let speed = rng.gen_range(50.0..600.0); // Wider speed range for more variety
         let velocity = Vec2::new(angle.cos(), angle.sin()) * speed;
         
-        // Random size between 2 and 15
-        let size = rng.gen_range(2.0..15.0);
+        // More varied sizes with exponential distribution for visual interest
+        let size = rng.gen_range(1.0..5.0).powf(2.0) + 1.0;
         let new_color = color.to_srgba();
         
         // Vary the color components directly
@@ -96,8 +96,8 @@ fn spawn_explosion(
             new_color.alpha
         );
         
-        // Random lifetime between 0.3 and 1.0 seconds
-        let lifetime = rng.gen_range(0.3..1.0);
+        // Shorter lifetimes for better performance
+        let lifetime = rng.gen_range(0.2..0.6);
         
         // Randomly choose between ball, box, and triangle colliders
         let collider = match rng.gen_range(0..3) {
@@ -126,11 +126,11 @@ fn spawn_explosion(
             RigidBody::Dynamic,
             Velocity::linear(velocity),
             collider,
-            Restitution::coefficient(rng.gen_range(0.3..0.9)), // Random bounciness
-            Friction::coefficient(rng.gen_range(0.0..0.3)),    // Random friction
+            Restitution::coefficient(rng.gen_range(0.1..1.0)), // More varied bounciness
+            Friction::coefficient(rng.gen_range(0.0..0.5)),    // More varied friction
             Damping {
-                linear_damping: rng.gen_range(0.2..0.8),
-                angular_damping: rng.gen_range(0.2..0.8),
+                linear_damping: rng.gen_range(0.5..1.0),      // Increased damping for faster settling
+                angular_damping: rng.gen_range(0.5..1.0),
             },
         ));
     }
