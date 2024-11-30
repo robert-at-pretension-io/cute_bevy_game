@@ -369,23 +369,18 @@ fn handle_ball_collisions(
         if let (Ok((e1, ball1, transform1)), Ok((e2, ball2, transform2))) = 
             (query.get(entity1), query.get(entity2)) 
         {
-            // Get collision velocity from Rapier
-            if let Some(manifold) = pair.manifolds().next() {
-                let relative_vel = manifold.relative_velocity();
-                let normal = manifold.normal();
-                // Project relative velocity onto contact normal to get impact velocity
-                let impact_vel = relative_vel.dot(normal).abs();
-                println!("Impact velocity: {}", impact_vel);
+            // Couldn't get this working
+            // if let Some(manifold) = pair.manifolds().next() {
+            //     let relative_vel = manifold.relative_velocity();
+            //     let normal = manifold.normal();
+            //     let impact_vel = relative_vel.dot(normal).abs();
+            //     println!("Impact velocity: {}", impact_vel);
                 
-                // Only play sound for significant impacts (not gentle touches or resting contacts)
-                if impact_vel > 50.0 {
-                    commands.spawn(AudioBundle {
-                        source: collision_sound.0.clone(),
-                        settings: PlaybackSettings::DESPAWN,
-                        ..default()
-                    });
-                }
-            }
+            //     // Only play sound for significant impacts (not gentle touches or resting contacts)
+            //     if impact_vel > 50.0 {
+
+            //     }
+            // }
         
 
             if ball1.size == ball2.size {
@@ -409,8 +404,12 @@ fn handle_ball_collisions(
                 commands.entity(e2).despawn();
                 
                 let new_ball = spawn_ball_at(&mut commands, &asset_server, new_size, midpoint);
-                
 
+                commands.spawn(AudioBundle {
+                    source: collision_sound.0.clone(),
+                    settings: PlaybackSettings::DESPAWN,
+                    ..default()
+                });
 
                 // Add a glow effect to the new ball
                 commands.entity(new_ball).insert(CollisionEffect {
