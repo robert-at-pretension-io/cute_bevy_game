@@ -346,6 +346,18 @@ fn spawn_ball_at(
 ) -> Entity {
     let ball_size = size.size();
 
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+
+    // Random initial velocity
+    let velocity = Vec2::new(
+        rng.gen_range(-100.0..100.0),  // Random x velocity
+        rng.gen_range(-50.0..50.0)     // Random y velocity
+    );
+
+    // Random initial angular velocity (rotation)
+    let angular_velocity = rng.gen_range(-5.0..5.0);
+
     commands.spawn((
         Ball { size },
         SpriteBundle {
@@ -358,6 +370,10 @@ fn spawn_ball_at(
             ..default()
         },
         RigidBody::Dynamic,
+        Velocity {
+            linvel: velocity,
+            angvel: angular_velocity,
+        },
         Collider::ball(ball_size / 2.0),
         Restitution::coefficient(0.7),
         Friction::coefficient(0.0),
