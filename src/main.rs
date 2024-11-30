@@ -417,8 +417,7 @@ fn update_preview(
         if let Ok((mut transform, mut visibility)) = preview_query.get_single_mut() {
             transform.translation.x = world_position.x;
             // Position higher based on ball size to prevent clipping
-            let ball_size = preview.next_size.size();
-            transform.translation.y = 300.0 - (ball_size / 2.0) - 10;
+            transform.translation.y = 300.0 - (preview.next_size.size() / 2.0) - 10.0;
             *visibility = Visibility::Visible;
         }
     } else {
@@ -860,7 +859,7 @@ fn setup_win_screen(mut commands: Commands) {
             "You Won!\nPress SPACE to play again",
             TextStyle {
                 font_size: 50.0,
-                color: Color::rgb(1.0, 0.84, 0.0), // Gold color in RGB
+                color: Color::srgb(1.0, 0.84, 0.0), // Gold color in RGB
                 ..default()
             },
         )
