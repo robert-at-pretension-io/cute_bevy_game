@@ -177,7 +177,7 @@ fn spawn_explosion(
             Velocity::linear(velocity),
             collider,
             Restitution::coefficient(0.5), // Fixed restitution
-            Friction::coefficient(0.2),    // Fixed friction
+            Friction::coefficient(0.5),    // Increased friction
             Damping {
                 linear_damping: 0.8,      // Fixed damping values
                 angular_damping: 0.8,
@@ -469,7 +469,7 @@ fn spawn_ball_at(
         },
         Collider::ball(ball_size / 2.0),
         Restitution::coefficient(0.7),
-        Friction::coefficient(0.0),
+        Friction::coefficient(0.5), // Add moderate friction
         // Add initial collision effect
         CollisionEffect {
             timer: Timer::from_seconds(0.3, TimerMode::Once),
