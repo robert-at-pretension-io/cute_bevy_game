@@ -807,7 +807,8 @@ fn handle_ball_collisions(
                     BallSize::Small => BallSize::Medium,
                     BallSize::Medium => BallSize::Large,
                     BallSize::Large => BallSize::Huge,
-                    BallSize::Huge => BallSize::Huge,
+                    BallSize::Huge => BallSize::Super,
+                    BallSize::Super => BallSize::Super
                 };
                 
                 commands.entity(e1).despawn();
