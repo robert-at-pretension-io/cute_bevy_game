@@ -240,26 +240,25 @@ impl BallVariant {
     fn size(&self) -> f32 {
         let ratio = match self {
             // Tier 1 (smallest)
-            BallVariant::Basic => 1.0,
-            BallVariant::Happy => 1.2,
-            BallVariant::Silly => 1.4,
+            BallVariant::Sad => 1.0,
+            BallVariant::Angry => 1.2,
+            BallVariant::Surprised => 1.4,
             
             // Tier 2 (medium)
-            BallVariant::Cool => 1.8,
-            BallVariant::Star => 2.0,
-            BallVariant::Rainbow => 2.2,
+            BallVariant::Embarrassed => 1.8,
+            BallVariant::Happy => 2.0,
+            BallVariant::Joyful => 2.2,
             
             // Tier 3 (large)
-            BallVariant::Sparkle => 2.6,
-            BallVariant::Heart => 2.8,
-            BallVariant::Galaxy => 3.0,
+            BallVariant::Spite => 2.6,
+            BallVariant::Love => 2.8,
+            BallVariant::Pride => 3.0,
             
             // Tier 4 (extra large)
-            BallVariant::Diamond => 3.5,
-            BallVariant::Crown => 4.0,
+            BallVariant::Rage => 4.0,
             
             // Victory size
-            BallVariant::Ultimate => 5.0,
+            BallVariant::Win => 5.0,
         };
         BASE_BALL_SIZE * ratio
     }
