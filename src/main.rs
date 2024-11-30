@@ -403,7 +403,7 @@ fn setup_preview(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 // New system to update the preview position
 fn update_preview(
-    mut preview_query: Query<(&mut Transform, &mut Visibility), With<BallPreview>>,
+    mut preview_query: Query<(&mut Transform, &mut Visibility, &BallPreview)>,
     camera_q: Query<(&Camera, &GlobalTransform)>,
     windows: Query<&Window>,
 ) {
@@ -414,15 +414,14 @@ fn update_preview(
         .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
         .map(|ray| ray.origin.truncate())
     {
-        if let Ok((mut transform, mut visibility)) = preview_query.get_single_mut() {
+        if let Ok((mut transform, mut visibility, preview)) = preview_query.get_single_mut() {
             transform.translation.x = world_position.x;
             // Position higher based on ball size to prevent clipping
-            let preview = preview_query.single().0;
             transform.translation.y = 300.0 - (preview.next_size.size() / 2.0) - 10.0;
             *visibility = Visibility::Visible;
         }
     } else {
-        if let Ok((_, mut visibility)) = preview_query.get_single_mut() {
+        if let Ok((_, mut visibility, _)) = preview_query.get_single_mut() {
             *visibility = Visibility::Hidden;
         }
     }
