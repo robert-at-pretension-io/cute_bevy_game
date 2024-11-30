@@ -210,7 +210,7 @@ fn update_explosion_particles(
 
 
 // Base size for scaling all balls
-const BASE_BALL_SIZE: f32 = 55.0;
+const BASE_BALL_SIZE: f32 = 40.0;
 
 #[derive(Copy, Clone, PartialEq)]
 enum BallSize {
@@ -242,7 +242,7 @@ impl BallSize {
             BallSize::Medium => "surprise_sprite.png",
             BallSize::Large => "happy_sprite.png",
             BallSize::Huge => "love_sprite.png",
-            BallSize::Super => "love_sprite.png", // Reuse love sprite or add new one
+            BallSize::Super => "win_sprite.png", // Reuse love sprite or add new one
         }
     }
     
