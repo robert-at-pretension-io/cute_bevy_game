@@ -750,6 +750,7 @@ fn handle_ball_collisions(
     rapier_context: Res<RapierContext>, 
     query: Query<(Entity, &Ball, &Transform)>,
     game_sounds: Res<GameSounds>,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     for pair in rapier_context.contact_pairs() {
         let entity1 = pair.collider1();
@@ -840,7 +841,7 @@ fn setup_win_screen(mut commands: Commands) {
             "You Won!\nPress SPACE to play again",
             TextStyle {
                 font_size: 50.0,
-                color: Color::GOLD,
+                color: Color::rgb(1.0, 0.84, 0.0), // Gold color in RGB
                 ..default()
             },
         )
