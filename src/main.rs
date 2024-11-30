@@ -141,7 +141,10 @@ fn animate_background(
 
 
 #[derive(Resource)]
-struct CollisionSound(Handle<AudioSource>);
+struct GameSounds {
+    collision: Handle<AudioSource>,
+    pop: Handle<AudioSource>,
+}
 
 fn main() {
     App::new()
@@ -352,7 +355,10 @@ fn spawn_ball(
 }
 
 fn setup_audio(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.insert_resource(CollisionSound(asset_server.load("whoop_squish.ogg")));
+    commands.insert_resource(GameSounds {
+        collision: asset_server.load("whoop_squish.ogg"),
+        pop: asset_server.load("pop.wav"),
+    });
 }
 
 fn handle_ball_collisions(
@@ -360,7 +366,7 @@ fn handle_ball_collisions(
     asset_server: Res<AssetServer>,
     rapier_context: Res<RapierContext>, 
     query: Query<(Entity, &Ball, &Transform)>,
-    collision_sound: Res<CollisionSound>,
+    game_sounds: Res<GameSounds>,
 ) {
     for pair in rapier_context.contact_pairs() {
         let entity1 = pair.collider1();
@@ -387,6 +393,11 @@ fn handle_ball_collisions(
                 if ball1.size == MAX_BALL_SIZE {
                     let position = (transform1.translation + transform2.translation) / 2.0;
                     spawn_explosion(&mut commands, position, Color::rgba(0.5, 0.0, 0.0, 5.0));
+                    commands.spawn(AudioBundle {
+                        source: game_sounds.pop.clone(),
+                        settings: PlaybackSettings::DESPAWN,
+                        ..default()
+                    });
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
                     continue;
@@ -406,7 +417,7 @@ fn handle_ball_collisions(
                 let new_ball = spawn_ball_at(&mut commands, &asset_server, new_size, midpoint);
 
                 commands.spawn(AudioBundle {
-                    source: collision_sound.0.clone(),
+                    source: game_sounds.collision.clone(),
                     settings: PlaybackSettings::DESPAWN,
                     ..default()
                 });
