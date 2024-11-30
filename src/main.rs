@@ -117,11 +117,11 @@ struct VisualEffects {
 impl Default for VisualEffects {
     fn default() -> Self {
         Self {
-            glow_speed: 2.0,
-            color_speed: 0.5,
-            pulse_speed: 1.5,
-            glow_intensity: 0.3,
-            pulse_magnitude: 0.1,
+            glow_speed: 1.0,      // Slower glow
+            color_speed: 0.2,     // Slower color change
+            pulse_speed: 0.8,     // Slower pulse
+            glow_intensity: 0.1,  // Less intense glow
+            pulse_magnitude: 0.03, // Much smaller size change
         }
     }
 }
@@ -437,14 +437,14 @@ fn spawn_ball_at(
     use rand::Rng;
     let mut rng = rand::thread_rng();
 
-    // Random initial velocity
+    // Very subtle initial velocity
     let velocity = Vec2::new(
-        rng.gen_range(-5.0..5.0),  // Random x velocity
-        rng.gen_range(-5.0..5.0)     // Random y velocity
+        rng.gen_range(-1.0..1.0),  // Minimal x velocity
+        rng.gen_range(-1.0..1.0)   // Minimal y velocity
     );
 
-    // Random initial angular velocity (rotation)
-    let angular_velocity = rng.gen_range(-5.0..5.0);
+    // Very subtle initial rotation
+    let angular_velocity = rng.gen_range(-0.2..0.2);
 
     commands.spawn((
         Ball { 
