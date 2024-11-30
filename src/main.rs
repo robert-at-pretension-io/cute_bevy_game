@@ -685,14 +685,14 @@ fn update_ball_effects(
 
         // Glow effect (alpha oscillation)
         let glow = (1.0 + effects.glow_intensity * ball.glow_phase.sin()) * 0.8;
-        sprite.color.set_a(glow);
+        sprite.color.set_alpha(glow);
 
         // Color cycling (subtle hue shift)
         let hue_shift = (ball.color_phase.sin() * 20.0).to_radians(); // 20 degree shift
         let mut color = sprite.color;
-        if let Some(mut hsla) = color.as_hsla_mut() {
-            hsla.hue += hue_shift;
-        }
+
+        color.set_hue(color.hue() + hue_shift);
+
         sprite.color = color;
 
         // Size pulsing
