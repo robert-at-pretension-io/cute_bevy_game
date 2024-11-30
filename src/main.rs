@@ -3,6 +3,67 @@ use bevy_rapier2d::{prelude::*, plugin::RapierPhysicsPlugin};
 use std::f32::consts::PI;
 use bevy::audio::*;
 
+use bevy_color::{Srgba, Hsla, LinearRgba};
+use rand::Rng;
+
+/// A utility struct for generating random colors
+pub struct ColorGenerator;
+
+impl ColorGenerator {
+    /// Generate a random SRGBA color
+    pub fn random_srgba() -> Srgba {
+        let mut rng = rand::thread_rng();
+        Srgba::new(
+            rng.gen_range(0.0..=1.0),
+            rng.gen_range(0.0..=1.0),
+            rng.gen_range(0.0..=1.0),
+            1.0, // Full opacity by default
+        )
+    }
+
+    /// Generate a random HSLA color
+    pub fn random_hsla() -> Hsla {
+        let mut rng = rand::thread_rng();
+        Hsla::new(
+            rng.gen_range(0.0..360.0), // Hue: 0-360 degrees
+            rng.gen_range(0.0..=1.0),   // Saturation: 0-1
+            rng.gen_range(0.0..=1.0),   // Lightness: 0-1
+            1.0,                        // Alpha: full opacity
+        )
+    }
+
+    /// Generate a random LinearRGBA color
+    pub fn random_linear_rgba() -> LinearRgba {
+        // Generate SRGBA first and convert to linear
+        let srgb = Self::random_srgba();
+        LinearRgba::from(srgb)
+    }
+
+    /// Generate a random vibrant color in SRGBA
+    pub fn random_vibrant_srgba() -> Srgba {
+        let mut rng = rand::thread_rng();
+        let hsla = Hsla::new(
+            rng.gen_range(0.0..360.0), // Random hue
+            rng.gen_range(0.8..=1.0),   // High saturation
+            rng.gen_range(0.4..=0.6),   // Medium lightness
+            1.0,                        // Full opacity
+        );
+        Srgba::from(hsla)
+    }
+
+    /// Generate a random pastel color in SRGBA
+    pub fn random_pastel_srgba() -> Srgba {
+        let mut rng = rand::thread_rng();
+        let hsla = Hsla::new(
+            rng.gen_range(0.0..360.0), // Random hue
+            rng.gen_range(0.3..=0.5),   // Lower saturation
+            rng.gen_range(0.8..=0.9),   // High lightness
+            1.0,                        // Full opacity
+        );
+        Srgba::from(hsla)
+    }
+}
+
 #[derive(Component)]
 struct Ball {
     size: BallSize,
@@ -30,7 +91,7 @@ fn spawn_explosion(
         // Randomize the color slightly
         let color_variation = rng.gen_range(0.8..1.2);
         let mut varied_color = color;
-        varied_color.set_r(color.r() * color_variation);
+        varied_color.set_alpha(colo * color_variation);
         varied_color.set_g(color.g() * color_variation);
         varied_color.set_b(color.b() * color_variation);
         
