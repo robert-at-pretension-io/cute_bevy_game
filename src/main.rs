@@ -13,33 +13,62 @@ fn spawn_explosion(
     position: Vec3,
     color: Color,
 ) {
-    // Spawn a bunch of particles in different directions
-    for i in 0..20 {  // 20 particles
-        let angle = (i as f32 / 20.0) * PI * 2.0;
-        let velocity = Vec2::new(angle.cos(), angle.sin()) * 200.0; // Speed of particles
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+    
+    // Random number of particles between 100 and 1000
+    let num_particles = rng.gen_range(100..1000);
+    
+    for _ in 0..num_particles {
+        let angle = rng.gen::<f32>() * PI * 2.0;
+        let speed = rng.gen_range(100.0..400.0); // Random speed
+        let velocity = Vec2::new(angle.cos(), angle.sin()) * speed;
+        
+        // Random size between 2 and 15
+        let size = rng.gen_range(2.0..15.0);
+        
+        // Randomize the color slightly
+        let color_variation = rng.gen_range(0.8..1.2);
+        let mut varied_color = color;
+        varied_color.set_r(color.r() * color_variation);
+        varied_color.set_g(color.g() * color_variation);
+        varied_color.set_b(color.b() * color_variation);
+        
+        // Random lifetime between 0.3 and 1.0 seconds
+        let lifetime = rng.gen_range(0.3..1.0);
+        
+        // Randomly choose between ball, box, and triangle colliders
+        let collider = match rng.gen_range(0..3) {
+            0 => Collider::ball(size / 2.0),
+            1 => Collider::cuboid(size / 2.0, size / 2.0),
+            _ => Collider::triangle(
+                Vec2::new(-size/2.0, -size/2.0),
+                Vec2::new(size/2.0, -size/2.0),
+                Vec2::new(0.0, size/2.0)
+            ),
+        };
         
         commands.spawn((
             SpriteBundle {
                 sprite: Sprite {
-                    color,
-                    custom_size: Some(Vec2::new(10.0, 10.0)),  // Small particles
+                    color: varied_color,
+                    custom_size: Some(Vec2::new(size, size)),
                     ..default()
                 },
                 transform: Transform::from_translation(position),
                 ..default()
             },
             ExplosionParticle {
-                lifetime: Timer::from_seconds(0.5, TimerMode::Once),
+                lifetime: Timer::from_seconds(lifetime, TimerMode::Once),
             },
-            // Add physics components
             RigidBody::Dynamic,
-            Velocity::linear(velocity),  // Initial velocity from explosion
-            Collider::ball(5.0),        // Circular collider (radius = half the sprite size)
-            Restitution::coefficient(0.7), // Make them bouncy
-            Friction::coefficient(0.1),    // Low friction to make them slide
+            Velocity::linear(velocity),
+            collider,
+            Restitution::coefficient(rng.gen_range(0.3..0.9)), // Random bounciness
+            Friction::coefficient(rng.gen_range(0.0..0.3)),    // Random friction
             Damping {
-                linear_damping: 0.5,
-                angular_damping: 0.5,
+                linear_damping: rng.gen_range(0.2..0.8),
+                angular_damping: rng.gen_range(0.2..0.8),
             },
         ));
     }
