@@ -86,13 +86,14 @@ fn spawn_explosion(
         
         // Random size between 2 and 15
         let size = rng.gen_range(2.0..15.0);
+        let new_color = color.to_srgba();
         
         // Vary the color components directly
         let varied_color = Color::rgba(
-            color.r() * rng.gen_range(0.8..1.2),
-            color.g() * rng.gen_range(0.8..1.2),
-            color.b() * rng.gen_range(0.8..1.2),
-            color.a()
+            new_color.red * rng.gen_range(0.8..1.2),
+            new_color.green * rng.gen_range(0.8..1.2),
+            new_color.blue * rng.gen_range(0.8..1.2),
+            new_color.alpha
         );
         
         // Random lifetime between 0.3 and 1.0 seconds
