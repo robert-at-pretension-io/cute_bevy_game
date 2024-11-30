@@ -15,6 +15,8 @@ enum BallSize {
     Two,
     Three,
 }
+static MAX_BALL_SIZE : BallSize = BallSize::Three;
+
 
 #[derive(Component)]
 struct CollisionEffect {
@@ -72,7 +74,6 @@ fn animate_background(
     }
 }
 
-static MAX_BALL_SIZE : BallSize = BallSize::Three;
 
 
 fn main() {
