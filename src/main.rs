@@ -1,5 +1,4 @@
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
-use std::time::Duration;
+use bevy::prelude::*;
 
 #[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 enum GameState {
@@ -206,8 +205,6 @@ fn update_explosion_particles(
     }
 }
 
-#[derive(Component)]
-struct BallPreview;
 
 // Base size for scaling all balls
 const BASE_BALL_SIZE: f32 = 45.0;
@@ -669,7 +666,7 @@ fn check_danger_zone(
     }
 }
 
-fn setup_game_over(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup_game_over(mut commands: Commands) {
     commands.spawn((
         GameOverText,
         TextBundle::from_section(
