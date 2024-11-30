@@ -210,7 +210,7 @@ fn update_explosion_particles(
 
 
 // Base size for scaling all balls
-const BASE_BALL_SIZE: f32 = 45.0;
+const BASE_BALL_SIZE: f32 = 55.0;
 
 #[derive(Copy, Clone, PartialEq)]
 enum BallSize {
@@ -226,11 +226,11 @@ impl BallSize {
     fn size(&self) -> f32 {
         let ratio = match self {
             BallSize::Tiny => 1.0,
-            BallSize::Small => 1.75,
-            BallSize::Medium => 2.5,
-            BallSize::Large => 3.5,
-            BallSize::Huge => 4.5,
-            BallSize::Super => 5.5,
+            BallSize::Small => 1.5,
+            BallSize::Medium => 2.0,
+            BallSize::Large => 4.0,
+            BallSize::Huge => 6.0,
+            BallSize::Super => 7.0,
         };
         BASE_BALL_SIZE * ratio
     }
