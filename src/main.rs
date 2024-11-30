@@ -77,7 +77,15 @@ static MAX_BALL_SIZE : BallSize = BallSize::Three;
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                resolution: (500.0, 600.0).into(),
+                title: "Ball Drop".to_string(),
+                resizable: false,
+                ..default()
+            }),
+            ..default()
+        }))
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .insert_resource(RapierConfiguration {
             gravity: Vec2::new(0.0, -500.0),
