@@ -5,6 +5,7 @@ enum GameState {
     #[default]
     Playing,
     GameOver,
+    Win,
 }
 
 #[derive(Resource)]
@@ -216,6 +217,7 @@ enum BallSize {
     Medium,
     Large,
     Huge,
+    Super,
 }
 
 impl BallSize {
@@ -226,6 +228,7 @@ impl BallSize {
             BallSize::Medium => 2.5,
             BallSize::Large => 3.5,
             BallSize::Huge => 4.5,
+            BallSize::Super => 5.5,
         };
         BASE_BALL_SIZE * ratio
     }
@@ -237,6 +240,7 @@ impl BallSize {
             BallSize::Medium => "surprise_sprite.png",
             BallSize::Large => "happy_sprite.png",
             BallSize::Huge => "love_sprite.png",
+            BallSize::Super => "love_sprite.png", // Reuse love sprite or add new one
         }
     }
     
@@ -362,7 +366,9 @@ fn main() {
             check_danger_zone,
         ).run_if(in_state(GameState::Playing)))
         .add_systems(OnEnter(GameState::GameOver), setup_game_over)
+        .add_systems(OnEnter(GameState::Win), setup_win_screen)
         .add_systems(Update, handle_game_over.run_if(in_state(GameState::GameOver)))
+        .add_systems(Update, handle_win_screen.run_if(in_state(GameState::Win)))
         .run();
 }
 
@@ -767,9 +773,11 @@ fn handle_ball_collisions(
         
 
             if ball1.size == ball2.size {
-                if ball1.size == BallSize::Huge {
-                    let position = (transform1.translation + transform2.translation) / 2.0;
-                    spawn_explosion(&mut commands, position, Color::srgba(0.5, 0.0, 0.0, 1.0));
+                let position = (transform1.translation + transform2.translation) / 2.0;
+                
+                if ball1.size == BallSize::Super {
+                    // Win condition!
+                    spawn_explosion(&mut commands, position, Color::srgba(1.0, 1.0, 0.0, 1.0)); // Golden explosion
                     commands.spawn(AudioBundle {
                         source: game_sounds.pop.clone(),
                         settings: PlaybackSettings::DESPAWN,
@@ -777,6 +785,17 @@ fn handle_ball_collisions(
                     });
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
+                    next_state.set(GameState::Win);
+                    continue;
+                } else if ball1.size == BallSize::Huge {
+                    // Create Super ball
+                    commands.entity(e1).despawn();
+                    commands.entity(e2).despawn();
+                    let new_ball = spawn_ball_at(&mut commands, &asset_server, BallSize::Super, position);
+                    commands.entity(new_ball).insert(CollisionEffect {
+                        timer: Timer::from_seconds(0.3, TimerMode::Once),
+                        initial_scale: Vec3::ONE,
+                    });
                     continue;
                 }
 
@@ -809,5 +828,50 @@ fn handle_ball_collisions(
 
             }
         }
+    }
+}
+#[derive(Component)]
+struct WinText;
+
+fn setup_win_screen(mut commands: Commands) {
+    commands.spawn((
+        WinText,
+        TextBundle::from_section(
+            "You Won!\nPress SPACE to play again",
+            TextStyle {
+                font_size: 50.0,
+                color: Color::GOLD,
+                ..default()
+            },
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Val::Px(250.0),
+            top: Val::Px(300.0),
+            ..default()
+        }),
+    ));
+}
+
+fn handle_win_screen(
+    mut commands: Commands,
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+    balls: Query<Entity, With<Ball>>,
+    win_text: Query<Entity, With<WinText>>,
+) {
+    if keyboard.just_pressed(KeyCode::Space) {
+        // Remove all balls
+        for entity in balls.iter() {
+            commands.entity(entity).despawn();
+        }
+        
+        // Remove win text
+        for entity in win_text.iter() {
+            commands.entity(entity).despawn();
+        }
+        
+        // Reset to playing state
+        next_state.set(GameState::Playing);
     }
 }
