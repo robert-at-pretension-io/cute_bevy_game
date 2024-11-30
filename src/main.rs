@@ -172,11 +172,11 @@ impl BallSize {
 
     fn sprite_path(&self) -> &'static str {
         match self {
-            BallSize::Tiny => "ball_tiny.png",
-            BallSize::Small => "ball_small.png", 
-            BallSize::Medium => "ball_medium.png",
-            BallSize::Large => "ball_large.png",
-            BallSize::Huge => "ball_huge.png",
+            BallSize::Tiny => "happy_sprite.png",
+            BallSize::Small => "happy_sprite.png", 
+            BallSize::Medium => "happy_sprite.png",
+            BallSize::Large => "happy_sprite.png",
+            BallSize::Huge => "happy_sprite.png",
         }
     }
     
