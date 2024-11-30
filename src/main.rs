@@ -56,8 +56,9 @@ fn update_explosion_particles(
             commands.entity(entity).despawn();
         } else {
             // Fade out by adjusting alpha and scale
-            let life_percent = particle.lifetime.percent_left();
-            sprite.color.set_a(life_percent);
+            
+            let life_percent = particle.lifetime.elapsed_secs() / particle.lifetime.duration().as_secs_f32();
+            sprite.color.set_alpha(life_percent);
             transform.scale = Vec3::splat(life_percent);
         }
     }
@@ -362,7 +363,7 @@ fn handle_ball_collisions(
             if ball1.size == ball2.size {
                 if ball1.size == MAX_BALL_SIZE {
                     let position = (transform1.translation + transform2.translation) / 2.0;
-                    spawn_explosion(&mut commands, position, Color::YELLOW);
+                    spawn_explosion(&mut commands, position, Color::rgba(0.5, 0.0, 0.0, 5.0));
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
                     continue;
