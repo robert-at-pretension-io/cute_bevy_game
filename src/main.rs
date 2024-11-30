@@ -3,7 +3,6 @@ use bevy_rapier2d::{prelude::*, plugin::RapierPhysicsPlugin};
 use std::f32::consts::PI;
 use bevy::audio::*;
 
-use bevy_color::{Srgba, Hsla, LinearRgba};
 use rand::Rng;
 
 /// A utility struct for generating random colors
@@ -88,14 +87,13 @@ fn spawn_explosion(
         // Random size between 2 and 15
         let size = rng.gen_range(2.0..15.0);
         
-        // Convert base color to HSLA for easier manipulation
-        let base_hsla = Hsla::from(color);
-        let varied_color = Hsla::new(
-            base_hsla.hue + rng.gen_range(-15.0..15.0), // Slight hue shift
-            base_hsla.saturation * rng.gen_range(0.8..1.2), // Vary saturation
-            base_hsla.lightness * rng.gen_range(0.8..1.2),  // Vary lightness
-            base_hsla.alpha,
-        ).into();
+        // Vary the color components directly
+        let varied_color = Color::rgba(
+            color.r() * rng.gen_range(0.8..1.2),
+            color.g() * rng.gen_range(0.8..1.2),
+            color.b() * rng.gen_range(0.8..1.2),
+            color.a()
+        );
         
         // Random lifetime between 0.3 and 1.0 seconds
         let lifetime = rng.gen_range(0.3..1.0);
