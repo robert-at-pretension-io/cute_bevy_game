@@ -249,12 +249,11 @@ impl BallSize {
     fn random() -> Self {
         use rand::Rng;
         let mut rng = rand::thread_rng();
-        match rng.gen_range(0..5) {
+        match rng.gen_range(0..4) {
             0 => BallSize::Tiny,
             1 => BallSize::Small,
             2 => BallSize::Medium,
-            3 => BallSize::Large,
-            _ => BallSize::Huge,
+            _ => BallSize::Large, // Never randomly spawn Huge or Super
         }
     }
 }
@@ -784,32 +783,28 @@ fn handle_ball_collisions(
             if ball1.size == ball2.size {
                 let position = (transform1.translation + transform2.translation) / 2.0;
                 
-                if ball1.size == BallSize::Super {
-                    // Win condition!
-                    spawn_explosion(&mut commands, position, Color::srgba(1.0, 1.0, 0.0, 1.0)); // Golden explosion
-                    commands.spawn(AudioBundle {
-                        source: game_sounds.pop.clone(),
-                        settings: PlaybackSettings::DESPAWN,
-                        ..default()
-                    });
+                if ball1.size == BallSize::Huge {
+                    // Win condition - create Super ball and trigger win state
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
-                    // Trigger explosions for all balls before transitioning to win state
-                    for (entity, _, transform) in query.iter() {
-                        spawn_explosion(&mut commands, transform.translation, Color::srgba(1.0, 0.84, 0.0, 1.0));
-                        commands.entity(entity).despawn();
-                    }
-                    next_state.set(GameState::Win);
-                    continue;
-                } else if ball1.size == BallSize::Huge {
-                    // Create Super ball
-                    commands.entity(e1).despawn();
-                    commands.entity(e2).despawn();
+                    
+                    // Create the Super ball
                     let new_ball = spawn_ball_at(&mut commands, &asset_server, BallSize::Super, position);
                     commands.entity(new_ball).insert(CollisionEffect {
                         timer: Timer::from_seconds(0.3, TimerMode::Once),
                         initial_scale: Vec3::ONE,
                     });
+                    
+                    // Trigger win effects
+                    spawn_explosion(&mut commands, position, Color::srgba(1.0, 1.0, 0.0, 1.0));
+                    commands.spawn(AudioBundle {
+                        source: game_sounds.pop.clone(),
+                        settings: PlaybackSettings::DESPAWN,
+                        ..default()
+                    });
+                    
+                    // Trigger win state
+                    next_state.set(GameState::Win);
                     continue;
                 }
 
