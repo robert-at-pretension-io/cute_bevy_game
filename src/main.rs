@@ -215,26 +215,25 @@ const BASE_BALL_SIZE: f32 = 40.0;
 #[derive(Copy, Clone, PartialEq)]
 enum BallVariant {
     // Tier 1
-    Basic,      // (was Tiny)
-    Happy,      // (was Small)
-    Silly,      // (was Medium)
+    Sad,
+    Angry,
+    Surprised,
     
     // Tier 2
-    Cool,       // (was Large)
-    Star,       // (was Huge)
-    Rainbow,    // (new!)
+    Embarrassed,
+    Happy,
+    Joyful,
     
     // Tier 3
-    Sparkle,    // (new!)
-    Heart,      // (new!)
-    Galaxy,     // (new!)
+    Spite,
+    Love,
+    Pride,
     
     // Tier 4
-    Diamond,    // (new!)
-    Crown,      // (new!)
+    Rage,
     
     // Victory
-    Ultimate,   // (was Super)
+    Win,
 }
 
 impl BallVariant {
@@ -267,44 +266,42 @@ impl BallVariant {
 
     fn sprite_path(&self) -> &'static str {
         match self {
-            BallVariant::Basic => "basic_sprite.png",
-            BallVariant::Happy => "happy_sprite.png",
-            BallVariant::Silly => "silly_sprite.png",
-            BallVariant::Cool => "cool_sprite.png",
-            BallVariant::Star => "star_sprite.png",
-            BallVariant::Rainbow => "rainbow_sprite.png",
-            BallVariant::Sparkle => "sparkle_sprite.png",
-            BallVariant::Heart => "heart_sprite.png",
-            BallVariant::Galaxy => "galaxy_sprite.png",
-            BallVariant::Diamond => "diamond_sprite.png",
-            BallVariant::Crown => "crown_sprite.png",
-            BallVariant::Ultimate => "ultimate_sprite.png",
+            BallVariant::Sad => "assets/sad_sprite.png",
+            BallVariant::Angry => "assets/angry_sprite.png",
+            BallVariant::Surprised => "assets/surprise_sprite.png",
+            BallVariant::Embarrassed => "assets/embarassed_sprite.png",
+            BallVariant::Happy => "assets/happy_sprite.png",
+            BallVariant::Joyful => "assets/joyful_sprite.png",
+            BallVariant::Spite => "assets/spite_sprite.png",
+            BallVariant::Love => "assets/love_sprite.png",
+            BallVariant::Pride => "assets/pride_sprite.png",
+            BallVariant::Rage => "assets/rage_sprite.png",
+            BallVariant::Win => "assets/win_sprite.png",
         }
     }
 
     fn next_variant(&self) -> Option<Self> {
         match self {
             // Tier 1 combinations
-            BallVariant::Basic => Some(BallVariant::Happy),
-            BallVariant::Happy => Some(BallVariant::Silly),
-            BallVariant::Silly => Some(BallVariant::Cool),
+            BallVariant::Sad => Some(BallVariant::Angry),
+            BallVariant::Angry => Some(BallVariant::Surprised),
+            BallVariant::Surprised => Some(BallVariant::Embarrassed),
             
             // Tier 2 combinations
-            BallVariant::Cool => Some(BallVariant::Star),
-            BallVariant::Star => Some(BallVariant::Rainbow),
-            BallVariant::Rainbow => Some(BallVariant::Sparkle),
+            BallVariant::Embarrassed => Some(BallVariant::Happy),
+            BallVariant::Happy => Some(BallVariant::Joyful),
+            BallVariant::Joyful => Some(BallVariant::Spite),
             
             // Tier 3 combinations
-            BallVariant::Sparkle => Some(BallVariant::Heart),
-            BallVariant::Heart => Some(BallVariant::Galaxy),
-            BallVariant::Galaxy => Some(BallVariant::Diamond),
+            BallVariant::Spite => Some(BallVariant::Love),
+            BallVariant::Love => Some(BallVariant::Pride),
+            BallVariant::Pride => Some(BallVariant::Rage),
             
             // Tier 4 combinations
-            BallVariant::Diamond => Some(BallVariant::Crown),
-            BallVariant::Crown => Some(BallVariant::Ultimate),
+            BallVariant::Rage => Some(BallVariant::Win),
             
-            // Ultimate is the final form
-            BallVariant::Ultimate => None,
+            // Win is the final form
+            BallVariant::Win => None,
         }
     }
 
@@ -312,9 +309,9 @@ impl BallVariant {
         use rand::Rng;
         let mut rng = rand::thread_rng();
         match rng.gen_range(0..3) {
-            0 => BallVariant::Basic,
-            1 => BallVariant::Happy,
-            _ => BallVariant::Silly,
+            0 => BallVariant::Sad,
+            1 => BallVariant::Angry,
+            _ => BallVariant::Surprised,
         }
     }
 }
@@ -651,10 +648,10 @@ fn spawn_ball(
 }
 
 fn setup_audio(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let collision = asset_server.load("whoop_squish.ogg");
-    let pop = asset_server.load("whoop_squish.ogg");
-    let warning = asset_server.load("whoop_squish.ogg");
-    let game_over = asset_server.load("whoop_squish.ogg");
+    let collision = asset_server.load("assets/whoop_squish.ogg");
+    let pop = asset_server.load("assets/pop.wav");
+    let warning = asset_server.load("assets/whoop_squish.ogg");
+    let game_over = asset_server.load("assets/whoop_squish.ogg");
     
     commands.insert_resource(GameSounds {
         collision,
@@ -847,7 +844,7 @@ fn handle_ball_collisions(
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
 
-                    if next_variant == BallVariant::Ultimate {
+                    if next_variant == BallVariant::Win {
                         // Create the Ultimate ball
                         let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
                         commands.entity(new_ball).insert(CollisionEffect {
