@@ -371,14 +371,19 @@ fn main() {
 
 
 // New system to create the preview ball
+#[derive(Component)]
+struct BallPreview {
+    next_size: BallSize,
+}
+
 fn setup_preview(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let initial_size = BallSize::Medium;
-    let ball_size = initial_size.size();
+    let next_size = BallSize::random();
+    let ball_size = next_size.size();
     
     commands.spawn((
-        BallPreview,
+        BallPreview { next_size },
         SpriteBundle {
-            texture: asset_server.load(initial_size.sprite_path()),
+            texture: asset_server.load(next_size.sprite_path()),
             sprite: Sprite {
                 custom_size: Some(Vec2::new(ball_size, ball_size)),
                 color: Color::srgba(1.0, 1.0, 1.0, 0.5), // 50% transparent
@@ -548,6 +553,7 @@ fn spawn_ball(
     camera_q: Query<(&Camera, &GlobalTransform)>,
     windows: Query<&Window>,
     asset_server: Res<AssetServer>,
+    mut preview_query: Query<(&mut BallPreview, &mut Handle<Image>, &mut Sprite)>,
 ) {
     if mouse.just_pressed(MouseButton::Left) {
         let (camera, camera_transform) = camera_q.single();
@@ -557,12 +563,23 @@ fn spawn_ball(
             .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
             .map(|ray| ray.origin.truncate())
         {
-            spawn_ball_at(
-                &mut commands,
-                &asset_server,
-                BallSize::random(),
-                Vec3::new(world_position.x, 300.0, 0.0)
-            );
+            // Get the size from preview and spawn that ball
+            if let Ok((mut preview, mut texture, mut sprite)) = preview_query.get_single_mut() {
+                spawn_ball_at(
+                    &mut commands,
+                    &asset_server,
+                    preview.next_size,
+                    Vec3::new(world_position.x, 300.0, 0.0)
+                );
+                
+                // Generate next preview
+                preview.next_size = BallSize::random();
+                let ball_size = preview.next_size.size();
+                
+                // Update preview appearance
+                *texture = asset_server.load(preview.next_size.sprite_path());
+                sprite.custom_size = Some(Vec2::new(ball_size, ball_size));
+            }
         }
     }
 }
