@@ -88,12 +88,14 @@ fn spawn_explosion(
         // Random size between 2 and 15
         let size = rng.gen_range(2.0..15.0);
         
-        // Randomize the color slightly
-        let color_variation = rng.gen_range(0.8..1.2);
-        let mut varied_color = color;
-        varied_color.set_alpha(colo * color_variation);
-        varied_color.set_g(color.g() * color_variation);
-        varied_color.set_b(color.b() * color_variation);
+        // Convert base color to HSLA for easier manipulation
+        let base_hsla = Hsla::from(color);
+        let varied_color = Hsla::new(
+            base_hsla.hue + rng.gen_range(-15.0..15.0), // Slight hue shift
+            base_hsla.saturation * rng.gen_range(0.8..1.2), // Vary saturation
+            base_hsla.lightness * rng.gen_range(0.8..1.2),  // Vary lightness
+            base_hsla.alpha,
+        ).into();
         
         // Random lifetime between 0.3 and 1.0 seconds
         let lifetime = rng.gen_range(0.3..1.0);
@@ -485,7 +487,7 @@ fn handle_ball_collisions(
             if ball1.size == ball2.size {
                 if ball1.size == MAX_BALL_SIZE {
                     let position = (transform1.translation + transform2.translation) / 2.0;
-                    spawn_explosion(&mut commands, position, Color::rgba(0.5, 0.0, 0.0, 5.0));
+                    spawn_explosion(&mut commands, position, Color::srgba(0.5, 0.0, 0.0, 1.0));
                     commands.spawn(AudioBundle {
                         source: game_sounds.pop.clone(),
                         settings: PlaybackSettings::DESPAWN,
