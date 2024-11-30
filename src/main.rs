@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::{na::ComplexField, plugin::RapierPhysicsPlugin, prelude::*};
 use std::f32::consts::PI;
-use bevy::audio::*;
 
 use rand::Rng;
 
@@ -89,7 +88,7 @@ fn spawn_explosion(
         let new_color = color.to_srgba();
         
         // Vary the color components directly
-        let varied_color = Color::rgba(
+        let varied_color = Color::srgba(
             new_color.red * rng.gen_range(0.8..1.2),
             new_color.green * rng.gen_range(0.8..1.2),
             new_color.blue * rng.gen_range(0.8..1.2),
@@ -497,7 +496,7 @@ fn handle_ball_collisions(
         
 
             if ball1.size == ball2.size {
-                if ball1.size == MAX_BALL_SIZE {
+                if ball1.size == BallSize::Huge {
                     let position = (transform1.translation + transform2.translation) / 2.0;
                     spawn_explosion(&mut commands, position, Color::srgba(0.5, 0.0, 0.0, 1.0));
                     commands.spawn(AudioBundle {
@@ -513,9 +512,11 @@ fn handle_ball_collisions(
                 let midpoint = (transform1.translation + transform2.translation) / 2.0;
                 
                 let new_size = match ball1.size {
-                    BallSize::One => BallSize::Two,
-                    BallSize::Two => BallSize::Three,
-                    BallSize::Three => BallSize::Three,
+                    BallSize::Tiny => BallSize::Small,
+                    BallSize::Small => BallSize::Medium,
+                    BallSize::Medium => BallSize::Large,
+                    BallSize::Large => BallSize::Huge,
+                    BallSize::Huge => BallSize::Huge,
                 };
                 
                 commands.entity(e1).despawn();
