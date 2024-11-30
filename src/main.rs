@@ -438,11 +438,11 @@ fn main() {
 // New system to create the preview ball
 #[derive(Component)]
 struct BallPreview {
-    next_size: BallSize,
+    next_size: BallVariant,
 }
 
 fn setup_preview(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let next_size = BallSize::random();
+    let next_size = BallVariant::random();
     let ball_size = next_size.size();
     
     commands.spawn((
@@ -639,7 +639,7 @@ fn spawn_ball(
                 );
                 
                 // Generate next preview
-                preview.next_size = BallSize::random();
+                preview.next_size = BallVariant::random();
                 let ball_size = preview.next_size.size();
                 
                 // Update preview appearance
@@ -889,7 +889,7 @@ fn handle_ball_collisions(
                     commands.entity(e2).despawn();
                 }
                 
-                let new_ball = spawn_ball_at(&mut commands, &asset_server, new_size, midpoint);
+                let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
 
                 commands.spawn(AudioBundle {
                     source: game_sounds.collision.clone(),
