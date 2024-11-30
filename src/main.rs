@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::{prelude::*, plugin::RapierPhysicsPlugin};
 use std::f32::consts::PI;
+use bevy::audio::*;
 
 #[derive(Component)]
 struct Ball {
@@ -139,6 +140,9 @@ fn animate_background(
 
 
 
+#[derive(Resource)]
+struct CollisionSound(Handle<AudioSource>);
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -155,7 +159,7 @@ fn main() {
             gravity: Vec2::new(0.0, -500.0),
             ..RapierConfiguration::new(1.0)
         })
-        .add_systems(Startup, (setup, setup_preview, setup_background))  // Add setup_preview
+        .add_systems(Startup, (setup, setup_preview, setup_background, setup_audio))
         .add_systems(Update, (
             spawn_ball,
             handle_ball_collisions,
@@ -347,11 +351,16 @@ fn spawn_ball(
     }
 }
 
+fn setup_audio(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.insert_resource(CollisionSound(asset_server.load("whoop_squish.ogg")));
+}
+
 fn handle_ball_collisions(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     rapier_context: Res<RapierContext>,
     query: Query<(Entity, &Ball, &Transform)>,
+    collision_sound: Res<CollisionSound>,
 ) {
     for pair in rapier_context.contact_pairs() {
         let entity1 = pair.collider1();
@@ -381,6 +390,13 @@ fn handle_ball_collisions(
                 commands.entity(e2).despawn();
                 
                 let new_ball = spawn_ball_at(&mut commands, &asset_server, new_size, midpoint);
+                
+                // Play collision sound
+                commands.spawn(AudioBundle {
+                    source: collision_sound.0.clone(),
+                    settings: PlaybackSettings::DESPAWN,
+                    ..default()
+                });
 
                 // Add a glow effect to the new ball
                 commands.entity(new_ball).insert(CollisionEffect {
