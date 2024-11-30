@@ -153,11 +153,36 @@ struct BallPreview;
 
 #[derive(Copy, Clone, PartialEq)]
 enum BallSize {
-    One,
-    Two,
-    Three,
+    Tiny,
+    Small,
+    Medium,
+    Large,
+    Huge,
 }
-static MAX_BALL_SIZE : BallSize = BallSize::Three;
+
+impl BallSize {
+    fn size(&self) -> f32 {
+        match self {
+            BallSize::Tiny => 20.0,
+            BallSize::Small => 35.0,
+            BallSize::Medium => 50.0,
+            BallSize::Large => 70.0,
+            BallSize::Huge => 90.0,
+        }
+    }
+    
+    fn random() -> Self {
+        use rand::Rng;
+        let mut rng = rand::thread_rng();
+        match rng.gen_range(0..5) {
+            0 => BallSize::Tiny,
+            1 => BallSize::Small,
+            2 => BallSize::Medium,
+            3 => BallSize::Large,
+            _ => BallSize::Huge,
+        }
+    }
+}
 
 
 #[derive(Component)]
@@ -309,11 +334,7 @@ fn spawn_ball_at(
     size: BallSize,
     position: Vec3,
 ) -> Entity {
-    let ball_size = match size {
-        BallSize::One => 40.0,
-        BallSize::Two => 60.0,
-        BallSize::Three => 80.0,
-    };
+    let ball_size = size.size();
 
     commands.spawn((
         Ball { size },
@@ -430,7 +451,7 @@ fn spawn_ball(
             spawn_ball_at(
                 &mut commands,
                 &asset_server,
-                BallSize::One,
+                BallSize::random(),
                 Vec3::new(world_position.x, 300.0, 0.0)
             );
         }
