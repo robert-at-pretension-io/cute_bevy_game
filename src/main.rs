@@ -195,7 +195,9 @@ fn update_explosion_particles(
         particle.lifetime.tick(time.delta());
         
         if particle.lifetime.finished() {
-            commands.entity(entity).despawn();
+            if commands.get_entity(entity).is_some() {
+                commands.entity(entity).despawn();
+            }
         } else {
             // Fade out by adjusting alpha and scale
             
@@ -734,7 +736,9 @@ fn handle_game_over(
     if keyboard.just_pressed(KeyCode::Space) {
         // Remove all balls
         for entity in balls.iter() {
-            commands.entity(entity).despawn();
+            if commands.get_entity(entity).is_some() {
+                commands.entity(entity).despawn();
+            }
         }
         
         // Remove game over text
@@ -819,8 +823,12 @@ fn handle_ball_collisions(
                     BallSize::Super => BallSize::Super
                 };
                 
-                commands.entity(e1).despawn();
-                commands.entity(e2).despawn();
+                if commands.get_entity(e1).is_some() {
+                    commands.entity(e1).despawn();
+                }
+                if commands.get_entity(e2).is_some() {
+                    commands.entity(e2).despawn();
+                }
                 
                 let new_ball = spawn_ball_at(&mut commands, &asset_server, new_size, midpoint);
 
