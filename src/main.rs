@@ -417,7 +417,7 @@ fn update_preview(
         if let Ok((mut transform, mut visibility)) = preview_query.get_single_mut() {
             transform.translation.x = world_position.x;
             // Position higher based on ball size to prevent clipping
-            transform.translation.y = 300.0 - (preview.next_size.size() / 2.0) - 10.0;
+            transform.translation.y = 300.0 - (preview_query.single().0.next_size.size() / 2.0) - 10.0;
             *visibility = Visibility::Visible;
         }
     } else {
