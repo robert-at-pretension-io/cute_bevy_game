@@ -169,6 +169,16 @@ impl BallSize {
             BallSize::Huge => 90.0,
         }
     }
+
+    fn sprite_path(&self) -> &'static str {
+        match self {
+            BallSize::Tiny => "ball_tiny.png",
+            BallSize::Small => "ball_small.png", 
+            BallSize::Medium => "ball_medium.png",
+            BallSize::Large => "ball_large.png",
+            BallSize::Huge => "ball_huge.png",
+        }
+    }
     
     fn random() -> Self {
         use rand::Rng;
@@ -289,7 +299,7 @@ fn setup_preview(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn((
         BallPreview,
         SpriteBundle {
-            texture: asset_server.load("happy_sprite.png"),
+            texture: asset_server.load(size.sprite_path()),
             sprite: Sprite {
                 custom_size: Some(Vec2::new(ball_size, ball_size)),
                 color: Color::srgba(1.0, 1.0, 1.0, 0.5), // 50% transparent
