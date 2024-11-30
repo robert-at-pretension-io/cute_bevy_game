@@ -266,17 +266,17 @@ impl BallVariant {
 
     fn sprite_path(&self) -> &'static str {
         match self {
-            BallVariant::Sad => "assets/sad_sprite.png",
-            BallVariant::Angry => "assets/angry_sprite.png",
-            BallVariant::Surprised => "assets/surprise_sprite.png",
-            BallVariant::Embarrassed => "assets/embarassed_sprite.png",
-            BallVariant::Happy => "assets/happy_sprite.png",
-            BallVariant::Joyful => "assets/joyful_sprite.png",
-            BallVariant::Spite => "assets/spite_sprite.png",
-            BallVariant::Love => "assets/love_sprite.png",
-            BallVariant::Pride => "assets/pride_sprite.png",
-            BallVariant::Rage => "assets/rage_sprite.png",
-            BallVariant::Win => "assets/win_sprite.png",
+            BallVariant::Sad => "sad_sprite.png",
+            BallVariant::Angry => "angry_sprite.png",
+            BallVariant::Surprised => "surprise_sprite.png",
+            BallVariant::Embarrassed => "embarassed_sprite.png",
+            BallVariant::Happy => "happy_sprite.png",
+            BallVariant::Joyful => "joyful_sprite.png",
+            BallVariant::Spite => "spite_sprite.png",
+            BallVariant::Love => "love_sprite.png",
+            BallVariant::Pride => "pride_sprite.png",
+            BallVariant::Rage => "rage_sprite.png",
+            BallVariant::Win => "win_sprite.png",
         }
     }
 
@@ -648,10 +648,12 @@ fn spawn_ball(
 }
 
 fn setup_audio(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let collision = asset_server.load("assets/whoop_squish.ogg");
-    let pop = asset_server.load("assets/pop.wav");
-    let warning = asset_server.load("assets/whoop_squish.ogg");
-    let game_over = asset_server.load("assets/whoop_squish.ogg");
+    let collision = asset_server.load("whoop_squish.ogg");
+    // let pop = asset_server.load("pop.wav");
+    let pop = asset_server.load("whoop_squish.ogg");
+
+    let warning = asset_server.load("whoop_squish.ogg");
+    let game_over = asset_server.load("whoop_squish.ogg");
     
     commands.insert_resource(GameSounds {
         collision,
