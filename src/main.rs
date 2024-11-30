@@ -370,13 +370,14 @@ fn handle_ball_collisions(
             (query.get(entity1), query.get(entity2)) 
         {
             // Only play sound if either entity has velocity
-            if vel1.map_or(false, |v| v.linvel.length() > 1.0) || 
-               vel2.map_or(false, |v| v.linvel.length() > 1.0) {
+            if vel1.map_or(false, |v| v.linvel.length() > 1.0 ) {
             commands.spawn(AudioBundle {
                 source: collision_sound.0.clone(),
                 settings: PlaybackSettings::DESPAWN,
                 ..default()
             });
+            }
+        
 
             if ball1.size == ball2.size {
                 if ball1.size == MAX_BALL_SIZE {
