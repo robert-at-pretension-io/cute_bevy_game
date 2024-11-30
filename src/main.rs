@@ -151,7 +151,7 @@ fn update_explosion_particles(
 struct BallPreview;
 
 // Base size for scaling all balls
-const BASE_BALL_SIZE: f32 = 20.0;
+const BASE_BALL_SIZE: f32 = 45.0;
 
 #[derive(Copy, Clone, PartialEq)]
 enum BallSize {
@@ -176,11 +176,11 @@ impl BallSize {
 
     fn sprite_path(&self) -> &'static str {
         match self {
-            BallSize::Tiny => "happy_sprite.png",
-            BallSize::Small => "happy_sprite.png", 
+            BallSize::Tiny => "sad_sprite.png",
+            BallSize::Small => "angry_sprite.png", 
             BallSize::Medium => "happy_sprite.png",
             BallSize::Large => "happy_sprite.png",
-            BallSize::Huge => "happy_sprite.png",
+            BallSize::Huge => "love_sprite.png",
         }
     }
     
@@ -355,8 +355,8 @@ fn spawn_ball_at(
 
     // Random initial velocity
     let velocity = Vec2::new(
-        rng.gen_range(-100.0..100.0),  // Random x velocity
-        rng.gen_range(-50.0..50.0)     // Random y velocity
+        rng.gen_range(-5.0..5.0),  // Random x velocity
+        rng.gen_range(-5.0..5.0)     // Random y velocity
     );
 
     // Random initial angular velocity (rotation)
@@ -365,7 +365,7 @@ fn spawn_ball_at(
     commands.spawn((
         Ball { size },
         SpriteBundle {
-            texture: asset_server.load("happy_sprite.png"),
+            texture: asset_server.load(size.sprite_path()),
             sprite: Sprite {
                 custom_size: Some(Vec2::new(ball_size, ball_size)),
                 ..default()
