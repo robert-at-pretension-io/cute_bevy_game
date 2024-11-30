@@ -294,12 +294,13 @@ fn main() {
 
 // New system to create the preview ball
 fn setup_preview(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let ball_size = 40.0; // Size for BallSize::One
+    let initial_size = BallSize::Medium;
+    let ball_size = initial_size.size();
     
     commands.spawn((
         BallPreview,
         SpriteBundle {
-            texture: asset_server.load(size.sprite_path()),
+            texture: asset_server.load(initial_size.sprite_path()),
             sprite: Sprite {
                 custom_size: Some(Vec2::new(ball_size, ball_size)),
                 color: Color::srgba(1.0, 1.0, 1.0, 0.5), // 50% transparent
