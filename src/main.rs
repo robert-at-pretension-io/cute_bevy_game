@@ -355,9 +355,12 @@ fn spawn_ball(
 }
 
 fn setup_audio(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let collision = asset_server.load("whoop_squish.ogg");
+    let pop = asset_server.load("whoop_squish.ogg"); // Fallback to using same sound for now
+    
     commands.insert_resource(GameSounds {
-        collision: asset_server.load("whoop_squish.ogg"),
-        pop: asset_server.load("pop.wav"),
+        collision,
+        pop,
     });
 }
 
