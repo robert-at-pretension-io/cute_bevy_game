@@ -418,7 +418,7 @@ fn update_preview(
             transform.translation.x = world_position.x;
             // Position higher based on ball size to prevent clipping
             let ball_size = preview.next_size.size();
-            transform.translation.y = 300.0 - (ball_size / 2.0);
+            transform.translation.y = 300.0 - (ball_size / 2.0) - 10;
             *visibility = Visibility::Visible;
         }
     } else {
