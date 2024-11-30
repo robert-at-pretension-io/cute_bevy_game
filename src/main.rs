@@ -515,7 +515,7 @@ fn spawn_ball_at(
             pulse_phase: rng.gen_range(0.0..std::f32::consts::TAU),
         },
         SpriteBundle {
-            texture: asset_server.load(size.sprite_path()),
+            texture: asset_server.load(variant.sprite_path()),
             sprite: Sprite {
                 custom_size: Some(Vec2::new(ball_size, ball_size)),
                 ..default()
@@ -839,7 +839,6 @@ fn handle_ball_collisions(
 
             //     }
             // }
-        
 
             if ball1.variant == ball2.variant {
                 let position = (transform1.translation + transform2.translation) / 2.0;
@@ -847,7 +846,7 @@ fn handle_ball_collisions(
                 if let Some(next_variant) = ball1.variant.next_variant() {
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
-                        
+
                     if next_variant == BallVariant::Ultimate {
                         // Create the Ultimate ball
                         let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
@@ -869,6 +868,7 @@ fn handle_ball_collisions(
                     } else {
                         // Normal combination
                         let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
+                        
                         commands.entity(new_ball).insert(CollisionEffect {
                             timer: Timer::from_seconds(0.3, TimerMode::Once),
                             initial_scale: Vec3::ONE,
@@ -879,29 +879,14 @@ fn handle_ball_collisions(
                             settings: PlaybackSettings::DESPAWN,
                             ..default()
                         });
+
+                        commands.entity(new_ball).insert(CollisionEffect {
+                            timer: Timer::from_seconds(0.3, TimerMode::Once),
+                            initial_scale: Vec3::ONE,
+                        });
                     }
                 }
                 
-                if commands.get_entity(e1).is_some() {
-                    commands.entity(e1).despawn();
-                }
-                if commands.get_entity(e2).is_some() {
-                    commands.entity(e2).despawn();
-                }
-                
-                let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
-
-                commands.spawn(AudioBundle {
-                    source: game_sounds.collision.clone(),
-                    settings: PlaybackSettings::DESPAWN,
-                    ..default()
-                });
-
-                // Add a glow effect to the new ball
-                commands.entity(new_ball).insert(CollisionEffect {
-                    timer: Timer::from_seconds(0.3, TimerMode::Once),
-                    initial_scale: Vec3::ONE,
-                });
 
             }
         }
