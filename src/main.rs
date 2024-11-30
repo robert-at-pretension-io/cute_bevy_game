@@ -100,6 +100,30 @@ impl ColorGenerator {
 #[derive(Component)]
 struct Ball {
     size: BallSize,
+    glow_phase: f32,
+    color_phase: f32,
+    pulse_phase: f32,
+}
+
+#[derive(Resource)]
+struct VisualEffects {
+    glow_speed: f32,
+    color_speed: f32,
+    pulse_speed: f32,
+    glow_intensity: f32,
+    pulse_magnitude: f32,
+}
+
+impl Default for VisualEffects {
+    fn default() -> Self {
+        Self {
+            glow_speed: 2.0,
+            color_speed: 0.5,
+            pulse_speed: 1.5,
+            glow_intensity: 0.3,
+            pulse_magnitude: 0.1,
+        }
+    }
 }
 
 fn spawn_explosion(
@@ -322,6 +346,7 @@ fn main() {
         })
         .insert_state::<GameState>(GameState::Playing)
         .insert_resource(DangerZone::default())
+        .insert_resource(VisualEffects::default())
         .add_systems(Startup, (
             setup,
             setup_preview,
@@ -336,6 +361,7 @@ fn main() {
             animate_background,
             handle_collision_effects,
             update_explosion_particles,
+            update_ball_effects,
             check_danger_zone,
         ).run_if(in_state(GameState::Playing)))
         .add_systems(OnEnter(GameState::GameOver), setup_game_over)
@@ -411,7 +437,12 @@ fn spawn_ball_at(
     let angular_velocity = rng.gen_range(-5.0..5.0);
 
     commands.spawn((
-        Ball { size },
+        Ball { 
+            size,
+            glow_phase: rng.gen_range(0.0..std::f32::consts::TAU),
+            color_phase: rng.gen_range(0.0..std::f32::consts::TAU),
+            pulse_phase: rng.gen_range(0.0..std::f32::consts::TAU),
+        },
         SpriteBundle {
             texture: asset_server.load(size.sprite_path()),
             sprite: Sprite {
@@ -639,6 +670,38 @@ fn setup_game_over(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         }),
     ));
+}
+
+fn update_ball_effects(
+    time: Res<Time>,
+    effects: Res<VisualEffects>,
+    mut query: Query<(&mut Ball, &mut Transform, &mut Sprite)>,
+) {
+    for (mut ball, mut transform, mut sprite) in query.iter_mut() {
+        // Update phases
+        ball.glow_phase += effects.glow_speed * time.delta_seconds();
+        ball.color_phase += effects.color_speed * time.delta_seconds();
+        ball.pulse_phase += effects.pulse_speed * time.delta_seconds();
+
+        // Glow effect (alpha oscillation)
+        let glow = (1.0 + effects.glow_intensity * ball.glow_phase.sin()) * 0.8;
+        sprite.color.set_a(glow);
+
+        // Color cycling (subtle hue shift)
+        let hue_shift = (ball.color_phase.sin() * 20.0).to_radians(); // 20 degree shift
+        let mut color = sprite.color;
+        if let Some(mut hsla) = color.as_hsla_mut() {
+            hsla.hue += hue_shift;
+        }
+        sprite.color = color;
+
+        // Size pulsing
+        let scale = 1.0 + effects.pulse_magnitude * ball.pulse_phase.sin();
+        transform.scale = Vec3::splat(scale);
+
+        // Gentle rotation
+        transform.rotate_z(0.2 * time.delta_seconds());
+    }
 }
 
 fn handle_game_over(
