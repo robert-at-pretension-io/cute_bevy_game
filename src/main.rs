@@ -1,9 +1,66 @@
 use bevy::prelude::*;
 use bevy_rapier2d::{prelude::*, plugin::RapierPhysicsPlugin};
+use std::f32::consts::PI;
 
 #[derive(Component)]
 struct Ball {
     size: BallSize,
+}
+
+fn spawn_explosion(
+    commands: &mut Commands,
+    position: Vec3,
+    color: Color,
+) {
+    // Spawn a bunch of particles in different directions
+    for i in 0..20 {  // 20 particles
+        let angle = (i as f32 / 20.0) * PI * 2.0;
+        let velocity = Vec2::new(angle.cos(), angle.sin()) * 200.0; // Speed of particles
+        
+        commands.spawn((
+            SpriteBundle {
+                sprite: Sprite {
+                    color,
+                    custom_size: Some(Vec2::new(10.0, 10.0)),  // Small particles
+                    ..default()
+                },
+                transform: Transform::from_translation(position),
+                ..default()
+            },
+            ExplosionParticle {
+                lifetime: Timer::from_seconds(0.5, TimerMode::Once),
+            },
+            // Add physics components
+            RigidBody::Dynamic,
+            Velocity::linear(velocity),  // Initial velocity from explosion
+            Collider::ball(5.0),        // Circular collider (radius = half the sprite size)
+            Restitution::coefficient(0.7), // Make them bouncy
+            Friction::coefficient(0.1),    // Low friction to make them slide
+            Damping {
+                linear_damping: 0.5,
+                angular_damping: 0.5,
+            },
+        ));
+    }
+}
+
+fn update_explosion_particles(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut particles: Query<(Entity, &mut Transform, &mut Sprite, &mut ExplosionParticle)>,
+) {
+    for (entity, mut transform, mut sprite, mut particle) in &mut particles {
+        particle.lifetime.tick(time.delta());
+        
+        if particle.lifetime.finished() {
+            commands.entity(entity).despawn();
+        } else {
+            // Fade out by adjusting alpha and scale
+            let life_percent = particle.lifetime.percent_left();
+            sprite.color.set_a(life_percent);
+            transform.scale = Vec3::splat(life_percent);
+        }
+    }
 }
 
 #[derive(Component)]
@@ -22,6 +79,11 @@ static MAX_BALL_SIZE : BallSize = BallSize::Three;
 struct CollisionEffect {
     timer: Timer,
     initial_scale: Vec3,
+}
+
+#[derive(Component)]
+struct ExplosionParticle {
+    lifetime: Timer,
 }
 
 
@@ -93,7 +155,14 @@ fn main() {
             ..RapierConfiguration::new(1.0)
         })
         .add_systems(Startup, (setup, setup_preview, setup_background))  // Add setup_preview
-        .add_systems(Update, (spawn_ball, handle_ball_collisions, update_preview, animate_background, handle_collision_effects)) 
+        .add_systems(Update, (
+            spawn_ball,
+            handle_ball_collisions,
+            update_preview,
+            animate_background,
+            handle_collision_effects,
+            update_explosion_particles,
+        ))
         .run();
 }
 
@@ -292,6 +361,8 @@ fn handle_ball_collisions(
         {
             if ball1.size == ball2.size {
                 if ball1.size == MAX_BALL_SIZE {
+                    let position = (transform1.translation + transform2.translation) / 2.0;
+                    spawn_explosion(&mut commands, position, Color::YELLOW);
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
                     continue;
