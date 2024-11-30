@@ -865,8 +865,11 @@ fn setup_win_screen(mut commands: Commands) {
         )
         .with_style(Style {
             position_type: PositionType::Absolute,
-            left: Val::Px(250.0),
-            top: Val::Px(300.0),
+            left: Val::Auto,
+            right: Val::Auto,
+            top: Val::Auto,
+            bottom: Val::Auto,
+            margin: UiRect::all(Val::Auto),
             ..default()
         }),
     ));
