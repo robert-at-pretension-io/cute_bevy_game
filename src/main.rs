@@ -371,10 +371,14 @@ fn handle_ball_collisions(
         {
             // Get collision velocity from Rapier
             if let Some(manifold) = pair.manifolds().next() {
-                let collision_vel = manifold.relative_velocity().length();
-                println!("Collision velocity: {}", collision_vel);
+                let relative_vel = manifold.relative_velocity();
+                let normal = manifold.normal();
+                // Project relative velocity onto contact normal to get impact velocity
+                let impact_vel = relative_vel.dot(normal).abs();
+                println!("Impact velocity: {}", impact_vel);
                 
-                if collision_vel > 1.0 {
+                // Only play sound for significant impacts (not gentle touches or resting contacts)
+                if impact_vel > 50.0 {
                     commands.spawn(AudioBundle {
                         source: collision_sound.0.clone(),
                         settings: PlaybackSettings::DESPAWN,
