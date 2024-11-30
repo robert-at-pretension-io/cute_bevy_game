@@ -685,8 +685,11 @@ fn setup_game_over(mut commands: Commands) {
         )
         .with_style(Style {
             position_type: PositionType::Absolute,
-            left: Val::Px(250.0),
-            top: Val::Px(300.0),
+            left: Val::Auto,
+            right: Val::Auto,
+            top: Val::Auto,
+            bottom: Val::Auto,
+            margin: UiRect::all(Val::Auto),
             ..default()
         }),
     ));
@@ -786,6 +789,11 @@ fn handle_ball_collisions(
                     });
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
+                    // Trigger explosions for all balls before transitioning to win state
+                    for (entity, _, transform) in query.iter() {
+                        spawn_explosion(&mut commands, transform.translation, Color::srgba(1.0, 0.84, 0.0, 1.0));
+                        commands.entity(entity).despawn();
+                    }
                     next_state.set(GameState::Win);
                     continue;
                 } else if ball1.size == BallSize::Huge {
