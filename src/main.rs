@@ -1,4 +1,39 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use std::time::Duration;
+
+#[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
+enum GameState {
+    #[default]
+    Playing,
+    GameOver,
+}
+
+#[derive(Resource)]
+struct DangerZone {
+    warning_timer: Timer,
+    height: f32,
+    is_warning: bool,
+    flash_timer: Timer,
+    show_warning: bool,
+}
+
+impl Default for DangerZone {
+    fn default() -> Self {
+        Self {
+            warning_timer: Timer::from_seconds(3.0, TimerMode::Once),
+            height: 200.0,
+            is_warning: false,
+            flash_timer: Timer::from_seconds(0.5, TimerMode::Repeating),
+            show_warning: false,
+        }
+    }
+}
+
+#[derive(Component)]
+struct DangerZoneWarning;
+
+#[derive(Component)]
+struct GameOverText;
 use bevy_rapier2d::{na::ComplexField, plugin::RapierPhysicsPlugin, prelude::*};
 use std::f32::consts::PI;
 
@@ -265,6 +300,8 @@ fn animate_background(
 struct GameSounds {
     collision: Handle<AudioSource>,
     pop: Handle<AudioSource>,
+    warning: Handle<AudioSource>,
+    game_over: Handle<AudioSource>,
 }
 
 fn main() {
@@ -283,7 +320,15 @@ fn main() {
             gravity: Vec2::new(0.0, -500.0),
             ..RapierConfiguration::new(1.0)
         })
-        .add_systems(Startup, (setup, setup_preview, setup_background, setup_audio))
+        .add_state::<GameState>()
+        .insert_resource(DangerZone::default())
+        .add_systems(Startup, (
+            setup,
+            setup_preview,
+            setup_background,
+            setup_audio,
+            setup_danger_zone,
+        ))
         .add_systems(Update, (
             spawn_ball,
             handle_ball_collisions,
@@ -291,7 +336,10 @@ fn main() {
             animate_background,
             handle_collision_effects,
             update_explosion_particles,
-        ))
+            check_danger_zone,
+        ).run_if(in_state(GameState::Playing)))
+        .add_systems(OnEnter(GameState::GameOver), setup_game_over)
+        .add_systems(Update, handle_game_over.run_if(in_state(GameState::GameOver)))
         .run();
 }
 
@@ -490,12 +538,131 @@ fn spawn_ball(
 
 fn setup_audio(mut commands: Commands, asset_server: Res<AssetServer>) {
     let collision = asset_server.load("whoop_squish.ogg");
-    let pop = asset_server.load("whoop_squish.ogg"); // Fallback to using same sound for now
+    let pop = asset_server.load("whoop_squish.ogg");
+    let warning = asset_server.load("whoop_squish.ogg");
+    let game_over = asset_server.load("whoop_squish.ogg");
     
     commands.insert_resource(GameSounds {
         collision,
         pop,
+        warning,
+        game_over,
     });
+}
+
+fn setup_danger_zone(mut commands: Commands) {
+    // Red warning zone at the top
+    commands.spawn((
+        DangerZoneWarning,
+        SpriteBundle {
+            sprite: Sprite {
+                color: Color::srgba(1.0, 0.0, 0.0, 0.2),
+                custom_size: Some(Vec2::new(500.0, 100.0)),
+                ..default()
+            },
+            transform: Transform::from_xyz(0.0, 250.0, 0.0),
+            ..default()
+        },
+    ));
+}
+
+fn check_danger_zone(
+    time: Res<Time>,
+    mut danger_zone: ResMut<DangerZone>,
+    ball_query: Query<&Transform, With<Ball>>,
+    mut warning_query: Query<&mut Sprite, With<DangerZoneWarning>>,
+    mut next_state: ResMut<NextState<GameState>>,
+    game_sounds: Res<GameSounds>,
+    mut commands: Commands,
+) {
+    let balls_in_danger = ball_query
+        .iter()
+        .any(|transform| transform.translation.y > danger_zone.height);
+
+    danger_zone.flash_timer.tick(time.delta());
+    if danger_zone.flash_timer.just_finished() {
+        danger_zone.show_warning = !danger_zone.show_warning;
+    }
+
+    if balls_in_danger {
+        if !danger_zone.is_warning {
+            danger_zone.is_warning = true;
+            danger_zone.warning_timer.reset();
+            // Play warning sound
+            commands.spawn(AudioBundle {
+                source: game_sounds.warning.clone(),
+                settings: PlaybackSettings::DESPAWN,
+                ..default()
+            });
+        }
+        danger_zone.warning_timer.tick(time.delta());
+
+        // Update warning zone visibility
+        if let Ok(mut sprite) = warning_query.get_single_mut() {
+            sprite.color.set_a(if danger_zone.show_warning { 0.4 } else { 0.1 });
+        }
+
+        if danger_zone.warning_timer.finished() {
+            next_state.set(GameState::GameOver);
+            commands.spawn(AudioBundle {
+                source: game_sounds.game_over.clone(),
+                settings: PlaybackSettings::DESPAWN,
+                ..default()
+            });
+        }
+    } else {
+        danger_zone.is_warning = false;
+        danger_zone.warning_timer.reset();
+        
+        // Reset warning zone visibility
+        if let Ok(mut sprite) = warning_query.get_single_mut() {
+            sprite.color.set_a(0.2);
+        }
+    }
+}
+
+fn setup_game_over(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn((
+        GameOverText,
+        TextBundle::from_section(
+            "Game Over!\nPress SPACE to restart",
+            TextStyle {
+                font_size: 50.0,
+                color: Color::WHITE,
+                ..default()
+            },
+        )
+        .with_text_alignment(TextAlignment::Center)
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Val::Px(250.0),
+            top: Val::Px(300.0),
+            ..default()
+        }),
+    ));
+}
+
+fn handle_game_over(
+    mut commands: Commands,
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+    balls: Query<Entity, With<Ball>>,
+    game_over_text: Query<Entity, With<GameOverText>>,
+) {
+    if keyboard.just_pressed(KeyCode::Space) {
+        // Remove all balls
+        for entity in balls.iter() {
+            commands.entity(entity).despawn();
+        }
+        
+        // Remove game over text
+        for entity in game_over_text.iter() {
+            commands.entity(entity).despawn();
+        }
+        
+        // Reset to playing state
+        next_state.set(GameState::Playing);
+    }
 }
 
 fn handle_ball_collisions(
