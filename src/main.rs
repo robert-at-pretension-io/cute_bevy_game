@@ -213,7 +213,7 @@ impl BallSize {
         match self {
             BallSize::Tiny => "sad_sprite.png",
             BallSize::Small => "angry_sprite.png", 
-            BallSize::Medium => "happy_sprite.png",
+            BallSize::Medium => "surprise_sprite.png",
             BallSize::Large => "happy_sprite.png",
             BallSize::Huge => "love_sprite.png",
         }
@@ -320,7 +320,7 @@ fn main() {
             gravity: Vec2::new(0.0, -500.0),
             ..RapierConfiguration::new(1.0)
         })
-        .add_state::<GameState>()
+        .insert_state::<GameState>(GameState::Playing)
         .insert_resource(DangerZone::default())
         .add_systems(Startup, (
             setup,
@@ -599,7 +599,7 @@ fn check_danger_zone(
 
         // Update warning zone visibility
         if let Ok(mut sprite) = warning_query.get_single_mut() {
-            sprite.color.set_a(if danger_zone.show_warning { 0.4 } else { 0.1 });
+            sprite.color.set_alpha(if danger_zone.show_warning { 0.4 } else { 0.1 });
         }
 
         if danger_zone.warning_timer.finished() {
@@ -616,7 +616,7 @@ fn check_danger_zone(
         
         // Reset warning zone visibility
         if let Ok(mut sprite) = warning_query.get_single_mut() {
-            sprite.color.set_a(0.2);
+            sprite.color.set_alpha(0.2);
         }
     }
 }
@@ -632,7 +632,6 @@ fn setup_game_over(mut commands: Commands, asset_server: Res<AssetServer>) {
                 ..default()
             },
         )
-        .with_text_alignment(TextAlignment::Center)
         .with_style(Style {
             position_type: PositionType::Absolute,
             left: Val::Px(250.0),
