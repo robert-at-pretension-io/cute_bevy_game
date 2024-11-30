@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rapier2d::{prelude::*, plugin::RapierPhysicsPlugin};
+use bevy_rapier2d::{na::ComplexField, plugin::RapierPhysicsPlugin, prelude::*};
 use std::f32::consts::PI;
 use bevy::audio::*;
 
