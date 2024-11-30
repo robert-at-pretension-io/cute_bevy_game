@@ -369,6 +369,13 @@ fn handle_ball_collisions(
         if let (Ok((e1, ball1, transform1)), Ok((e2, ball2, transform2))) = 
             (query.get(entity1), query.get(entity2)) 
         {
+            // Play collision sound
+            commands.spawn(AudioBundle {
+                source: collision_sound.0.clone(),
+                settings: PlaybackSettings::DESPAWN,
+                ..default()
+            });
+
             if ball1.size == ball2.size {
                 if ball1.size == MAX_BALL_SIZE {
                     let position = (transform1.translation + transform2.translation) / 2.0;
@@ -391,12 +398,7 @@ fn handle_ball_collisions(
                 
                 let new_ball = spawn_ball_at(&mut commands, &asset_server, new_size, midpoint);
                 
-                // Play collision sound
-                commands.spawn(AudioBundle {
-                    source: collision_sound.0.clone(),
-                    settings: PlaybackSettings::DESPAWN,
-                    ..default()
-                });
+
 
                 // Add a glow effect to the new ball
                 commands.entity(new_ball).insert(CollisionEffect {
