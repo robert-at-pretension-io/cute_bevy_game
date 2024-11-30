@@ -358,20 +358,20 @@ fn setup_audio(mut commands: Commands, asset_server: Res<AssetServer>) {
 fn handle_ball_collisions(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    rapier_context: Res<RapierContext>,
-    query: Query<(Entity, &Ball, &Transform)>,
+    rapier_context: Res<RapierContext>, 
+    query: Query<(Entity, &Ball, &Transform, Option<&Velocity>)>,
     collision_sound: Res<CollisionSound>,
 ) {
     for pair in rapier_context.contact_pairs() {
         let entity1 = pair.collider1();
         let entity2 = pair.collider2();
 
-        if let (Ok((e1, ball1, transform1)), Ok((e2, ball2, transform2))) = 
+        if let (Ok((e1, ball1, transform1, vel1)), Ok((e2, ball2, transform2, vel2))) = 
             (query.get(entity1), query.get(entity2)) 
         {
-            transform1.
-            
-            // Play collision sound
+            // Only play sound if either entity has velocity
+            if vel1.map_or(false, |v| v.linvel.length() > 1.0) || 
+               vel2.map_or(false, |v| v.linvel.length() > 1.0) {
             commands.spawn(AudioBundle {
                 source: collision_sound.0.clone(),
                 settings: PlaybackSettings::DESPAWN,
