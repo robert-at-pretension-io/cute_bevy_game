@@ -103,6 +103,7 @@ struct Ball {
     glow_phase: f32,
     color_phase: f32,
     pulse_phase: f32,
+    angle: f32,
 }
 
 #[derive(Resource)]
@@ -442,6 +443,7 @@ fn spawn_ball_at(
             glow_phase: rng.gen_range(0.0..std::f32::consts::TAU),
             color_phase: rng.gen_range(0.0..std::f32::consts::TAU),
             pulse_phase: rng.gen_range(0.0..std::f32::consts::TAU),
+            angle: 0.0,
         },
         SpriteBundle {
             texture: asset_server.load(size.sprite_path()),
@@ -699,8 +701,10 @@ fn update_ball_effects(
         let scale = 1.0 + effects.pulse_magnitude * ball.pulse_phase.sin();
         transform.scale = Vec3::splat(scale);
 
-        // Gentle rotation
-        transform.rotate_z(0.2 * time.delta_seconds());
+        // Gentle oscillation
+        ball.angle += 3.0 * time.delta_seconds();
+        let oscillation = (ball.angle.sin() * 0.1).to_radians(); // Only rotate ±0.1 radians (about ±5.7 degrees)
+        transform.rotation = Quat::from_rotation_z(oscillation);
     }
 }
 
