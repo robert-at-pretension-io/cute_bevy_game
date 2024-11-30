@@ -369,14 +369,14 @@ fn handle_ball_collisions(
         if let (Ok((e1, ball1, transform1)), Ok((e2, ball2, transform2))) = 
             (query.get(entity1), query.get(entity2)) 
         {
-            // Only play sound if the collision has some velocity
-            if pair.manifolds().next().map_or(false, |m| m.relative_velocity().length() > 1.0) {
-                commands.spawn(AudioBundle {
-                    source: collision_sound.0.clone(),
-                    settings: PlaybackSettings::DESPAWN,
-                    ..default()
-                });
-            }
+            transform1.
+            
+            // Play collision sound
+            commands.spawn(AudioBundle {
+                source: collision_sound.0.clone(),
+                settings: PlaybackSettings::DESPAWN,
+                ..default()
+            });
 
             if ball1.size == ball2.size {
                 if ball1.size == MAX_BALL_SIZE {
