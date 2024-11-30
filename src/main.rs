@@ -150,6 +150,9 @@ fn update_explosion_particles(
 #[derive(Component)]
 struct BallPreview;
 
+// Base size for scaling all balls
+const BASE_BALL_SIZE: f32 = 20.0;
+
 #[derive(Copy, Clone, PartialEq)]
 enum BallSize {
     Tiny,
@@ -161,13 +164,14 @@ enum BallSize {
 
 impl BallSize {
     fn size(&self) -> f32 {
-        match self {
-            BallSize::Tiny => 20.0,
-            BallSize::Small => 35.0,
-            BallSize::Medium => 50.0,
-            BallSize::Large => 70.0,
-            BallSize::Huge => 90.0,
-        }
+        let ratio = match self {
+            BallSize::Tiny => 1.0,
+            BallSize::Small => 1.75,
+            BallSize::Medium => 2.5,
+            BallSize::Large => 3.5,
+            BallSize::Huge => 4.5,
+        };
+        BASE_BALL_SIZE * ratio
     }
 
     fn sprite_path(&self) -> &'static str {
