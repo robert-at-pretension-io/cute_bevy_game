@@ -76,8 +76,8 @@ fn spawn_explosion(
     use rand::Rng;
     let mut rng = rand::thread_rng();
     
-    // Reduced number of particles for better performance
-    let num_particles = rng.gen_range(50..200);
+    // Further reduced particles and made count more consistent
+    let num_particles = rng.gen_range(20..40);
     
     for _ in 0..num_particles {
         let angle = rng.gen::<f32>() * PI * 2.0;
@@ -99,16 +99,8 @@ fn spawn_explosion(
         // Shorter lifetimes for better performance
         let lifetime = rng.gen_range(0.2..0.6);
         
-        // Randomly choose between ball, box, and triangle colliders
-        let collider = match rng.gen_range(0..3) {
-            0 => Collider::ball(size / 2.0),
-            1 => Collider::cuboid(size / 2.0, size / 2.0),
-            _ => Collider::triangle(
-                Vec2::new(-size/2.0, -size/2.0),
-                Vec2::new(size/2.0, -size/2.0),
-                Vec2::new(0.0, size/2.0)
-            ),
-        };
+        // Use only ball colliders for better performance
+        let collider = Collider::ball(size / 2.0);
         
         commands.spawn((
             SpriteBundle {
@@ -126,11 +118,11 @@ fn spawn_explosion(
             RigidBody::Dynamic,
             Velocity::linear(velocity),
             collider,
-            Restitution::coefficient(rng.gen_range(0.1..1.0)), // More varied bounciness
-            Friction::coefficient(rng.gen_range(0.0..0.5)),    // More varied friction
+            Restitution::coefficient(0.5), // Fixed restitution
+            Friction::coefficient(0.2),    // Fixed friction
             Damping {
-                linear_damping: rng.gen_range(0.5..1.0),      // Increased damping for faster settling
-                angular_damping: rng.gen_range(0.5..1.0),
+                linear_damping: 0.8,      // Fixed damping values
+                angular_damping: 0.8,
             },
         ));
     }
