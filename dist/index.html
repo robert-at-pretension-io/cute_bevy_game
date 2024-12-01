@@ -31,34 +31,35 @@
     <div id="click-to-start">Click anywhere to start</div>
     <script type="module">
         import init from './ball_drop_rust.js';
+        init();
         
-        async function requestAudioPermission() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
-                return true;
-            } catch (err) {
-                console.warn('Audio permission denied:', err);
-                return false;
-            }
-        }
+        // async function requestAudioPermission() {
+        //     try {
+        //         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        //         stream.getTracks().forEach(track => track.stop()); // Stop the stream immediately
+        //         return true;
+        //     } catch (err) {
+        //         console.warn('Audio permission denied:', err);
+        //         return false;
+        //     }
+        // }
 
-        // Create audio context
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        // // Create audio context
+        // const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-        // Wait for click to start audio and request permissions
-        document.addEventListener('click', async () => {
-            const hasPermission = await requestAudioPermission();
-            if (hasPermission) {
-                if (audioContext.state === 'suspended') {
-                    await audioContext.resume();
-                }
-                document.getElementById('click-to-start').style.display = 'none';
-                init();
-            } else {
-                document.getElementById('click-to-start').textContent = 'Audio permission denied. Click to try again';
-            }
-        }, { once: true });
+        // // Wait for click to start audio and request permissions
+        // document.addEventListener('click', async () => {
+        //     const hasPermission = await requestAudioPermission();
+        //     if (hasPermission) {
+        //         if (audioContext.state === 'suspended') {
+        //             await audioContext.resume();
+        //         }
+        //         document.getElementById('click-to-start').style.display = 'none';
+        //         init();
+        //     } else {
+        //         document.getElementById('click-to-start').textContent = 'Audio permission denied. Click to try again';
+        //     }
+        // }, { once: true });
     </script>
 </body>
 </html>

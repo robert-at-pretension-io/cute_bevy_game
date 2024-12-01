@@ -1511,18 +1511,6 @@ fn handle_ball_collisions(
         if let (Ok((e1, ball1, transform1)), Ok((e2, ball2, transform2))) = 
             (query.get(entity1), query.get(entity2)) 
         {
-            // Couldn't get this working
-            // if let Some(manifold) = pair.manifolds().next() {
-            //     let relative_vel = manifold.relative_velocity();
-            //     let normal = manifold.normal();
-            //     let impact_vel = relative_vel.dot(normal).abs();
-            //     println!("Impact velocity: {}", impact_vel);
-                
-            //     // Only play sound for significant impacts (not gentle touches or resting contacts)
-            //     if impact_vel > 50.0 {
-
-            //     }
-            // }
 
             if ball1.variant == ball2.variant {
                 let position = (transform1.translation + transform2.translation) / 2.0;
