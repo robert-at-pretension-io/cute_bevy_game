@@ -898,7 +898,7 @@ fn settings_menu_interaction(
                         settings.screen_shake_intensity = 0.2;    // Minimal shake
                         settings.screen_shake_decay = 4.0;        // Fast decay
                         settings.visual_effects = VisualEffectsLevel::Low;
-                        settings.ball_bounciness = 0.3; // Less bouncy
+                        settings.ball_bounciness = 0.2; // Less bouncy
                         settings.ball_friction = 0.7;   // More friction
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
@@ -914,7 +914,7 @@ fn settings_menu_interaction(
                         settings.screen_shake_intensity = 0.5;    // Medium shake
                         settings.screen_shake_decay = 3.0;        // Normal decay
                         settings.visual_effects = VisualEffectsLevel::Normal;
-                        settings.ball_bounciness = 0.5; // Medium bounce
+                        settings.ball_bounciness = 0.3; // Medium bounce
                         settings.ball_friction = 0.5;   // Medium friction
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
@@ -930,7 +930,7 @@ fn settings_menu_interaction(
                         settings.screen_shake_intensity = 5.0;    // EXTREME shake
                         settings.screen_shake_decay = 1.0;        // Very slow decay
                         settings.visual_effects = VisualEffectsLevel::High;
-                        settings.ball_bounciness = 0.8; // Very bouncy
+                        settings.ball_bounciness = 0.4; // Very bouncy
                         settings.ball_friction = 0.2;   // Low friction
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
@@ -1174,6 +1174,7 @@ fn spawn_ball(
     asset_server: Res<AssetServer>,
     mut preview_query: Query<(&mut BallPreview, &mut Handle<Image>, &mut Sprite)>,
     game_state: Res<State<GameState>>,
+    settings: Res<Settings>
 ) {
     if mouse.just_pressed(MouseButton::Left) && *game_state.get() == GameState::Playing {
         let (camera, camera_transform) = camera_q.single();
