@@ -1036,6 +1036,7 @@ fn handle_ball_collisions(
     asset_server: Res<AssetServer>,
     rapier_context: Res<RapierContext>, 
     query: Query<(Entity, &Ball, &Transform)>,
+    mut score: ResMut<Score>,
     game_sounds: Res<GameSounds>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
@@ -1082,10 +1083,9 @@ fn handle_ball_collisions(
                         BallVariant::Win => 5000,
                     };
                     
-                    if let Some(mut score) = commands.get_resource_mut::<Score>() {
-                        score.current += score_value;
-                        score.high_score = score.high_score.max(score.current);
-                    }
+                    score.current += score_value;
+                    score.high_score = score.high_score.max(score.current);
+                    
 
                     if next_variant == BallVariant::Win {
                         // Create the Ultimate ball
