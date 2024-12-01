@@ -236,6 +236,7 @@ fn update_screen_shake(
     time: Res<Time>,
     mut shake_state: ResMut<ScreenShakeState>,
     mut camera_query: Query<&mut Transform, With<Camera>>,
+    effects: Res<VisualEffects>,
 ) {
     let mut camera_transform = camera_query.single_mut();
     
@@ -253,7 +254,8 @@ fn update_screen_shake(
         let time = time.elapsed_seconds();
         
         // Scale the shake effect based on screen size (assuming 500x600 window)
-        let screen_scale = 8.0; // Slightly increased shake intensity
+        // Scale shake intensity based on visual effects settings
+        let screen_scale = 8.0 * (0.5 + effects.glow_intensity * 2.0); // Scales from 4.0 to 12.0 based on effects
         
         camera_transform.translation.x = shake_amount * screen_scale * (
             (time * 15.0 + 0.0).sin() + 
@@ -487,7 +489,7 @@ fn setup_background(mut commands: Commands) {
         commands.spawn((
             BackgroundStrip {
                 hue: (i as f32 / num_strips as f32) * 360.0, // Starting hue in degrees
-                speed: 0.15, // Much slower background color changes
+                speed: 0.05, // Base speed that will be multiplied by effects.color_speed
                 width: strip_width,
             },
             SpriteBundle {
@@ -505,10 +507,11 @@ fn setup_background(mut commands: Commands) {
 fn animate_background(
     time: Res<Time>,
     mut strips: Query<(&mut Sprite, &mut BackgroundStrip)>,
+    effects: Res<VisualEffects>,
 ) {
     for (mut sprite, mut strip) in &mut strips {
-        // Update the hue (now using degrees)
-        strip.hue += strip.speed * 360.0 * time.delta_seconds();
+        // Update the hue based on visual effects settings
+        strip.hue += strip.speed * 360.0 * effects.color_speed * time.delta_seconds();
         if strip.hue > 360.0 {
             strip.hue -= 360.0;
         }
