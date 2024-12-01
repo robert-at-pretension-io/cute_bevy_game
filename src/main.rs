@@ -39,9 +39,9 @@ impl Default for Settings {
         Self {
             volume: 0.5,
             sound_enabled: true,
-            glow_intensity: 0.1,
-            pulse_magnitude: 0.03,
-            color_speed: 0.2,
+            glow_intensity: 0.1,   // Moderate glow
+            pulse_magnitude: 0.03,  // Noticeable pulse
+            color_speed: 0.2,      // Regular color changes
             is_fullscreen: false,
         }
     }
@@ -823,21 +823,21 @@ fn settings_menu_interaction(
                     }
                 }
                 SettingButton::LowEffects => {
-                    settings.glow_intensity = 0.02;
-                    settings.pulse_magnitude = 0.01;
-                    settings.color_speed = 0.05;
+                    settings.glow_intensity = 0.01;  // Very subtle glow
+                    settings.pulse_magnitude = 0.005; // Barely visible pulse
+                    settings.color_speed = 0.02;     // Very slow color changes
                     commands.insert_resource(SelectedEffectsSetting(*button));
                 }
                 SettingButton::NormalEffects => {
-                    settings.glow_intensity = 0.05;
-                    settings.pulse_magnitude = 0.02;
-                    settings.color_speed = 0.1;
+                    settings.glow_intensity = 0.1;   // Moderate glow
+                    settings.pulse_magnitude = 0.03;  // Noticeable pulse
+                    settings.color_speed = 0.2;      // Regular color changes
                     commands.insert_resource(SelectedEffectsSetting(*button));
                 }
                 SettingButton::HighEffects => {
-                    settings.glow_intensity = 0.08;
-                    settings.pulse_magnitude = 0.03;
-                    settings.color_speed = 0.15;
+                    settings.glow_intensity = 0.25;   // Intense glow
+                    settings.pulse_magnitude = 0.08;  // Strong pulsing
+                    settings.color_speed = 0.5;      // Rapid color changes
                     commands.insert_resource(SelectedEffectsSetting(*button));
                 }
             }
@@ -1248,19 +1248,20 @@ fn update_ball_effects(
         ball.pulse_phase += effects.pulse_speed * time.delta_seconds();
 
         // Glow effect (alpha oscillation)
-        let glow = (1.0 + effects.glow_intensity * ball.glow_phase.sin()) * 0.8;
-        sprite.color.set_alpha(glow);
+        let glow = (1.0 + effects.glow_intensity * ball.glow_phase.sin()) * 0.9;
+        sprite.color.set_alpha(glow.clamp(0.3, 1.0)); // Prevent balls from becoming too transparent
 
-        // Color cycling (subtle hue shift)
-        let hue_shift = (ball.color_phase.sin() * 20.0).to_radians(); // 20 degree shift
+        // Color cycling (enhanced hue shift)
+        let hue_shift = (ball.color_phase.sin() * 45.0 * effects.color_speed).to_radians(); // Up to 45 degree shift
         let mut color = sprite.color;
-
         color.set_hue(color.hue() + hue_shift);
-
+        // Also modify saturation slightly for more vibrant effects at high settings
+        color.set_saturation((color.saturation() + effects.glow_intensity * 0.2).clamp(0.5, 1.0));
         sprite.color = color;
 
-        // Size pulsing
-        let scale = 1.0 + effects.pulse_magnitude * ball.pulse_phase.sin();
+        // Size pulsing (with enhanced effect at high settings)
+        let pulse_effect = effects.pulse_magnitude * (1.0 + effects.glow_intensity);
+        let scale = 1.0 + pulse_effect * ball.pulse_phase.sin();
         transform.scale = Vec3::splat(scale);
     }
 }
