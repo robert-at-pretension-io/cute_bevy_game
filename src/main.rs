@@ -306,7 +306,7 @@ fn update_explosion_particles(
 
 
 // Base size for scaling all balls
-const BASE_BALL_SIZE: f32 = 37.0;
+const BASE_BALL_SIZE: f32 = 34.0;
 
 #[derive(Copy, Clone, PartialEq)]
 enum BallVariant {
@@ -346,9 +346,9 @@ impl BallVariant {
             BallVariant::Joyful => 3.4,
             
             // Tier 3 (large)
-            BallVariant::Spite => 4.2,
-            BallVariant::Love => 5.0,
-            BallVariant::Pride => 5.8,
+            BallVariant::Spite => 3.7,
+            BallVariant::Love => 4.0,
+            BallVariant::Pride => 4.5,
             
             // Tier 4 (extra large)
             BallVariant::Rage => 7.0,
