@@ -1309,11 +1309,15 @@ fn handle_ball_collisions(
                 let position = (transform1.translation + transform2.translation) / 2.0;
                     
                 if let Some(next_variant) = ball1.variant.next_variant() {
-                    // Despawn the colliding balls
-                    commands.entity(e1).despawn();
-                    commands.entity(e2).despawn();
+                    // Only despawn if the entities still exist
+                    if let Some(entity1) = commands.get_entity(e1) {
+                        entity1.despawn();
+                    }
+                    if let Some(entity2) = commands.get_entity(e2) {
+                        entity2.despawn();
+                    }
 
-                    // Calculate score based on ball variant
+                    // Calculate score based on ball variant 
                     let score_value = match ball1.variant {
                         BallVariant::Sad => 10,
                         BallVariant::Angry => 20,
