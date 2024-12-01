@@ -901,8 +901,8 @@ fn settings_menu_interaction(
                         settings.background_strip_count = 20;     // Many strips
                         settings.background_saturation = 1.8;     // Very saturated
                         settings.background_brightness = 0.8;     // Brighter
-                        settings.explosion_intensity = 1.5;       // Bigger explosions
-                        settings.screen_shake_intensity = 2.0;    // Intense shake
+                        settings.explosion_intensity = 4.0;       // MASSIVE explosions
+                        settings.screen_shake_intensity = 5.0;    // EXTREME shake
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                 }
