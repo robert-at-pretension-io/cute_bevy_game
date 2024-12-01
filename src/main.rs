@@ -165,32 +165,6 @@ struct Ball {
     pulse_phase: f32,
 }
 
-#[derive(Resource)]
-struct VisualEffects {
-    glow_speed: f32,
-    color_speed: f32,
-    pulse_speed: f32,
-    glow_intensity: f32,
-    pulse_magnitude: f32,
-    background_animation_speed: f32,
-    explosion_intensity: f32,
-    screen_shake_intensity: f32,
-}
-
-impl Default for VisualEffects {
-    fn default() -> Self {
-        Self {
-            glow_speed: 0.2,
-            color_speed: 0.05,
-            pulse_speed: 0.2,
-            glow_intensity: 0.02,
-            pulse_magnitude: 0.01,
-            background_animation_speed: 0.5,
-            explosion_intensity: 1.0,
-            screen_shake_intensity: 1.0,
-        }
-    }
-}
 
 fn spawn_explosion(
     commands: &mut Commands,
@@ -202,15 +176,13 @@ fn spawn_explosion(
     let mut rng = rand::thread_rng();
     
     // Scale particle count with explosion intensity
-    let effects = effects;
-    let base_particles = (10.0 + effects.explosion_intensity * 30.0) as i32;
+    let base_particles = (10.0 + settings.explosion_intensity * 30.0) as i32;
     let num_particles = rng.gen_range(base_particles..base_particles + 10);
     
     for _ in 0..num_particles {
         let angle = rng.gen::<f32>() * PI * 2.0;
         // Scale particle speed with explosion intensity
-        let effects = effects;
-        let speed = rng.gen_range(50.0..200.0 + 800.0 * effects.explosion_intensity);
+        let speed = rng.gen_range(50.0..200.0 + 800.0 * settings.explosion_intensity);
         let velocity = Vec2::new(angle.cos(), angle.sin()) * speed;
         
         // More varied sizes with exponential distribution for visual interest
@@ -265,7 +237,7 @@ fn update_screen_shake(
     time: Res<Time>,
     mut shake_state: ResMut<ScreenShakeState>,
     mut camera_query: Query<&mut Transform, With<Camera>>,
-    effects: Res<VisualEffects>,
+    settings: Res<Settings>,
 ) {
     let mut camera_transform = camera_query.single_mut();
     
@@ -277,14 +249,14 @@ fn update_screen_shake(
         .max(0.0);
     
     // Calculate shake amount with quadratic falloff
-    let shake_amount = shake_state.trauma * shake_state.trauma * effects.screen_shake_intensity;
+    let shake_amount = shake_state.trauma * shake_state.trauma * settings.screen_shake_intensity;
     
     if shake_amount > 0.0 {
         let time = time.elapsed_seconds();
         
         // Scale the shake effect based on screen size (assuming 500x600 window)
         // Scale shake intensity based on visual effects settings
-        let screen_scale = 8.0 * (0.5 + effects.glow_intensity * 2.0); // Scales from 4.0 to 12.0 based on effects
+        let screen_scale = 8.0 * (0.5 + settings.glow_intensity * 2.0); // Scales from 4.0 to 12.0 based on effects
         
         camera_transform.translation.x = shake_amount * screen_scale * (
             (time * 15.0 + 0.0).sin() + 
@@ -536,7 +508,7 @@ fn setup_background(mut commands: Commands, settings: Res<Settings>) {
 fn animate_background(
     time: Res<Time>,
     mut strips: Query<(&mut Sprite, &mut BackgroundStrip)>,
-    effects: Res<VisualEffects>,
+    settings: Res<Settings>,
     settings: Res<Settings>,
 ) {
     for (mut sprite, mut strip) in &mut strips {
@@ -933,16 +905,6 @@ fn update_button_colors(
     }
 }
 
-fn apply_settings_changes(
-    settings: Res<Settings>,
-    mut visual_effects: ResMut<VisualEffects>,
-) {
-    visual_effects.glow_intensity = settings.glow_intensity;
-    visual_effects.pulse_magnitude = settings.pulse_magnitude;
-    visual_effects.background_animation_speed = settings.background_animation_speed;
-    visual_effects.explosion_intensity = settings.explosion_intensity;
-    visual_effects.screen_shake_intensity = settings.screen_shake_intensity;
-}
 
 fn cleanup_settings_menu(
     mut commands: Commands,
@@ -1312,21 +1274,21 @@ fn setup_game_over(mut commands: Commands) {
 
 fn update_ball_effects(
     time: Res<Time>,
-    effects: Res<VisualEffects>,
+    settings: Res<Settings>,
     mut query: Query<(&mut Ball, &mut Transform, &mut Sprite)>,
 ) {
     for (mut ball, mut transform, mut sprite) in query.iter_mut() {
         // Update phases
-        ball.glow_phase += effects.glow_speed * time.delta_seconds();
-        ball.color_phase += effects.color_speed * time.delta_seconds();
-        ball.pulse_phase += effects.pulse_speed * time.delta_seconds();
+        ball.glow_phase += settings.glow_speed * time.delta_seconds();
+        ball.color_phase += settings.color_speed * time.delta_seconds();
+        ball.pulse_phase += settings.pulse_speed * time.delta_seconds();
 
         // Glow effect (alpha oscillation)
-        let glow = (1.0 + effects.glow_intensity * ball.glow_phase.sin()) * 0.9;
+        let glow = (1.0 + settings.glow_intensity * ball.glow_phase.sin()) * 0.9;
         sprite.color.set_alpha(glow.clamp(0.3, 1.0)); // Prevent balls from becoming too transparent
 
         // Color cycling (enhanced hue shift)
-        let hue_shift = (ball.color_phase.sin() * 45.0 * effects.color_speed).to_radians(); // Up to 45 degree shift
+        let hue_shift = (ball.color_phase.sin() * 45.0 * settings.color_speed).to_radians(); // Up to 45 degree shift
         let mut color = sprite.color;
         color.set_hue(color.hue() + hue_shift);
         // Also modify saturation slightly for more vibrant effects at high settings
@@ -1334,7 +1296,7 @@ fn update_ball_effects(
         // sprite.color = color;
 
         // Size pulsing (with enhanced effect at high settings)
-        let pulse_effect = effects.pulse_magnitude * (1.0 + effects.glow_intensity);
+        let pulse_effect = settings.pulse_magnitude * (1.0 + settings.glow_intensity);
         let scale = 1.0 + pulse_effect * ball.pulse_phase.sin();
         transform.scale = Vec3::splat(scale);
     }
@@ -1382,7 +1344,7 @@ fn handle_ball_collisions(
     game_sounds: Res<GameSounds>,
     settings: Res<Settings>,
     mut next_state: ResMut<NextState<GameState>>,
-    effects: Res<VisualEffects>,
+    settings: Res<Settings>,
 ) {
     for pair in rapier_context.contact_pairs() {
         let entity1 = pair.collider1();
@@ -1455,7 +1417,7 @@ fn handle_ball_collisions(
                         });
                         // Spawn enhanced explosion
                         let explosion_color = Color::srgba(1.0, 0.5, 0.0, 1.0);
-                        spawn_explosion(&mut commands, position, explosion_color, &effects);
+                        spawn_explosion(&mut commands, position, explosion_color, &settings);
                     
                         if settings.sound_enabled {
                             commands.spawn(AudioBundle {
