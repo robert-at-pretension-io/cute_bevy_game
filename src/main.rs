@@ -403,13 +403,37 @@ impl BallVariant {
     fn random() -> Self {
         use rand::Rng;
         let mut rng = rand::thread_rng();
-        match rng.gen_range(0..7) {
-            0 => BallVariant::Sad,
-            1 => BallVariant::Angry,
-            2 => BallVariant::Surprised,
-            3 => BallVariant::Embarrassed,
-            _ => BallVariant::Happy,
+        
+        // List all variants with their relative weights (inverse of their size)
+        let variants = [
+            (BallVariant::Sad, 1.0 / BallVariant::Sad.size()),
+            (BallVariant::Angry, 1.0 / BallVariant::Angry.size()),
+            (BallVariant::Surprised, 1.0 / BallVariant::Surprised.size()),
+            (BallVariant::Embarrassed, 1.0 / BallVariant::Embarrassed.size()),
+            (BallVariant::Happy, 1.0 / BallVariant::Happy.size()),
+            (BallVariant::Joyful, 1.0 / BallVariant::Joyful.size()),
+            (BallVariant::Spite, 1.0 / BallVariant::Spite.size()),
+            (BallVariant::Love, 1.0 / BallVariant::Love.size()),
+            (BallVariant::Pride, 1.0 / BallVariant::Pride.size()),
+            (BallVariant::Rage, 1.0 / BallVariant::Rage.size()),
+        ];
+        
+        // Calculate total weight
+        let total_weight: f32 = variants.iter().map(|(_, weight)| weight).sum();
+        
+        // Generate random value
+        let mut value = rng.gen::<f32>() * total_weight;
+        
+        // Select variant based on weights
+        for (variant, weight) in variants.iter() {
+            value -= weight;
+            if value <= 0.0 {
+                return *variant;
+            }
         }
+        
+        // Fallback to smallest ball if something goes wrong
+        BallVariant::Sad
     }
 }
 
