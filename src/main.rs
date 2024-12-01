@@ -47,11 +47,11 @@ impl Default for Settings {
         Self {
             volume: 0.5,
             sound_enabled: true,
-            glow_intensity: 0.05,
-            glow_speed: 0.5,
-            pulse_magnitude: 0.02,
-            pulse_speed: 0.4,
-            color_speed: 0.15,
+            glow_intensity: 0.02,
+            glow_speed: 0.2,
+            pulse_magnitude: 0.01,
+            pulse_speed: 0.2,
+            color_speed: 0.05,
             background_animation_speed: 0.5,
             background_strip_count: 10,
             background_saturation: 1.0,
@@ -178,12 +178,12 @@ struct VisualEffects {
 impl Default for VisualEffects {
     fn default() -> Self {
         Self {
-            glow_speed: 0.5,
-            color_speed: 0.15,
-            pulse_speed: 0.4,
-            glow_intensity: 0.05,
-            pulse_magnitude: 0.02,
-            background_animation_speed: 0.05,
+            glow_speed: 0.2,
+            color_speed: 0.05,
+            pulse_speed: 0.2,
+            glow_intensity: 0.02,
+            pulse_magnitude: 0.01,
+            background_animation_speed: 0.5,
             explosion_intensity: 1.0,
             screen_shake_intensity: 1.0,
         }
@@ -539,8 +539,8 @@ fn animate_background(
 ) {
     for (mut sprite, mut strip) in &mut strips {
         // Update the hue based on visual effects settings
-        strip.hue += strip.speed * 360.0 * effects.color_speed * time.delta_seconds();
-        if strip.hue > 360.0 {
+        strip.hue += strip.speed * effects.background_animation_speed * 360.0 * time.delta_seconds();
+        while strip.hue > 360.0 {
             strip.hue -= 360.0;
         }
         
