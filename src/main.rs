@@ -172,6 +172,9 @@ fn spawn_explosion(
             },
             ExplosionParticle {
                 lifetime: Timer::from_seconds(lifetime, TimerMode::Once),
+                velocity: velocity,
+                rotation_speed: rng.gen_range(-3.0..3.0),
+                initial_color: varied_color,
             },
             RigidBody::Dynamic,
             Velocity::linear(velocity),
@@ -246,7 +249,7 @@ fn update_screen_shake(
         camera_transform.translation.x = shake_amount * 10.0 * (time * 20.0).sin();
         camera_transform.translation.y = shake_amount * 10.0 * (time * 21.0).sin();
         
-        shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds())
+        shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds)
             .max(0.0);
         
         if shake_state.trauma == 0.0 {
@@ -404,6 +407,9 @@ struct CollisionEffect {
 #[derive(Component)]
 struct ExplosionParticle {
     lifetime: Timer,
+    velocity: Vec2,
+    rotation_speed: f32,
+    initial_color: Color,
 }
 
 #[derive(Component)]
@@ -965,7 +971,10 @@ fn handle_ball_collisions(
                             
                         // Trigger win effects
                         // Add screen shake
-                        let shake_intensity = ball1.variant.size() / BASE_BALL_SIZE * 0.3;
+                        commands.insert_resource(ScreenShakeState {
+                            trauma: ball1.variant.size() / BASE_BALL_SIZE * 0.3,
+                            decay: 2.0,
+                        });
                         // Spawn enhanced explosion
                         let explosion_color = Color::srgba(1.0, 0.5, 0.0, 1.0);
                         spawn_explosion(&mut commands, position, explosion_color);
