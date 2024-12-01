@@ -27,8 +27,10 @@ impl Default for Score {
 #[derive(Resource)]
 struct Settings {
     volume: f32,
+    sound_enabled: bool,
     glow_intensity: f32,
     pulse_magnitude: f32,
+    color_speed: f32,
     is_fullscreen: bool,
 }
 
@@ -36,8 +38,10 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             volume: 0.5,
+            sound_enabled: true,
             glow_intensity: 0.1,
             pulse_magnitude: 0.03,
+            color_speed: 0.2,
             is_fullscreen: false,
         }
     }
@@ -575,7 +579,15 @@ fn main() {
 #[derive(Component)]
 struct SettingsMenu;
 
-fn setup_settings_menu(mut commands: Commands) {
+#[derive(Component)]
+enum SettingButton {
+    SoundToggle,
+    LowEffects,
+    NormalEffects,
+    HighEffects,
+}
+
+fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
     commands
         .spawn((
             NodeBundle {
@@ -583,8 +595,10 @@ fn setup_settings_menu(mut commands: Commands) {
                     width: Val::Percent(100.0),
                     height: Val::Percent(100.0),
                     position_type: PositionType::Absolute,
+                    flex_direction: FlexDirection::Column,
                     justify_content: JustifyContent::Center,
                     align_items: AlignItems::Center,
+                    row_gap: Val::Px(20.0),
                     ..default()
                 },
                 background_color: BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.7)),
@@ -593,6 +607,7 @@ fn setup_settings_menu(mut commands: Commands) {
             SettingsMenu,
         ))
         .with_children(|parent| {
+            // Title
             parent.spawn(TextBundle::from_section(
                 "Settings Menu\nPress ESC to return",
                 TextStyle {
@@ -601,13 +616,174 @@ fn setup_settings_menu(mut commands: Commands) {
                     ..default()
                 },
             ));
+
+            // Sound Toggle Button
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        width: Val::Px(200.0),
+                        height: Val::Px(50.0),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    background_color: BackgroundColor(if settings.sound_enabled {
+                        Color::rgb(0.2, 0.8, 0.2)
+                    } else {
+                        Color::rgb(0.8, 0.2, 0.2)
+                    }),
+                    ..default()
+                },
+                SettingButton::SoundToggle,
+            ))
+            .with_children(|parent| {
+                parent.spawn(TextBundle::from_section(
+                    if settings.sound_enabled { "Sound: ON" } else { "Sound: OFF" },
+                    TextStyle {
+                        font_size: 20.0,
+                        color: Color::WHITE,
+                        ..default()
+                    },
+                ));
+            });
+
+            // Visual Effects Buttons
+            parent.spawn(TextBundle::from_section(
+                "Visual Effects Level:",
+                TextStyle {
+                    font_size: 25.0,
+                    color: Color::WHITE,
+                    ..default()
+                },
+            ));
+
+            // Low Effects Button
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        width: Val::Px(150.0),
+                        height: Val::Px(40.0),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    background_color: BackgroundColor(Color::rgb(0.4, 0.4, 0.4)),
+                    ..default()
+                },
+                SettingButton::LowEffects,
+            ))
+            .with_children(|parent| {
+                parent.spawn(TextBundle::from_section(
+                    "Low",
+                    TextStyle {
+                        font_size: 20.0,
+                        color: Color::WHITE,
+                        ..default()
+                    },
+                ));
+            });
+
+            // Normal Effects Button
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        width: Val::Px(150.0),
+                        height: Val::Px(40.0),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    background_color: BackgroundColor(Color::rgb(0.4, 0.4, 0.4)),
+                    ..default()
+                },
+                SettingButton::NormalEffects,
+            ))
+            .with_children(|parent| {
+                parent.spawn(TextBundle::from_section(
+                    "Normal",
+                    TextStyle {
+                        font_size: 20.0,
+                        color: Color::WHITE,
+                        ..default()
+                    },
+                ));
+            });
+
+            // High Effects Button
+            parent.spawn((
+                ButtonBundle {
+                    style: Style {
+                        width: Val::Px(150.0),
+                        height: Val::Px(40.0),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..default()
+                    },
+                    background_color: BackgroundColor(Color::rgb(0.4, 0.4, 0.4)),
+                    ..default()
+                },
+                SettingButton::HighEffects,
+            ))
+            .with_children(|parent| {
+                parent.spawn(TextBundle::from_section(
+                    "High",
+                    TextStyle {
+                        font_size: 20.0,
+                        color: Color::WHITE,
+                        ..default()
+                    },
+                ));
+            });
         });
 }
 
 fn settings_menu_interaction(
-    _settings: Res<Settings>,
+    mut settings: ResMut<Settings>,
+    mut interaction_query: Query<
+        (&Interaction, &SettingButton, &mut BackgroundColor, &Children),
+        Changed<Interaction>,
+    >,
+    mut text_query: Query<&mut Text>,
 ) {
-    // TODO: Add interaction handling for settings controls
+    for (interaction, button, mut color, children) in &mut interaction_query {
+        if *interaction == Interaction::Pressed {
+            match button {
+                SettingButton::SoundToggle => {
+                    settings.sound_enabled = !settings.sound_enabled;
+                    *color = BackgroundColor(if settings.sound_enabled {
+                        Color::rgb(0.2, 0.8, 0.2)
+                    } else {
+                        Color::rgb(0.8, 0.2, 0.2)
+                    });
+                    // Update button text
+                    if let Some(child) = children.first() {
+                        if let Ok(mut text) = text_query.get_mut(*child) {
+                            text.sections[0].value = if settings.sound_enabled {
+                                "Sound: ON".to_string()
+                            } else {
+                                "Sound: OFF".to_string()
+                            };
+                        }
+                    }
+                }
+                SettingButton::LowEffects => {
+                    settings.glow_intensity = 0.05;
+                    settings.pulse_magnitude = 0.01;
+                    settings.color_speed = 0.1;
+                }
+                SettingButton::NormalEffects => {
+                    settings.glow_intensity = 0.1;
+                    settings.pulse_magnitude = 0.03;
+                    settings.color_speed = 0.2;
+                }
+                SettingButton::HighEffects => {
+                    settings.glow_intensity = 0.15;
+                    settings.pulse_magnitude = 0.05;
+                    settings.color_speed = 0.3;
+                }
+            }
+        }
+    }
 }
 
 fn apply_settings_changes(
@@ -923,11 +1099,13 @@ fn check_danger_zone(
             danger_zone.is_warning = true;
             danger_zone.warning_timer.reset();
             // Play warning sound
-            commands.spawn(AudioBundle {
-                source: game_sounds.warning.clone(),
-                settings: PlaybackSettings::DESPAWN,
-                ..default()
-            });
+            if settings.sound_enabled {
+                commands.spawn(AudioBundle {
+                    source: game_sounds.warning.clone(),
+                    settings: PlaybackSettings::DESPAWN,
+                    ..default()
+                });
+            }
         }
         danger_zone.warning_timer.tick(time.delta());
 
@@ -938,11 +1116,13 @@ fn check_danger_zone(
 
         if danger_zone.warning_timer.finished() {
             next_state.set(GameState::GameOver);
-            commands.spawn(AudioBundle {
-                source: game_sounds.game_over.clone(),
-                settings: PlaybackSettings::DESPAWN,
-                ..default()
-            });
+            if settings.sound_enabled {
+                commands.spawn(AudioBundle {
+                    source: game_sounds.game_over.clone(),
+                    settings: PlaybackSettings::DESPAWN,
+                    ..default()
+                });
+            }
         }
     } else {
         danger_zone.is_warning = false;
@@ -1118,11 +1298,13 @@ fn handle_ball_collisions(
                         let explosion_color = Color::srgba(1.0, 0.5, 0.0, 1.0);
                         spawn_explosion(&mut commands, position, explosion_color);
                     
-                        commands.spawn(AudioBundle {
-                            source: game_sounds.pop.clone(),
-                            settings: PlaybackSettings::DESPAWN,
-                            ..default()
-                        });
+                        if settings.sound_enabled {
+                            commands.spawn(AudioBundle {
+                                source: game_sounds.pop.clone(),
+                                settings: PlaybackSettings::DESPAWN,
+                                ..default()
+                            });
+                        }
                             
                         // Trigger win state
                         next_state.set(GameState::Win);
@@ -1147,11 +1329,13 @@ fn handle_ball_collisions(
                             initial_scale: Vec3::ONE,
                         });
                             
-                        commands.spawn(AudioBundle {
-                            source: game_sounds.collision.clone(),
-                            settings: PlaybackSettings::DESPAWN,
-                            ..default()
-                        });
+                        if settings.sound_enabled {
+                            commands.spawn(AudioBundle {
+                                source: game_sounds.collision.clone(),
+                                settings: PlaybackSettings::DESPAWN,
+                                ..default()
+                            });
+                        }
 
                         commands.entity(new_ball).insert(CollisionEffect {
                             timer: Timer::from_seconds(0.3, TimerMode::Once),
