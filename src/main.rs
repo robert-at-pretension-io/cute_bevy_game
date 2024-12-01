@@ -114,7 +114,7 @@ struct DangerZone {
 impl Default for DangerZone {
     fn default() -> Self {
         Self {
-            warning_timer: Timer::from_seconds(3.0, TimerMode::Once),
+            warning_timer: Timer::from_seconds(7.0, TimerMode::Once),
             height: 200.0,
             is_warning: false,
             flash_timer: Timer::from_seconds(0.5, TimerMode::Repeating),
@@ -945,7 +945,7 @@ fn settings_menu_interaction(
                         settings.glow_intensity = 0.02;    // Keep glow subtle
                         settings.pulse_magnitude = 0.008;  // Very subtle size changes
                         settings.color_speed = 2.0;        // Super fast color changes
-                        settings.background_animation_speed = 4.0; // Very fast background
+                        settings.background_animation_speed = 0.1; //slow -- my baby is sensitive
                         settings.background_strip_count = 40;     // Many strips
                         settings.background_saturation = 1.2;     // Very saturated
                         settings.background_brightness = 0.8;     // Brighter
