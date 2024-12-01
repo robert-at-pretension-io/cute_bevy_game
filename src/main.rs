@@ -221,7 +221,7 @@ fn update_screen_shake(
         );
         
         // Decay trauma over time
-        shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds())
+        shake_state.trauma = (shake_state.trauma - shake_state.decay * time)
             .max(0.0);
         
         // Reset transform when shake is done
@@ -957,6 +957,11 @@ fn handle_ball_collisions(
                     } else {
                         // Normal combination
                         let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
+
+                        commands.insert_resource(ScreenShakeState {                                                                  
+                            trauma: ball1.variant.size() / BASE_BALL_SIZE * 0.2, // Scale shake with ball size                       
+                            decay: 3.0,                                                                                              
+                        });
                         
                         commands.entity(new_ball).insert(CollisionEffect {
                             timer: Timer::from_seconds(0.3, TimerMode::Once),
