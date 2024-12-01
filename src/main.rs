@@ -771,6 +771,7 @@ fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
 }
 
 fn settings_menu_interaction(
+    mut commands: Commands,
     mut settings: ResMut<Settings>,
     mut interaction_query: Query<
         (&Interaction, &SettingButton, &mut BackgroundColor, &Children),
@@ -803,31 +804,32 @@ fn settings_menu_interaction(
                     settings.glow_intensity = 0.02;
                     settings.pulse_magnitude = 0.01;
                     settings.color_speed = 0.05;
-                    let selected = SettingButton::LowEffects;
-                    update_button_colors(interaction_query, selected);
+                    commands.insert_resource(SelectedEffectsSetting(*button));
                 }
                 SettingButton::NormalEffects => {
                     settings.glow_intensity = 0.05;
                     settings.pulse_magnitude = 0.02;
                     settings.color_speed = 0.1;
-                    let selected = SettingButton::NormalEffects;
-                    update_button_colors(&mut interaction_query, selected);
+                    commands.insert_resource(SelectedEffectsSetting(*button));
                 }
                 SettingButton::HighEffects => {
                     settings.glow_intensity = 0.08;
                     settings.pulse_magnitude = 0.03;
                     settings.color_speed = 0.15;
-                    let selected = SettingButton::HighEffects;
-                    update_button_colors(&mut interaction_query, selected);
+                    commands.insert_resource(SelectedEffectsSetting(*button));
                 }
             }
         }
     }
 }
 
-fn update_button_colors(mut query: Query<(&SettingButton, &mut BackgroundColor)>, selected: SettingButton) {
-    for (button, mut color) in query.iter_mut() {
-        color.0 = if *button == selected {
+fn update_button_colors(
+    selected: Res<SelectedEffectsSetting>,
+    mut query: Query<(&SettingButton, &mut BackgroundColor)>,
+) {
+    for (button, mut color) in &mut query {
+        if matches!(button, SettingButton::LowEffects | SettingButton::NormalEffects | SettingButton::HighEffects) {
+            *color = BackgroundColor(if *button == selected.0 {
             Color::srgb(0.2, 0.8, 0.2)
         } else {
             Color::srgb(0.4, 0.4, 0.4)
