@@ -797,43 +797,38 @@ fn settings_menu_interaction(
                     settings.glow_intensity = 0.02;
                     settings.pulse_magnitude = 0.01;
                     settings.color_speed = 0.05;
-                    // Update all button colors
-                    for (_, button, mut color, _) in &mut interaction_query {
-                        color.0 = if *button == SettingButton::LowEffects {
-                            Color::srgb(0.2, 0.8, 0.2)
-                        } else {
-                            Color::srgb(0.4, 0.4, 0.4)
-                        };
-                    }
+                    let selected = SettingButton::LowEffects;
+                    update_button_colors(&mut interaction_query, selected);
                 }
                 SettingButton::NormalEffects => {
                     settings.glow_intensity = 0.05;
                     settings.pulse_magnitude = 0.02;
                     settings.color_speed = 0.1;
-                    // Update all button colors
-                    for (_, button, mut color, _) in &mut interaction_query {
-                        color.0 = if *button == SettingButton::NormalEffects {
-                            Color::srgb(0.2, 0.8, 0.2)
-                        } else {
-                            Color::srgb(0.4, 0.4, 0.4)
-                        };
-                    }
+                    let selected = SettingButton::NormalEffects;
+                    update_button_colors(&mut interaction_query, selected);
                 }
                 SettingButton::HighEffects => {
                     settings.glow_intensity = 0.08;
                     settings.pulse_magnitude = 0.03;
                     settings.color_speed = 0.15;
-                    // Update all button colors
-                    for (_, button, mut color, _) in &mut interaction_query {
-                        color.0 = if *button == SettingButton::HighEffects {
-                            Color::srgb(0.2, 0.8, 0.2)
-                        } else {
-                            Color::srgb(0.4, 0.4, 0.4)
-                        };
-                    }
+                    let selected = SettingButton::HighEffects;
+                    update_button_colors(&mut interaction_query, selected);
                 }
             }
         }
+    }
+}
+
+fn update_button_colors(
+    interaction_query: &mut Query<(&Interaction, &SettingButton, &mut BackgroundColor, &Children)>,
+    selected: SettingButton,
+) {
+    for (_, button, mut color, _) in interaction_query.iter_mut() {
+        color.0 = if *button == selected {
+            Color::srgb(0.2, 0.8, 0.2)
+        } else {
+            Color::srgb(0.4, 0.4, 0.4)
+        };
     }
 }
 
