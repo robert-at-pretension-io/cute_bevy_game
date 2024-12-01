@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, math::Vec3Swizzles};
 
 #[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 enum GameState {
@@ -533,6 +533,7 @@ fn main() {
         .add_systems(Update, (
             spawn_ball,
             handle_ball_collisions,
+            apply_attraction_forces,
         ).run_if(not(in_state(GameState::Settings))))
         .add_systems(Update, (
             update_preview,
@@ -998,6 +999,11 @@ fn handle_game_over(
     }
 }
 
+#[derive(Component)]
+struct AttractionForce {
+    timer: Timer,
+}
+
 fn handle_ball_collisions(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -1090,14 +1096,60 @@ fn handle_ball_collisions(
                             timer: Timer::from_seconds(0.3, TimerMode::Once),
                             initial_scale: Vec3::ONE,
                         });
+
+                        // Add attraction effect to all balls of the same type
+                        for (entity, ball, _) in query.iter() {
+                            if ball.variant == ball1.variant {
+                                commands.entity(entity).insert(AttractionForce {
+                                    timer: Timer::from_seconds(0.5, TimerMode::Once),
+                                });
+                            }
+                        }
                     }
                 }
-                
 
             }
         }
     }
 }
+
+fn apply_attraction_forces(
+    time: Res<Time>,
+    mut commands: Commands,
+    mut query: Query<(Entity, &Ball, &Transform, &mut Velocity, &AttractionForce)>,
+    all_balls: Query<(&Ball, &Transform)>,
+) {
+    for (entity, ball, transform, mut velocity, force) in query.iter_mut() {
+        let mut nearest_same_type = None;
+        let mut min_distance = f32::MAX;
+
+        // Find the nearest ball of the same type
+        for (other_ball, other_transform) in all_balls.iter() {
+            if other_ball.variant == ball.variant && other_transform.translation != transform.translation {
+                let distance = transform.translation.xy().distance(other_transform.translation.xy());
+                if distance < min_distance {
+                    min_distance = distance;
+                    nearest_same_type = Some(other_transform.translation);
+                }
+            }
+        }
+
+        if let Some(target_pos) = nearest_same_type {
+            let direction = (target_pos - transform.translation).normalize();
+            let force_strength = 100.0; // Adjust this value to control the strength of attraction
+            let attraction = direction.xy() * force_strength;
+            
+            // Apply the attraction force
+            velocity.linvel += attraction;
+        }
+
+        // Remove the attraction component when timer is done
+        if force.timer.finished() {
+            commands.entity(entity).remove::<AttractionForce>();
+        }
+    }
+}
+
 #[derive(Component)]
 struct WinText;
 
