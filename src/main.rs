@@ -232,7 +232,7 @@ fn spawn_explosion(
         let lifetime = rng.gen_range(0.2..0.6);
         
         // Use only ball colliders for better performance
-        let collider = Collider::ball(size / 2.0);
+        let collider = Collider::cuboid(size / 2.0, size / 2.0);
         
         particle_count.current += 1;
         commands.spawn((
@@ -1046,7 +1046,7 @@ fn spawn_ball_at(
             linvel: velocity,
             angvel: angular_velocity,
         },
-        Collider::ball(ball_size / 2.0),
+        Collider::cuboid(ball_size / 2.0, ball_size / 2.0),
         Restitution::coefficient(0.1), // Even less bouncy
         Friction::coefficient(0.9), // Higher friction to help settle faster
         // Add initial collision effect
