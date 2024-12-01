@@ -1,4 +1,4 @@
-use bevy::{math::vec2, prelude::*};
+use bevy::prelude::*;
 
 #[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 enum GameState {
@@ -199,10 +199,11 @@ fn update_trail_effects(
         let pos = transform.translation.truncate();
         
         // Add new point with current position and color
+        let base_color = trail.base_color;
         trail.points.push((
             pos, 
             0.0,
-            trail.base_color
+            base_color
         ));
         
         // Update ages and remove old points
@@ -984,7 +985,7 @@ fn handle_ball_collisions(
                             points: Vec::new(),
                             max_points: 20,
                             lifetime: 0.5,
-                            base_color: Color::GOLD,
+                            base_color: Color::rgb(1.0, 0.84, 0.0), // Gold color
                         });
                         commands.spawn(AudioBundle {
                             source: game_sounds.pop.clone(),
