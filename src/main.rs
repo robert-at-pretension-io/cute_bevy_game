@@ -250,7 +250,8 @@ fn spawn_explosion(
         );
         
         // Use only ball colliders for better performance
-        let collider = Collider::cuboid(size / 2.0, size / 2.0);
+        // Make collision box 80% of visual size
+        let collider = Collider::cuboid(size * 0.4, size * 0.4);
         
         particle_count.current += 1;
         commands.spawn((
@@ -1091,7 +1092,8 @@ fn spawn_ball_at(
             linvel: velocity,
             angvel: angular_velocity,
         },
-        Collider::cuboid(ball_size / 2.0, ball_size / 2.0),
+        // Make collision box 80% of visual size
+        Collider::cuboid(ball_size * 0.4, ball_size * 0.4),
         Restitution::coefficient(settings.ball_bounciness),
         Friction::coefficient(settings.ball_friction),
         // Add initial collision effect
