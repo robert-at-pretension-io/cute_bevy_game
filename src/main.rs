@@ -198,42 +198,38 @@ fn update_trail_effects(
         let lifetime = trail.lifetime;
         let pos = transform.translation.truncate();
         
-        // Add new point
-        trail.points.push((pos, 0.0));
+        // Add new point with current position and color
+        trail.points.push((
+            pos, 
+            0.0,
+            trail.base_color
+        ));
         
-        // Update ages
-        for (_, age) in trail.points.iter_mut() {
+        // Update ages and remove old points
+        trail.points.retain_mut(|(_, age, _)| {
             *age += time.delta_seconds();
-        }
-        
-        // Remove old points
-        trail.points.retain(|(_, age)| *age < lifetime);
+            *age < lifetime
+        });
         
         // Limit points
         while trail.points.len() > trail.max_points {
             trail.points.remove(0);
         }
         
-        // Spawn sprites
-        for (pos, age) in trail.points.iter() {
-            let alpha = 1.0 - (age / lifetime);
-            commands.spawn((
-                SpriteBundle {
-                    sprite: Sprite {
-                        color: Color::srgba(1.0, 1.0, 1.0, alpha),
-                        custom_size: Some(Vec2::splat(5.0 * alpha)),
-                        ..default()
-                    },
-                    transform: Transform::from_xyz(pos.x, pos.y, 0.0),
+        // Spawn trail particles
+        for (pos, age, color) in trail.points.iter() {
+            let alpha = 1.0 - (*age / lifetime);
+            let size = 15.0 * alpha;
+            
+            commands.spawn(SpriteBundle {
+                sprite: Sprite {
+                    color: color.with_alpha(alpha * 0.5),
+                    custom_size: Some(Vec2::splat(size)),
                     ..default()
                 },
-                ExplosionParticle {
-                    lifetime: Timer::from_seconds(0.05, TimerMode::Once),
-                    velocity: vec2(0.5, 0.5),
-                    rotation_speed: 0.5,
-                    initial_color: Color::srgba(0.1, 0.5, 0.1, 0.2),
-                },
-            ));
+                transform: Transform::from_xyz(pos.x, pos.y, -0.1),
+                ..default()
+            });
         }
     }
 }
@@ -417,9 +413,10 @@ struct ExplosionParticle {
 
 #[derive(Component)]
 struct TrailEffect {
-    points: Vec<(Vec2, f32)>, // Position and age of trail points
+    points: Vec<(Vec2, f32, Color)>, // Position, age, and color of trail points
     max_points: usize,
     lifetime: f32,
+    base_color: Color,
 }
 
 #[derive(Resource)]
@@ -985,8 +982,9 @@ fn handle_ball_collisions(
                         // Add trail effect to new ball
                         commands.entity(new_ball).insert(TrailEffect {
                             points: Vec::new(),
-                            max_points: 10,
+                            max_points: 20,
                             lifetime: 0.5,
+                            base_color: Color::GOLD,
                         });
                         commands.spawn(AudioBundle {
                             source: game_sounds.pop.clone(),
