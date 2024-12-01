@@ -39,9 +39,9 @@ impl Default for Settings {
         Self {
             volume: 0.5,
             sound_enabled: true,
-            glow_intensity: 0.1,   // Moderate glow
-            pulse_magnitude: 0.03,  // Noticeable pulse
-            color_speed: 0.2,      // Regular color changes
+            glow_intensity: 0.05,   // Default moderate glow
+            pulse_magnitude: 0.02,  // Default subtle pulse
+            color_speed: 0.15,     // Default moderate color changes
             is_fullscreen: false,
         }
     }
@@ -826,21 +826,21 @@ fn settings_menu_interaction(
                     }
                 }
                 SettingButton::LowEffects => {
-                    settings.glow_intensity = 0.01;  // Very subtle glow
-                    settings.pulse_magnitude = 0.005; // Barely visible pulse
-                    settings.color_speed = 0.02;     // Very slow color changes
+                    settings.glow_intensity = 0.01;   // Extremely subtle glow
+                    settings.pulse_magnitude = 0.005; // Minimal pulse
+                    settings.color_speed = 0.05;     // Very slow, almost static
                     commands.insert_resource(SelectedEffectsSetting(*button));
                 }
                 SettingButton::NormalEffects => {
-                    settings.glow_intensity = 0.1;   // Moderate glow
-                    settings.pulse_magnitude = 0.03;  // Noticeable pulse
-                    settings.color_speed = 0.2;      // Regular color changes
+                    settings.glow_intensity = 0.05;   // Default moderate glow
+                    settings.pulse_magnitude = 0.02;  // Default subtle pulse
+                    settings.color_speed = 0.15;     // Default moderate speed
                     commands.insert_resource(SelectedEffectsSetting(*button));
                 }
                 SettingButton::HighEffects => {
-                    settings.glow_intensity = 0.25;   // Intense glow
-                    settings.pulse_magnitude = 0.08;  // Strong pulsing
-                    settings.color_speed = 0.5;      // Rapid color changes
+                    settings.glow_intensity = 0.3;    // Extremely intense glow
+                    settings.pulse_magnitude = 0.15;  // Dramatic pulsing
+                    settings.color_speed = 1.0;      // Chaotic color changes
                     commands.insert_resource(SelectedEffectsSetting(*button));
                 }
             }
