@@ -1040,7 +1040,7 @@ fn handle_ball_collisions(
     asset_server: Res<AssetServer>,
     rapier_context: Res<RapierContext>, 
     query: Query<(Entity, &Ball, &Transform)>,
-    score_text_query: Query<&mut Text, With<ScoreText>>,
+    mut score_text_query: Query<&mut Text, With<ScoreText>>,
     mut score: ResMut<Score>,
     game_sounds: Res<GameSounds>,
     mut next_state: ResMut<NextState<GameState>>,
@@ -1128,7 +1128,7 @@ fn handle_ball_collisions(
 
                         // Add screen shake effect
                         let trauma = ball1.variant.size() / BASE_BALL_SIZE * 0.5; // Reduced multiplier
-                        println!("Setting shake trauma: {:.3} for ball size: {}", trauma, ball1.variant.size());
+                        // println!("Setting shake trauma: {:.3} for ball size: {}", trauma, ball1.variant.size());
                         commands.insert_resource(ScreenShakeState {
                             trauma,
                             decay: 1.5, // Slower decay
