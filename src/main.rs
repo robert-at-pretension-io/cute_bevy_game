@@ -631,11 +631,17 @@ fn spawn_ball(
         {
             // Get the size from preview and spawn that ball
             if let Ok((mut preview, mut texture, mut sprite)) = preview_query.get_single_mut() {
+                let ball_size = preview.next_size.size();
+                let safe_margin = ball_size / 2.0 + 5.0; // Add 5 pixels extra margin
+                
+                // Clamp x position to prevent wall intersection
+                let x_pos = world_position.x.clamp(-240.0 + safe_margin, 240.0 - safe_margin);
+                
                 spawn_ball_at(
                     &mut commands,
                     &asset_server,
                     preview.next_size,
-                    Vec3::new(world_position.x, 300.0, 0.0)
+                    Vec3::new(x_pos, 300.0, 0.0)
                 );
                 
                 // Generate next preview
