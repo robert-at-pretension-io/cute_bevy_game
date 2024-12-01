@@ -585,6 +585,9 @@ struct GameSounds {
     game_over: Handle<AudioSource>,
 }
 
+#[derive(Component)]
+struct GameAudio;
+
 fn toggle_settings_menu(
     keyboard: Res<ButtonInput<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
@@ -666,6 +669,7 @@ fn main() {
         .add_systems(Update, (
             settings_menu_interaction,
             update_button_colors,
+            update_audio_volume,
         ).run_if(in_state(GameState::Settings)))
         .run();
 
@@ -1306,11 +1310,14 @@ fn check_danger_zone(
             danger_zone.warning_timer.reset();
             // Play warning sound
             if settings.sound_enabled {
-                commands.spawn(AudioBundle {
-                    source: game_sounds.warning.clone(),
-                    settings: PlaybackSettings::DESPAWN,
-                    ..default()
-                });
+                commands.spawn((
+                    AudioBundle {
+                        source: game_sounds.warning.clone(),
+                        settings: PlaybackSettings::DESPAWN,
+                        ..default()
+                    },
+                    GameAudio,
+                ));
             }
         }
         danger_zone.warning_timer.tick(time.delta());
@@ -1323,11 +1330,14 @@ fn check_danger_zone(
         if danger_zone.warning_timer.finished() {
             next_state.set(GameState::GameOver);
             if settings.sound_enabled {
-                commands.spawn(AudioBundle {
-                    source: game_sounds.game_over.clone(),
-                    settings: PlaybackSettings::DESPAWN,
-                    ..default()
-                });
+                commands.spawn((
+                    AudioBundle {
+                        source: game_sounds.game_over.clone(),
+                        settings: PlaybackSettings::DESPAWN,
+                        ..default()
+                    },
+                    GameAudio,
+                ));
             }
         }
     } else {
@@ -1553,11 +1563,14 @@ fn handle_ball_collisions(
                         spawn_explosion(&mut commands, position, explosion_color, &settings, &mut particle_count);
                     
                         if settings.sound_enabled {
-                            commands.spawn(AudioBundle {
-                                source: game_sounds.pop.clone(),
-                                settings: PlaybackSettings::DESPAWN,
-                                ..default()
-                            });
+                            commands.spawn((
+                                AudioBundle {
+                                    source: game_sounds.pop.clone(),
+                                    settings: PlaybackSettings::DESPAWN,
+                                    ..default()
+                                },
+                                GameAudio,
+                            ));
                         }
                             
                         // Trigger win state
@@ -1584,11 +1597,14 @@ fn handle_ball_collisions(
                         });
                             
                         if settings.sound_enabled {
-                            commands.spawn(AudioBundle {
-                                source: game_sounds.collision.clone(),
-                                settings: PlaybackSettings::DESPAWN,
-                                ..default()
-                            });
+                            commands.spawn((
+                                AudioBundle {
+                                    source: game_sounds.collision.clone(),
+                                    settings: PlaybackSettings::DESPAWN,
+                                    ..default()
+                                },
+                                GameAudio,
+                            ));
                         }
 
                         commands.entity(new_ball).insert(CollisionEffect {
