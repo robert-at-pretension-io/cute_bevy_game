@@ -380,23 +380,23 @@ impl BallVariant {
 
     fn next_variant(&self) -> Option<Self> {
         match self {
-            // Tier 1 combinations
-            BallVariant::Sad => Some(BallVariant::Angry),
-            BallVariant::Angry => Some(BallVariant::Surprised),
-            BallVariant::Surprised => Some(BallVariant::Embarrassed),
+            // Tier 1 combinations (smallest)
+            BallVariant::Sad => Some(BallVariant::Embarrassed),      // Sad + Sad = Embarrassed
+            BallVariant::Angry => Some(BallVariant::Happy),          // Angry + Angry = Happy  
+            BallVariant::Surprised => Some(BallVariant::Joyful),     // Surprised + Surprised = Joyful
             
-            // Tier 2 combinations
-            BallVariant::Embarrassed => Some(BallVariant::Happy),
-            BallVariant::Happy => Some(BallVariant::Joyful),
-            BallVariant::Joyful => Some(BallVariant::Spite),
+            // Tier 2 combinations (medium)
+            BallVariant::Embarrassed => Some(BallVariant::Spite),    // Embarrassed + Embarrassed = Spite
+            BallVariant::Happy => Some(BallVariant::Love),           // Happy + Happy = Love
+            BallVariant::Joyful => Some(BallVariant::Pride),         // Joyful + Joyful = Pride
             
-            // Tier 3 combinations
-            BallVariant::Spite => Some(BallVariant::Love),
-            BallVariant::Love => Some(BallVariant::Pride),
-            BallVariant::Pride => Some(BallVariant::Rage),
+            // Tier 3 combinations (large)
+            BallVariant::Spite => Some(BallVariant::Rage),           // Spite + Spite = Rage
+            BallVariant::Love => Some(BallVariant::Rage),            // Love + Love = Rage
+            BallVariant::Pride => Some(BallVariant::Rage),           // Pride + Pride = Rage
             
-            // Tier 4 combinations
-            BallVariant::Rage => Some(BallVariant::Win),
+            // Tier 4 combinations (extra large)
+            BallVariant::Rage => Some(BallVariant::Win),             // Rage + Rage = Win
             
             // Win is the final form
             BallVariant::Win => None,
