@@ -309,7 +309,7 @@ fn update_explosion_particles(
 
 
 // Base size for scaling all balls
-const BASE_BALL_SIZE: f32 = 60.0;
+const BASE_BALL_SIZE: f32 = 45.0;
 
 #[derive(Copy, Clone, PartialEq)]
 enum BallVariant {
@@ -351,9 +351,9 @@ impl BallVariant {
             BallVariant::Win => 11,
         };
         
-        // Start at 0.8 and grow by ~15% each step
-        // Creates a gentler growth curve: 0.8, 0.92, 1.06, 1.22, 1.40, 1.61, 1.85, 2.13, 2.45, 2.82, 3.24
-        let ratio = 0.8 * (1.15f32.powf((order - 1) as f32));
+        // Start at 0.8 and grow by ~20% each step
+
+        let ratio = 0.9 * (1.15f32.powf((order - 1) as f32));
         BASE_BALL_SIZE * ratio
     }
 
