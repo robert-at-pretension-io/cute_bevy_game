@@ -570,7 +570,13 @@ struct GameSounds {
 
 fn toggle_settings_menu(
     keyboard: Res<ButtonInput<KeyCode>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
+    balls: Query<Entity, With<Ball>>,
+    game_over_text: Query<Entity, With<GameOverText>>,
+    win_text: Query<Entity, With<WinText>>,
+    mut score: ResMut<Score>,
+    mut score_text_query: Query<&mut Text, With<ScoreText>>,
     current_state: Res<State<GameState>>,
 ) {
     if keyboard.just_pressed(KeyCode::Escape) {
@@ -1338,6 +1344,38 @@ fn update_ball_effects(
     }
 }
 
+fn restart_game(
+    mut commands: Commands,
+    balls: Query<Entity, With<Ball>>,
+    game_over_text: Query<Entity, With<GameOverText>>,
+    win_text: Query<Entity, With<WinText>>,
+    mut score: ResMut<Score>,
+    mut score_text_query: Query<&mut Text, With<ScoreText>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    // Remove all balls
+    for entity in balls.iter() {
+        commands.entity(entity).despawn();
+    }
+
+    // Remove game over text
+    for entity in game_over_text.iter() {
+        commands.entity(entity).despawn();
+    }
+
+    // Remove win text
+    for entity in win_text.iter() {
+        commands.entity(entity).despawn();
+    }
+
+    // Reset score and state
+    score.current = 0;
+    if let Ok(mut text) = score_text_query.get_single_mut() {
+        text.sections[0].value = format!("Score: {}\nHigh Score: {}", score.current, score.high_score);
+    }
+    next_state.set(GameState::Playing);
+}
+
 fn handle_game_over(
     mut commands: Commands,
     keyboard: Res<ButtonInput<KeyCode>>,
@@ -1347,25 +1385,8 @@ fn handle_game_over(
     mut score: ResMut<Score>,
     mut score_text_query: Query<&mut Text, With<ScoreText>>,
 ) {
-    if keyboard.just_pressed(KeyCode::Space) {
-        // Remove all balls
-        for entity in balls.iter() {
-            if commands.get_entity(entity).is_some() {
-                commands.entity(entity).despawn();
-            }
-        }
-        
-        // Remove game over text
-        for entity in game_over_text.iter() {
-            commands.entity(entity).despawn();
-        }
-        
-        // Reset score and state
-        score.current = 0;
-        if let Ok(mut text) = score_text_query.get_single_mut() {
-            text.sections[0].value = format!("Score: {}\nHigh Score: {}", score.current, score.high_score);
-        }
-        next_state.set(GameState::Playing);
+    if keyboard.just_pressed(KeyCode::Space) || keyboard.just_pressed(KeyCode::R) {
+        restart_game(commands, balls, game_over_text, win_text, score, score_text_query, next_state);
     }
 }
 
