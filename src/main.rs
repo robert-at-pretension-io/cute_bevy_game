@@ -604,7 +604,10 @@ fn toggle_settings_menu(
     }
 }
 
-fn main() {
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen(start)]
+pub fn main() {
     
     App::new()
         .insert_resource(Settings::default())
