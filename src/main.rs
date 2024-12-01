@@ -246,10 +246,10 @@ fn update_screen_shake(
             shake_amount * 0.02 * (time * 25.0).sin()
         );
         
-        println!("Applying shake - Trauma: {:.3}, Shake Amount: {:.3}", 
-            shake_state.trauma,
-            shake_amount
-        );
+        // println!("Applying shake - Trauma: {:.3}, Shake Amount: {:.3}", 
+        //     shake_state.trauma,
+        //     shake_amount
+        // );
     } else if shake_state.trauma <= 0.0 {
         // Only reset when actually needed
         camera_transform.translation = Vec3::ZERO;
