@@ -634,7 +634,7 @@ fn main() {
         .add_systems(OnEnter(GameState::Win), setup_win_screen)
         .add_systems(Update, handle_game_over.run_if(in_state(GameState::GameOver)))
         .add_systems(Update, handle_win_screen.run_if(in_state(GameState::Win)))
-        .add_systems(Update, toggle_settings_menu)
+        .add_systems(Update, (toggle_settings_menu, handle_global_restart))
         .add_systems(OnEnter(GameState::Settings), setup_settings_menu)
         .add_systems(OnExit(GameState::Settings), cleanup_settings_menu)
         .add_systems(Update, (
@@ -1386,6 +1386,30 @@ fn handle_game_over(
     mut score_text_query: Query<&mut Text, With<ScoreText>>,
 ) {
     if keyboard.just_pressed(KeyCode::Space) || keyboard.just_pressed(KeyCode::KeyR) {
+        restart_game(
+            commands,
+            balls,
+            game_over_text,
+            win_text,
+            score,
+            score_text_query,
+            next_state,
+        );
+    }
+}
+
+// Add a new system to handle global restart
+fn handle_global_restart(
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mut commands: Commands,
+    balls: Query<Entity, With<Ball>>,
+    game_over_text: Query<Entity, With<GameOverText>>,
+    win_text: Query<Entity, With<WinText>>,
+    mut score: ResMut<Score>,
+    mut score_text_query: Query<&mut Text, With<ScoreText>>,
+    mut next_state: ResMut<NextState<GameState>>,
+) {
+    if keyboard.just_pressed(KeyCode::KeyR) {
         restart_game(
             commands,
             balls,
