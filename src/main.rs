@@ -999,10 +999,6 @@ fn handle_game_over(
     }
 }
 
-#[derive(Component)]
-struct AttractionForce {
-    timer: Timer,
-}
 
 fn handle_ball_collisions(
     mut commands: Commands,
@@ -1036,16 +1032,7 @@ fn handle_ball_collisions(
                 let position = (transform1.translation + transform2.translation) / 2.0;
                     
                 if let Some(next_variant) = ball1.variant.next_variant() {
-                    // Add attraction effect to all balls of the same type before despawning
-                    for (entity, ball, _) in query.iter() {
-                        if ball.variant == ball1.variant {
-                            commands.entity(entity).insert(AttractionForce {
-                                timer: Timer::from_seconds(0.5, TimerMode::Once),
-                            });
-                        }
-                    }
-
-                    // Now despawn the colliding balls
+                    // Despawn the colliding balls
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
 
@@ -1107,14 +1094,6 @@ fn handle_ball_collisions(
                             initial_scale: Vec3::ONE,
                         });
 
-                        // Add attraction effect to all balls of the same type
-                        for (entity, ball, _) in query.iter() {
-                            if ball.variant == ball1.variant {
-                                commands.entity(entity).insert(AttractionForce {
-                                    timer: Timer::from_seconds(0.5, TimerMode::Once),
-                                });
-                            }
-                        }
                     }
                 }
 
@@ -1123,42 +1102,6 @@ fn handle_ball_collisions(
     }
 }
 
-fn apply_attraction_forces(
-    time: Res<Time>,
-    mut commands: Commands,
-    mut query: Query<(Entity, &Ball, &Transform, &mut Velocity, &AttractionForce)>,
-    all_balls: Query<(&Ball, &Transform)>,
-) {
-    for (entity, ball, transform, mut velocity, force) in query.iter_mut() {
-        let mut nearest_same_type = None;
-        let mut min_distance = f32::MAX;
-
-        // Find the nearest ball of the same type
-        for (other_ball, other_transform) in all_balls.iter() {
-            if other_ball.variant == ball.variant && other_transform.translation != transform.translation {
-                let distance = transform.translation.xy().distance(other_transform.translation.xy());
-                if distance < min_distance {
-                    min_distance = distance;
-                    nearest_same_type = Some(other_transform.translation);
-                }
-            }
-        }
-
-        if let Some(target_pos) = nearest_same_type {
-            let direction = (target_pos - transform.translation).normalize();
-            let force_strength = 100.0; // Adjust this value to control the strength of attraction
-            let attraction = direction.xy() * force_strength;
-            
-            // Apply the attraction force
-            velocity.linvel += attraction;
-        }
-
-        // Remove the attraction component when timer is done
-        if force.timer.finished() {
-            commands.entity(entity).remove::<AttractionForce>();
-        }
-    }
-}
 
 #[derive(Component)]
 struct WinText;
