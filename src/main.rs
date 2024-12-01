@@ -322,47 +322,60 @@ const BASE_BALL_SIZE: f32 = 45.0;
 
 #[derive(Copy, Clone, PartialEq)]
 enum BallVariant {
-    // Tier 1
-    Sad,
-    Angry,
-    Surprised,
-    
-    // Tier 2
-    Embarrassed,
-    Happy,
-    Joyful,
-    
-    // Tier 3
-    Spite,
-    Love,
-    Pride,
-    
-    // Tier 4
-    Rage,
-    
-    // Victory
-    Win,
+    // Tier 1 (Starting balls)
+    Sad,        // Order: 1
+    Angry,      // Order: 2  
+    Surprised,  // Order: 3
+
+    // Tier 2 (First combinations)
+    Embarrassed, // Order: 4
+    Happy,      // Order: 5
+    Joyful,     // Order: 6
+
+    // Tier 3 (Advanced combinations)
+    Spite,      // Order: 7
+    Love,       // Order: 8
+    Pride,      // Order: 9
+
+    // Tier 4 (Final form)
+    Rage,       // Order: 10
+
+    // Victory state
+    Win,        // Order: 11
+}
+
+impl BallVariant {
+    // Returns the canonical order of this variant (1-based)
+    fn order(&self) -> u32 {
+        match self {
+            // Tier 1
+            BallVariant::Sad => 1,
+            BallVariant::Angry => 2,
+            BallVariant::Surprised => 3,
+            
+            // Tier 2
+            BallVariant::Embarrassed => 4,
+            BallVariant::Happy => 5,
+            BallVariant::Joyful => 6,
+            
+            // Tier 3
+            BallVariant::Spite => 7,
+            BallVariant::Love => 8,
+            BallVariant::Pride => 9,
+            
+            // Tier 4
+            BallVariant::Rage => 10,
+            
+            // Victory
+            BallVariant::Win => 11,
+        }
+    }
 }
 
 impl BallVariant {
     fn size(&self) -> f32 {
-        let order = match self {
-            BallVariant::Sad => 1,
-            BallVariant::Angry => 2,
-            BallVariant::Surprised => 3,
-            BallVariant::Embarrassed => 4,
-            BallVariant::Happy => 5,
-            BallVariant::Joyful => 6,
-            BallVariant::Spite => 7,
-            BallVariant::Love => 8,
-            BallVariant::Pride => 9,
-            BallVariant::Rage => 10,
-            BallVariant::Win => 11,
-        };
-        
-        // Start at 0.8 and grow by ~20% each step
-
-        let ratio = 0.9 * (1.15f32.powf((order - 1) as f32));
+        // Start at 0.9 and grow by 15% each step
+        let ratio = 0.9 * (1.15f32.powf((self.order() - 1) as f32));
         BASE_BALL_SIZE * ratio
     }
 
@@ -1380,19 +1393,12 @@ fn handle_ball_collisions(
                         entity2.despawn();
                     }
 
-                    // Calculate score based on ball variant 
-                    let score_value = match ball1.variant {
-                        BallVariant::Sad => 10,
-                        BallVariant::Angry => 20,
-                        BallVariant::Surprised => 30,
-                        BallVariant::Embarrassed => 50,
-                        BallVariant::Happy => 80,
-                        BallVariant::Joyful => 120,
-                        BallVariant::Spite => 200,
-                        BallVariant::Love => 300,
-                        BallVariant::Pride => 500,
-                        BallVariant::Rage => 1000,
-                        BallVariant::Win => 5000,
+                    // Calculate score based on ball order
+                    // Base score is 10 points, doubled for each order level
+                    let score_value = if ball1.variant == BallVariant::Win {
+                        5000 // Special case for win
+                    } else {
+                        (10.0 * 2.0f32.powf((ball1.variant.order() - 1) as f32)) as u32
                     };
                     
                     score.current += score_value;
