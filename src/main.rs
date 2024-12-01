@@ -170,7 +170,7 @@ fn spawn_explosion(
     commands: &mut Commands,
     position: Vec3,
     color: Color,
-    effects: &VisualEffects,
+    settings: &Settings,
 ) {
     use rand::Rng;
     let mut rng = rand::thread_rng();
@@ -509,7 +509,6 @@ fn animate_background(
     time: Res<Time>,
     mut strips: Query<(&mut Sprite, &mut BackgroundStrip)>,
     settings: Res<Settings>,
-    settings: Res<Settings>,
 ) {
     for (mut sprite, mut strip) in &mut strips {
         // Update the hue based on visual effects settings
@@ -569,7 +568,6 @@ fn main() {
         })
         .insert_state::<GameState>(GameState::Playing)
         .insert_resource(DangerZone::default())
-        .insert_resource(VisualEffects::default())
         .add_systems(Startup, (
             setup,
             setup_preview,
@@ -600,7 +598,6 @@ fn main() {
         .add_systems(Update, (
             settings_menu_interaction,
             update_button_colors,
-            apply_settings_changes,
         ).run_if(in_state(GameState::Settings)))
         .run();
 
@@ -1443,7 +1440,7 @@ fn handle_ball_collisions(
 
                         // Add explosion effect
                         let explosion_color = Color::srgba(1.0, 0.5, 0.0, 1.0);
-                        spawn_explosion(&mut commands, position, explosion_color, &effects);
+                        spawn_explosion(&mut commands, position, explosion_color, &settings);
                         
                         commands.entity(new_ball).insert(CollisionEffect {
                             timer: Timer::from_seconds(0.3, TimerMode::Once),
