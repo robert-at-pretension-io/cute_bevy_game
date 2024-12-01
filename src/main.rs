@@ -211,14 +211,14 @@ fn spawn_explosion(
 
 
 fn update_screen_shake(
-    _time: Res<Time>,
+    time: Res<Time>,
     mut shake_state: ResMut<ScreenShakeState>,
     mut camera_query: Query<&mut Transform, With<Camera>>,
 ) {
     let mut camera_transform = camera_query.single_mut();
     
     // Decay trauma over time
-    shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds())
+    shake_state.trauma = (shake_state.trauma - shake_state.decay * time.elapsed_seconds())
         .max(0.0);
     
     // Calculate shake amount with quadratic falloff
