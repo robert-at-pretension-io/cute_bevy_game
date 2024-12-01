@@ -211,7 +211,7 @@ fn spawn_explosion(
 
 
 fn update_screen_shake(
-    time: Res<Time>,
+    _time: Res<Time>,
     mut shake_state: ResMut<ScreenShakeState>,
     mut camera_query: Query<&mut Transform, With<Camera>>,
 ) {
@@ -572,7 +572,7 @@ fn setup_settings_menu(mut commands: Commands) {
                     align_items: AlignItems::Center,
                     ..default()
                 },
-                background_color: BackgroundColor(Color::rgba(0.0, 0.0, 0.0, 0.7)),
+                background_color: BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.7)),
                 ..default()
             },
             SettingsMenu,
@@ -590,7 +590,7 @@ fn setup_settings_menu(mut commands: Commands) {
 }
 
 fn settings_menu_interaction(
-    settings: Res<Settings>,
+    _settings: Res<Settings>,
 ) {
     // TODO: Add interaction handling for settings controls
 }
@@ -1036,6 +1036,16 @@ fn handle_ball_collisions(
                 let position = (transform1.translation + transform2.translation) / 2.0;
                     
                 if let Some(next_variant) = ball1.variant.next_variant() {
+                    // Add attraction effect to all balls of the same type before despawning
+                    for (entity, ball, _) in query.iter() {
+                        if ball.variant == ball1.variant {
+                            commands.entity(entity).insert(AttractionForce {
+                                timer: Timer::from_seconds(0.5, TimerMode::Once),
+                            });
+                        }
+                    }
+
+                    // Now despawn the colliding balls
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
 
