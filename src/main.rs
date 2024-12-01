@@ -175,9 +175,9 @@ fn spawn_explosion(
     use rand::Rng;
     let mut rng = rand::thread_rng();
     
-    // Scale particle count with explosion intensity
-    let base_particles = (10.0 + settings.explosion_intensity * 30.0) as i32;
-    let num_particles = rng.gen_range(base_particles..base_particles + 10);
+    // Scale particle count with explosion intensity, but cap it for performance
+    let base_particles = (10.0 + (settings.explosion_intensity * 15.0).min(30.0)) as i32;
+    let num_particles = rng.gen_range(base_particles..base_particles + 5);
     
     for _ in 0..num_particles {
         let angle = rng.gen::<f32>() * PI * 2.0;
