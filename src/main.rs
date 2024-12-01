@@ -194,19 +194,20 @@ fn spawn_explosion(
     commands: &mut Commands,
     position: Vec3,
     color: Color,
+    effects: &VisualEffects,
 ) {
     use rand::Rng;
     let mut rng = rand::thread_rng();
     
     // Scale particle count with explosion intensity
-    let effects = commands.get_resource::<VisualEffects>().unwrap();
+    let effects = effects;
     let base_particles = (10.0 + effects.explosion_intensity * 30.0) as i32;
     let num_particles = rng.gen_range(base_particles..base_particles + 10);
     
     for _ in 0..num_particles {
         let angle = rng.gen::<f32>() * PI * 2.0;
         // Scale particle speed with explosion intensity
-        let effects = commands.get_resource::<VisualEffects>().unwrap();
+        let effects = effects;
         let speed = rng.gen_range(50.0..200.0 + 800.0 * effects.explosion_intensity);
         let velocity = Vec2::new(angle.cos(), angle.sin()) * speed;
         
@@ -534,6 +535,7 @@ fn animate_background(
     time: Res<Time>,
     mut strips: Query<(&mut Sprite, &mut BackgroundStrip)>,
     effects: Res<VisualEffects>,
+    settings: Res<Settings>,
 ) {
     for (mut sprite, mut strip) in &mut strips {
         // Update the hue based on visual effects settings
@@ -843,7 +845,7 @@ fn settings_menu_interaction(
         Changed<Interaction>,
     >,
     mut text_query: Query<&mut Text>,
-    windows: Query<&Window>,
+    _windows: Query<&Window>,
 ) {
     for (interaction, button, mut color, children) in &mut interaction_query {
         if *interaction == Interaction::Pressed {
@@ -1447,7 +1449,7 @@ fn handle_ball_collisions(
                         });
                         // Spawn enhanced explosion
                         let explosion_color = Color::srgba(1.0, 0.5, 0.0, 1.0);
-                        spawn_explosion(&mut commands, position, explosion_color);
+                        spawn_explosion(&mut commands, position, explosion_color, &effects);
                     
                         if settings.sound_enabled {
                             commands.spawn(AudioBundle {
@@ -1473,7 +1475,7 @@ fn handle_ball_collisions(
 
                         // Add explosion effect
                         let explosion_color = Color::srgba(1.0, 0.5, 0.0, 1.0);
-                        spawn_explosion(&mut commands, position, explosion_color);
+                        spawn_explosion(&mut commands, position, explosion_color, &effects);
                         
                         commands.entity(new_ball).insert(CollisionEffect {
                             timer: Timer::from_seconds(0.3, TimerMode::Once),
