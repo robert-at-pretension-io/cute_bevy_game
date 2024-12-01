@@ -614,8 +614,8 @@ fn main() {
         ))
         .add_systems(Update, (
             spawn_ball,
-            handle_ball_collisions,
-        ).chain().run_if(not(in_state(GameState::Settings))))
+            handle_ball_collisions.after(spawn_ball)
+        ).run_if(not(in_state(GameState::Settings))))
         .add_systems(Update, (
             update_preview,
             animate_background,
