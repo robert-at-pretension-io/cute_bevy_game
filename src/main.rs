@@ -396,27 +396,29 @@ impl BallVariant {
     }
 
     fn next_variant(&self) -> Option<Self> {
-        match self {
-            // Tier 1 combinations (smallest)
-            BallVariant::Sad => Some(BallVariant::Embarrassed),      // Sad + Sad = Embarrassed
-            BallVariant::Angry => Some(BallVariant::Happy),          // Angry + Angry = Happy  
-            BallVariant::Surprised => Some(BallVariant::Joyful),     // Surprised + Surprised = Joyful
-            
-            // Tier 2 combinations (medium)
-            BallVariant::Embarrassed => Some(BallVariant::Spite),    // Embarrassed + Embarrassed = Spite
-            BallVariant::Happy => Some(BallVariant::Love),           // Happy + Happy = Love
-            BallVariant::Joyful => Some(BallVariant::Pride),         // Joyful + Joyful = Pride
-            
-            // Tier 3 combinations (large)
-            BallVariant::Spite => Some(BallVariant::Rage),           // Spite + Spite = Rage
-            BallVariant::Love => Some(BallVariant::Rage),            // Love + Love = Rage
-            BallVariant::Pride => Some(BallVariant::Rage),           // Pride + Pride = Rage
-            
-            // Tier 4 combinations (extra large)
-            BallVariant::Rage => Some(BallVariant::Win),             // Rage + Rage = Win
-            
-            // Win is the final form
-            BallVariant::Win => None,
+        // Get current order
+        let current_order = self.order();
+        
+        // Win is the final form
+        if current_order == 11 {  // Win variant
+            return None;
+        }
+        
+        // For Tier 3 balls (orders 7,8,9), they all combine into Rage
+        if current_order >= 7 && current_order <= 9 {
+            return Some(BallVariant::Rage);
+        }
+        
+        // For all other balls, look up the next variant by order
+        match current_order {
+            1 => Some(BallVariant::Embarrassed),  // Sad -> Embarrassed
+            2 => Some(BallVariant::Happy),        // Angry -> Happy
+            3 => Some(BallVariant::Joyful),       // Surprised -> Joyful
+            4 => Some(BallVariant::Spite),        // Embarrassed -> Spite
+            5 => Some(BallVariant::Love),         // Happy -> Love
+            6 => Some(BallVariant::Pride),        // Joyful -> Pride
+            10 => Some(BallVariant::Win),         // Rage -> Win
+            _ => None,  // Shouldn't happen given above checks
         }
     }
 
