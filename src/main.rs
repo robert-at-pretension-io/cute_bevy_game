@@ -512,7 +512,7 @@ fn animate_background(
 ) {
     for (mut sprite, mut strip) in &mut strips {
         // Update the hue based on visual effects settings
-        strip.hue += strip.speed * effects.background_animation_speed * 360.0 * time.delta_seconds();
+        strip.hue += strip.speed * settings.background_animation_speed * 360.0 * time.delta_seconds();
         while strip.hue > 360.0 {
             strip.hue -= 360.0;
         }
