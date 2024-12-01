@@ -604,10 +604,16 @@ fn toggle_settings_menu(
     }
 }
 
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
-pub fn main() {
+pub fn wasm_main() {
+    main();
+}
+
+fn main() {
     
     App::new()
         .insert_resource(Settings::default())
