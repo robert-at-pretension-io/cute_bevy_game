@@ -302,7 +302,7 @@ fn update_explosion_particles(
 
 
 // Base size for scaling all balls
-const BASE_BALL_SIZE: f32 = 40.0;
+const BASE_BALL_SIZE: f32 = 30.0;
 
 #[derive(Copy, Clone, PartialEq)]
 enum BallVariant {
