@@ -611,7 +611,7 @@ pub fn wasm_main() {
     main();
 }
 
-fn main() {
+pub fn main() {
     
     App::new()
         .insert_resource(Settings::default())
@@ -1656,13 +1656,13 @@ fn setup_win_screen(mut commands: Commands) {
 }
 
 fn handle_win_screen(
-    commands: Commands,
+    mut commands: Commands,
     keyboard: Res<ButtonInput<KeyCode>>,
-    next_state: ResMut<NextState<GameState>>,
+    mut next_state: ResMut<NextState<GameState>>,
     balls: Query<Entity, With<Ball>>,
     win_text: Query<Entity, With<WinText>>,
-    score: ResMut<Score>,
-    score_text_query: Query<&mut Text, With<ScoreText>>,
+    mut score: ResMut<Score>,
+    mut score_text_query: Query<&mut Text, With<ScoreText>>,
 ) {
     if keyboard.just_pressed(KeyCode::Space) {
         // Remove all balls
