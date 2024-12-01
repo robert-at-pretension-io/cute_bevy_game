@@ -208,7 +208,7 @@ fn update_screen_shake(
         let time = time.elapsed_seconds();
         
         // Scale the shake effect based on screen size (assuming 500x600 window)
-        let screen_scale = 10.0; // Pixels to shake
+        let screen_scale = 5.0; // Reduced pixels to shake
         
         camera_transform.translation.x = shake_amount * screen_scale * (
             (time * 15.0 + 0.0).sin() + 
@@ -223,7 +223,7 @@ fn update_screen_shake(
         );
         
         camera_transform.rotation = Quat::from_rotation_z(
-            shake_amount * 0.05 * (time * 25.0).sin()
+            shake_amount * 0.02 * (time * 25.0).sin()
         );
         
         println!("Applying shake - Trauma: {:.3}, Shake Amount: {:.3}", 
@@ -966,7 +966,7 @@ fn handle_ball_collisions(
                         let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
 
                         // Add screen shake effect
-                        let trauma = ball1.variant.size() / BASE_BALL_SIZE * 1.5; // Much higher multiplier
+                        let trauma = ball1.variant.size() / BASE_BALL_SIZE * 0.5; // Reduced multiplier
                         println!("Setting shake trauma: {:.3} for ball size: {}", trauma, ball1.variant.size());
                         commands.insert_resource(ScreenShakeState {
                             trauma,
