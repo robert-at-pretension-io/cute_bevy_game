@@ -969,7 +969,7 @@ fn update_preview(
         if let Ok((mut transform, mut visibility, preview)) = preview_query.get_single_mut() {
             transform.translation.x = world_position.x;
             // Position higher based on ball size to prevent clipping
-            transform.translation.y = 300.0 - (preview.next_size.size() / 2.0) - 10.0;
+            transform.translation.y = 300.0 - (preview.next_size.size() / 2.0) - 30.0;
             *visibility = Visibility::Visible;
         }
     } else {
@@ -1021,7 +1021,7 @@ fn spawn_ball_at(
             angvel: angular_velocity,
         },
         Collider::ball(ball_size / 2.0),
-        Restitution::coefficient(0.2), // Even less bouncy
+        Restitution::coefficient(0.1), // Even less bouncy
         Friction::coefficient(0.9), // Higher friction to help settle faster
         // Add initial collision effect
         CollisionEffect {
