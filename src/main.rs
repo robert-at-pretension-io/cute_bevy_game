@@ -894,15 +894,15 @@ fn settings_menu_interaction(
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                     SettingButton::HighEffects => {
-                        settings.glow_intensity = 0.3;    // Extremely intense glow
-                        settings.pulse_magnitude = 0.15;  // Dramatic pulsing
-                        settings.color_speed = 1.0;       // Chaotic color changes
-                        settings.background_animation_speed = 1.0; // Fast background
-                        settings.background_strip_count = 15;     // More strips
-                        settings.background_saturation = 1.5;     // Oversaturated
-                        settings.background_brightness = 0.7;     // Brighter
-                        settings.explosion_intensity = 1.0;       // Large explosions
-                        settings.screen_shake_intensity = 1.0;    // Maximum shake
+                        settings.glow_intensity = 0.02;    // Keep glow subtle
+                        settings.pulse_magnitude = 0.008;  // Very subtle size changes
+                        settings.color_speed = 2.0;        // Super fast color changes
+                        settings.background_animation_speed = 2.0; // Very fast background
+                        settings.background_strip_count = 20;     // Many strips
+                        settings.background_saturation = 1.8;     // Very saturated
+                        settings.background_brightness = 0.8;     // Brighter
+                        settings.explosion_intensity = 1.5;       // Bigger explosions
+                        settings.screen_shake_intensity = 2.0;    // Intense shake
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                 }
