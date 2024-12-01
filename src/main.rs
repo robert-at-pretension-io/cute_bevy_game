@@ -1381,6 +1381,7 @@ fn handle_game_over(
     mut next_state: ResMut<NextState<GameState>>,
     balls: Query<Entity, With<Ball>>,
     game_over_text: Query<Entity, With<GameOverText>>,
+    win_text: Query<Entity, With<WinText>>,
     mut score: ResMut<Score>,
     mut score_text_query: Query<&mut Text, With<ScoreText>>,
 ) {
