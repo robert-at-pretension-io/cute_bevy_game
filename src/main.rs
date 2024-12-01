@@ -533,7 +533,6 @@ fn main() {
         .add_systems(Update, (
             spawn_ball,
             handle_ball_collisions,
-            apply_attraction_forces,
         ).run_if(not(in_state(GameState::Settings))))
         .add_systems(Update, (
             update_preview,
