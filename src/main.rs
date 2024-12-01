@@ -570,7 +570,7 @@ struct GameSounds {
 }
 
 fn toggle_settings_menu(
-    keyboard: Res<ButtonInput<KeyCode>>,
+    keyboard: Res<Input<KeyCode>>,
     keyboard: Res<Input<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
     balls: Query<Entity, With<Ball>>,
