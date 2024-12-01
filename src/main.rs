@@ -629,6 +629,18 @@ enum SettingButton {
     HighEffects,
 }
 
+#[derive(Component, PartialEq, Clone, Copy)]
+enum SettingSlider {
+    GlowIntensity,
+    GlowSpeed,
+    PulseMagnitude,
+    PulseSpeed,
+    ColorSpeed,
+    BackgroundSpeed,
+    ExplosionIntensity,
+    ScreenShake,
+}
+
 #[derive(Resource, PartialEq, Clone, Copy)]
 struct SelectedEffectsSetting(SettingButton);
 
@@ -639,6 +651,51 @@ fn get_current_effects_level(settings: &Settings) -> SettingButton {
         (0.08, 0.03, 0.15) => SettingButton::HighEffects,
         _ => SettingButton::NormalEffects, // Default to normal if values don't match exactly
     }
+}
+
+fn spawn_slider(
+    parent: &mut ChildBuilder,
+    label: &str,
+    value: f32,
+    slider_type: SettingSlider,
+) {
+    parent.spawn(NodeBundle {
+        style: Style {
+            width: Val::Percent(100.0),
+            flex_direction: FlexDirection::Row,
+            align_items: AlignItems::Center,
+            justify_content: JustifyContent::SpaceBetween,
+            padding: UiRect::all(Val::Px(10.0)),
+            ..default()
+        },
+        ..default()
+    })
+    .with_children(|parent| {
+        // Label
+        parent.spawn(TextBundle::from_section(
+            label,
+            TextStyle {
+                font_size: 20.0,
+                color: Color::WHITE,
+                ..default()
+            },
+        ));
+
+        // Slider
+        parent.spawn((
+            ButtonBundle {
+                style: Style {
+                    width: Val::Px(200.0),
+                    height: Val::Px(20.0),
+                    ..default()
+                },
+                background_color: Color::rgb(0.3, 0.3, 0.3).into(),
+                ..default()
+            },
+            slider_type,
+            Slider { value },
+        ));
+    });
 }
 
 fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
@@ -703,9 +760,9 @@ fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
                 ));
             });
 
-            // Visual Effects Buttons
+            // Visual Effects Header
             parent.spawn(TextBundle::from_section(
-                "Visual Effects Level:",
+                "Visual Effects:",
                 TextStyle {
                     font_size: 25.0,
                     color: Color::WHITE,
@@ -713,7 +770,27 @@ fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
                 },
             ));
 
-            // Low Effects Button
+            // Add sliders for all visual effects
+            spawn_slider(parent, "Glow Intensity", settings.glow_intensity, SettingSlider::GlowIntensity);
+            spawn_slider(parent, "Glow Speed", settings.glow_speed, SettingSlider::GlowSpeed);
+            spawn_slider(parent, "Pulse Size", settings.pulse_magnitude, SettingSlider::PulseMagnitude);
+            spawn_slider(parent, "Pulse Speed", settings.pulse_speed, SettingSlider::PulseSpeed);
+            spawn_slider(parent, "Color Speed", settings.color_speed, SettingSlider::ColorSpeed);
+            spawn_slider(parent, "Background Speed", settings.background_animation_speed, SettingSlider::BackgroundSpeed);
+            spawn_slider(parent, "Explosion Size", settings.explosion_intensity, SettingSlider::ExplosionIntensity);
+            spawn_slider(parent, "Screen Shake", settings.screen_shake_intensity, SettingSlider::ScreenShake);
+
+            // Preset Buttons Header
+            parent.spawn(TextBundle::from_section(
+                "Preset Effects Levels:",
+                TextStyle {
+                    font_size: 25.0,
+                    color: Color::WHITE,
+                    ..default()
+                },
+            ));
+
+            // Preset Effects Button
             parent.spawn((
                 ButtonBundle {
                     style: Style {
@@ -811,16 +888,21 @@ fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
         });
 }
 
+#[derive(Component)]
+struct Slider {
+    value: f32,
+}
+
 fn settings_menu_interaction(
     mut commands: Commands,
     mut settings: ResMut<Settings>,
     mut interaction_query: Query<
-        (&Interaction, &SettingButton, &mut BackgroundColor, &Children),
+        (&Interaction, Option<&SettingButton>, Option<&mut Slider>, Option<&SettingSlider>, &mut BackgroundColor, &Children),
         Changed<Interaction>,
     >,
     mut text_query: Query<&mut Text>,
 ) {
-    for (interaction, button, mut color, children) in &mut interaction_query {
+    for (interaction, button, mut slider, slider_type, mut color, children) in &mut interaction_query {
         if *interaction == Interaction::Pressed {
             match button {
                 SettingButton::SoundToggle => {
@@ -858,6 +940,31 @@ fn settings_menu_interaction(
                     settings.pulse_magnitude = 0.15;  // Dramatic pulsing
                     settings.color_speed = 1.0;      // Chaotic color changes
                     commands.insert_resource(SelectedEffectsSetting(*button));
+                }
+            }
+        }
+        
+        // Handle slider interactions
+        if let (Some(mut slider), Some(slider_type)) = (slider, slider_type) {
+            if *interaction == Interaction::Pressed {
+                // Update slider value based on click position
+                if let Some(position) = windows.primary().cursor_position() {
+                    if let Some(button_pos) = ui_scale.compute_position() {
+                        let relative_x = (position.x - button_pos.x) / 200.0; // 200 is slider width
+                        slider.value = relative_x.clamp(0.0, 1.0);
+                        
+                        // Update corresponding setting
+                        match slider_type {
+                            SettingSlider::GlowIntensity => settings.glow_intensity = slider.value,
+                            SettingSlider::GlowSpeed => settings.glow_speed = slider.value,
+                            SettingSlider::PulseMagnitude => settings.pulse_magnitude = slider.value,
+                            SettingSlider::PulseSpeed => settings.pulse_speed = slider.value,
+                            SettingSlider::ColorSpeed => settings.color_speed = slider.value,
+                            SettingSlider::BackgroundSpeed => settings.background_animation_speed = slider.value,
+                            SettingSlider::ExplosionIntensity => settings.explosion_intensity = slider.value,
+                            SettingSlider::ScreenShake => settings.screen_shake_intensity = slider.value,
+                        }
+                    }
                 }
             }
         }
