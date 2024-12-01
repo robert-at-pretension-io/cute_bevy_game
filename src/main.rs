@@ -613,8 +613,8 @@ fn main() {
             setup_danger_zone,
         ))
         .add_systems(Update, (
-            spawn_ball.into_configs(),
-            handle_ball_collisions.after(spawn_ball)
+            spawn_ball.into_config(),
+            handle_ball_collisions.into_config().after(spawn_ball)
         ).run_if(not(in_state(GameState::Settings))))
         .add_systems(Update, (
             update_preview,
