@@ -572,6 +572,7 @@ fn main() {
         .add_systems(OnExit(GameState::Settings), cleanup_settings_menu)
         .add_systems(Update, (
             settings_menu_interaction,
+            update_button_colors,
             apply_settings_changes,
         ).run_if(in_state(GameState::Settings)))
         .run();
@@ -579,13 +580,16 @@ fn main() {
 #[derive(Component)]
 struct SettingsMenu;
 
-#[derive(Component, PartialEq)]
+#[derive(Component, PartialEq, Clone, Copy)]
 enum SettingButton {
     SoundToggle,
     LowEffects,
     NormalEffects,
     HighEffects,
 }
+
+#[derive(Resource, PartialEq, Clone, Copy)]
+struct SelectedEffectsSetting(SettingButton);
 
 fn get_current_effects_level(settings: &Settings) -> SettingButton {
     match (settings.glow_intensity, settings.pulse_magnitude, settings.color_speed) {
@@ -597,6 +601,8 @@ fn get_current_effects_level(settings: &Settings) -> SettingButton {
 }
 
 fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
+    // Initialize the selected effects setting based on current settings
+    commands.insert_resource(SelectedEffectsSetting(get_current_effects_level(&settings)));
     commands
         .spawn((
             NodeBundle {
