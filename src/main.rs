@@ -579,12 +579,21 @@ fn main() {
 #[derive(Component)]
 struct SettingsMenu;
 
-#[derive(Component)]
+#[derive(Component, PartialEq)]
 enum SettingButton {
     SoundToggle,
     LowEffects,
     NormalEffects,
     HighEffects,
+}
+
+fn get_current_effects_level(settings: &Settings) -> SettingButton {
+    match (settings.glow_intensity, settings.pulse_magnitude, settings.color_speed) {
+        (0.02, 0.01, 0.05) => SettingButton::LowEffects,
+        (0.05, 0.02, 0.1) => SettingButton::NormalEffects,
+        (0.08, 0.03, 0.15) => SettingButton::HighEffects,
+        _ => SettingButton::NormalEffects, // Default to normal if values don't match exactly
+    }
 }
 
 fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
@@ -667,7 +676,13 @@ fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: BackgroundColor(Color::srgb(0.4, 0.4, 0.4)),
+                    background_color: BackgroundColor(
+                        if get_current_effects_level(&settings) == SettingButton::LowEffects {
+                            Color::srgb(0.2, 0.8, 0.2) // Green for selected
+                        } else {
+                            Color::srgb(0.4, 0.4, 0.4) // Gray for unselected
+                        }
+                    ),
                     ..default()
                 },
                 SettingButton::LowEffects,
@@ -693,7 +708,13 @@ fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: BackgroundColor(Color::rgb(0.4, 0.4, 0.4)),
+                    background_color: BackgroundColor(
+                        if get_current_effects_level(&settings) == SettingButton::NormalEffects {
+                            Color::srgb(0.2, 0.8, 0.2) // Green for selected
+                        } else {
+                            Color::srgb(0.4, 0.4, 0.4) // Gray for unselected
+                        }
+                    ),
                     ..default()
                 },
                 SettingButton::NormalEffects,
@@ -719,7 +740,13 @@ fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: BackgroundColor(Color::rgb(0.4, 0.4, 0.4)),
+                    background_color: BackgroundColor(
+                        if get_current_effects_level(&settings) == SettingButton::HighEffects {
+                            Color::srgb(0.2, 0.8, 0.2) // Green for selected
+                        } else {
+                            Color::srgb(0.4, 0.4, 0.4) // Gray for unselected
+                        }
+                    ),
                     ..default()
                 },
                 SettingButton::HighEffects,
@@ -770,16 +797,40 @@ fn settings_menu_interaction(
                     settings.glow_intensity = 0.02;
                     settings.pulse_magnitude = 0.01;
                     settings.color_speed = 0.05;
+                    // Update all button colors
+                    for (_, button, mut color, _) in &mut interaction_query {
+                        color.0 = if *button == SettingButton::LowEffects {
+                            Color::srgb(0.2, 0.8, 0.2)
+                        } else {
+                            Color::srgb(0.4, 0.4, 0.4)
+                        };
+                    }
                 }
                 SettingButton::NormalEffects => {
                     settings.glow_intensity = 0.05;
                     settings.pulse_magnitude = 0.02;
                     settings.color_speed = 0.1;
+                    // Update all button colors
+                    for (_, button, mut color, _) in &mut interaction_query {
+                        color.0 = if *button == SettingButton::NormalEffects {
+                            Color::srgb(0.2, 0.8, 0.2)
+                        } else {
+                            Color::srgb(0.4, 0.4, 0.4)
+                        };
+                    }
                 }
                 SettingButton::HighEffects => {
                     settings.glow_intensity = 0.08;
                     settings.pulse_magnitude = 0.03;
                     settings.color_speed = 0.15;
+                    // Update all button colors
+                    for (_, button, mut color, _) in &mut interaction_query {
+                        color.0 = if *button == SettingButton::HighEffects {
+                            Color::srgb(0.2, 0.8, 0.2)
+                        } else {
+                            Color::srgb(0.4, 0.4, 0.4)
+                        };
+                    }
                 }
             }
         }
