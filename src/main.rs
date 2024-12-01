@@ -396,29 +396,21 @@ impl BallVariant {
     }
 
     fn next_variant(&self) -> Option<Self> {
-        // Get current order
-        let current_order = self.order();
-        
-        // Win is the final form
-        if current_order == 11 {  // Win variant
-            return None;
-        }
-        
-        // For Tier 3 balls (orders 7,8,9), they all combine into Rage
-        if current_order >= 7 && current_order <= 9 {
-            return Some(BallVariant::Rage);
-        }
-        
-        // For all other balls, look up the next variant by order
-        match current_order {
-            1 => Some(BallVariant::Embarrassed),  // Sad -> Embarrassed
-            2 => Some(BallVariant::Happy),        // Angry -> Happy
-            3 => Some(BallVariant::Joyful),       // Surprised -> Joyful
-            4 => Some(BallVariant::Spite),        // Embarrassed -> Spite
-            5 => Some(BallVariant::Love),         // Happy -> Love
-            6 => Some(BallVariant::Pride),        // Joyful -> Pride
-            10 => Some(BallVariant::Win),         // Rage -> Win
-            _ => None,  // Shouldn't happen given above checks
+        match self.order() {
+            11 => None,  // Win is final form
+            n => match n + 1 {
+                2 => Some(BallVariant::Angry),
+                3 => Some(BallVariant::Surprised),
+                4 => Some(BallVariant::Embarrassed),
+                5 => Some(BallVariant::Happy),
+                6 => Some(BallVariant::Joyful),
+                7 => Some(BallVariant::Spite),
+                8 => Some(BallVariant::Love),
+                9 => Some(BallVariant::Pride),
+                10 => Some(BallVariant::Rage),
+                11 => Some(BallVariant::Win),
+                _ => None,  // Shouldn't happen
+            }
         }
     }
 
