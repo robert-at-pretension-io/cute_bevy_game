@@ -307,10 +307,14 @@ impl BallVariant {
     fn random() -> Self {
         use rand::Rng;
         let mut rng = rand::thread_rng();
-        match rng.gen_range(0..3) {
+        match rng.gen_range(0..7) {
             0 => BallVariant::Sad,
             1 => BallVariant::Angry,
-            _ => BallVariant::Surprised,
+            2 => BallVariant::Surprised,
+            3 => BallVariant::Embarrassed,
+            4 => BallVariant::Happy,
+            5 => BallVariant::Joyful,
+            _ => BallVariant::Spite,
         }
     }
 }
