@@ -221,7 +221,7 @@ fn update_screen_shake(
         );
         
         // Decay trauma over time
-        shake_state.trauma = (shake_state.trauma - shake_state.decay * time)
+        shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds())
             .max(0.0);
         
         // Reset transform when shake is done
@@ -492,13 +492,15 @@ fn main() {
         .add_systems(Update, (
             spawn_ball,
             handle_ball_collisions,
-            update_preview,
-            animate_background,
-            handle_collision_effects,
-            update_explosion_particles,
+            (
+                update_preview,
+                animate_background,
+                handle_collision_effects,
+                update_explosion_particles,
+                update_screen_shake,
+                check_danger_zone,
+            ).after(handle_ball_collisions),
             update_ball_effects,
-            update_screen_shake,
-            check_danger_zone,
         ).run_if(in_state(GameState::Playing)))
         .add_systems(OnEnter(GameState::GameOver), setup_game_over)
         .add_systems(OnEnter(GameState::Win), setup_win_screen)
@@ -958,10 +960,15 @@ fn handle_ball_collisions(
                         // Normal combination
                         let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
 
+                        // Add screen shake effect
                         commands.insert_resource(ScreenShakeState {                                                                  
                             trauma: ball1.variant.size() / BASE_BALL_SIZE * 0.2, // Scale shake with ball size                       
                             decay: 3.0,                                                                                              
                         });
+
+                        // Add explosion effect
+                        let explosion_color = Color::srgba(1.0, 0.5, 0.0, 1.0);
+                        spawn_explosion(&mut commands, position, explosion_color);
                         
                         commands.entity(new_ball).insert(CollisionEffect {
                             timer: Timer::from_seconds(0.3, TimerMode::Once),
