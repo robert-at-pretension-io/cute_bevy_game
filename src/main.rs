@@ -628,9 +628,9 @@ fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
                         ..default()
                     },
                     background_color: BackgroundColor(if settings.sound_enabled {
-                        Color::rgb(0.2, 0.8, 0.2)
+                        Color::srgb(0.2, 0.8, 0.2)
                     } else {
-                        Color::rgb(0.8, 0.2, 0.2)
+                        Color::srgb(0.8, 0.2, 0.2)
                     }),
                     ..default()
                 },
@@ -667,7 +667,7 @@ fn setup_settings_menu(mut commands: Commands, settings: Res<Settings>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: BackgroundColor(Color::rgb(0.4, 0.4, 0.4)),
+                    background_color: BackgroundColor(Color::srgb(0.4, 0.4, 0.4)),
                     ..default()
                 },
                 SettingButton::LowEffects,
@@ -1083,6 +1083,7 @@ fn check_danger_zone(
     mut warning_query: Query<&mut Sprite, With<DangerZoneWarning>>,
     mut next_state: ResMut<NextState<GameState>>,
     game_sounds: Res<GameSounds>,
+    settings: Res<Settings>,
     mut commands: Commands,
 ) {
     let balls_in_danger = ball_query
@@ -1227,6 +1228,7 @@ fn handle_ball_collisions(
     mut score_text_query: Query<&mut Text, With<ScoreText>>,
     mut score: ResMut<Score>,
     game_sounds: Res<GameSounds>,
+    settings: Res<Settings>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
     for pair in rapier_context.contact_pairs() {
