@@ -195,45 +195,45 @@ fn update_screen_shake(
     mut shake_state: ResMut<ScreenShakeState>,
     mut camera_query: Query<&mut Transform, With<Camera>>,
 ) {
-    if shake_state.trauma > 0.0 {
-        let mut camera_transform = camera_query.single_mut();
-        
-        // Use multiple frequencies for more organic motion
+    let mut camera_transform = camera_query.single_mut();
+    
+    // Decay trauma over time
+    shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds())
+        .max(0.0);
+    
+    // Calculate shake amount with quadratic falloff
+    let shake_amount = shake_state.trauma * shake_state.trauma;
+    
+    if shake_amount > 0.0 {
         let time = time.elapsed_seconds();
-        let shake_amount = shake_state.trauma * shake_state.trauma; // Quadratic falloff
         
-        // Combine multiple frequencies with different weights
-        camera_transform.translation.x = shake_amount * (
-            40.0 * (time * 15.0 + 0.0).sin() + 
-            20.0 * (time * 27.0 + 1.3).sin() +
-            15.0 * (time * 45.0 + 2.6).sin()
+        // Scale the shake effect based on screen size (assuming 500x600 window)
+        let screen_scale = 10.0; // Pixels to shake
+        
+        camera_transform.translation.x = shake_amount * screen_scale * (
+            (time * 15.0 + 0.0).sin() + 
+            0.5 * (time * 27.0 + 1.3).sin() +
+            0.25 * (time * 45.0 + 2.6).sin()
         );
         
-        camera_transform.translation.y = shake_amount * (
-            40.0 * (time * 17.0 + 3.9).sin() + 
-            20.0 * (time * 32.0 + 5.2).sin() +
-            15.0 * (time * 52.0 + 6.5).sin()
+        camera_transform.translation.y = shake_amount * screen_scale * (
+            (time * 17.0 + 3.9).sin() + 
+            0.5 * (time * 32.0 + 5.2).sin() +
+            0.25 * (time * 52.0 + 6.5).sin()
         );
         
-        // Add more significant rotation shake
         camera_transform.rotation = Quat::from_rotation_z(
-            shake_amount * 0.2 * (time * 25.0).sin()
+            shake_amount * 0.05 * (time * 25.0).sin()
         );
         
         println!("Applying shake - Trauma: {:.3}, Shake Amount: {:.3}", 
-            shake_state.trauma, 
-            shake_state.trauma * shake_state.trauma
+            shake_state.trauma,
+            shake_amount
         );
-        
-        // Decay trauma over time using delta_seconds
-        shake_state.trauma = (shake_state.trauma - shake_state.decay * time)
-            .max(0.0);
-        
-        // Reset transform when shake is done
-        if shake_state.trauma <= 0.0 {
-            camera_transform.translation = Vec3::ZERO;
-            camera_transform.rotation = Quat::IDENTITY;
-        }
+    } else if shake_state.trauma <= 0.0 {
+        // Only reset when actually needed
+        camera_transform.translation = Vec3::ZERO;
+        camera_transform.rotation = Quat::IDENTITY;
     }
 }
 
