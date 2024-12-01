@@ -404,18 +404,18 @@ impl BallVariant {
         use rand::Rng;
         let mut rng = rand::thread_rng();
         
-        // List all variants with their relative weights (inverse of their size)
+        // List all variants with exponentially decreasing weights based on size
         let variants = [
-            (BallVariant::Sad, 1.0 / BallVariant::Sad.size()),
-            (BallVariant::Angry, 1.0 / BallVariant::Angry.size()),
-            (BallVariant::Surprised, 1.0 / BallVariant::Surprised.size()),
-            (BallVariant::Embarrassed, 1.0 / BallVariant::Embarrassed.size()),
-            (BallVariant::Happy, 1.0 / BallVariant::Happy.size()),
-            (BallVariant::Joyful, 1.0 / BallVariant::Joyful.size()),
-            (BallVariant::Spite, 1.0 / BallVariant::Spite.size()),
-            (BallVariant::Love, 1.0 / BallVariant::Love.size()),
-            (BallVariant::Pride, 1.0 / BallVariant::Pride.size()),
-            (BallVariant::Rage, 1.0 / BallVariant::Rage.size()),
+            (BallVariant::Sad, 100.0),  // Most common
+            (BallVariant::Angry, 80.0),
+            (BallVariant::Surprised, 60.0),
+            (BallVariant::Embarrassed, 25.0),
+            (BallVariant::Happy, 10.0),
+            (BallVariant::Joyful, 4.0),
+            (BallVariant::Spite, 1.0),
+            (BallVariant::Love, 0.4),
+            (BallVariant::Pride, 0.1),
+            (BallVariant::Rage, 0.01),  // Extremely rare
         ];
         
         // Calculate total weight
