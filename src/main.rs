@@ -404,7 +404,7 @@ fn main() {
         }))
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .insert_resource(RapierConfiguration {
-            gravity: Vec2::new(0.0, -500.0),
+            gravity: Vec2::new(0.0, -1200.0),
             ..RapierConfiguration::new(1.0)
         })
         .insert_state::<GameState>(GameState::Playing)
