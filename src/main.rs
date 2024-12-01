@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 
 #[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 enum GameState {
@@ -186,6 +186,74 @@ fn spawn_explosion(
     }
 }
 
+fn update_trail_effects(
+    mut commands: Commands,
+    time: Res<Time>,
+    mut trail_query: Query<(Entity, &Transform, &mut TrailEffect)>,
+) {
+    for (entity, transform, mut trail) in trail_query.iter_mut() {
+        // Add new point
+        trail.points.push((
+            transform.translation.truncate(),
+            0.0, // Age starts at 0
+        ));
+
+        // Update age and remove old points
+        trail.points.retain_mut(|(_, age)| {
+            *age += time.delta_seconds();
+            *age < trail.lifetime
+        });
+
+        // Limit number of points
+        while trail.points.len() > trail.max_points {
+            trail.points.remove(0);
+        }
+
+        // Spawn trail sprites
+        for (pos, age) in trail.points.iter() {
+            let alpha = 1.0 - (age / trail.lifetime);
+            commands.spawn(SpriteBundle {
+                sprite: Sprite {
+                    color: Color::rgba(1.0, 1.0, 1.0, alpha),
+                    custom_size: Some(Vec2::splat(5.0 * alpha)),
+                    ..default()
+                },
+                transform: Transform::from_xyz(pos.x, pos.y, 0.0),
+                ..default()
+            }).insert(ExplosionParticle {
+                lifetime: Timer::from_seconds(0.05, TimerMode::Once),
+                initial_color: Color::WHITE,
+                velocity: Vec2::ZERO,
+                size: 5.0 * alpha,
+                rotation_speed: 0.0,
+            });
+        }
+    }
+}
+
+fn update_screen_shake(
+    time: Res<Time>,
+    mut shake_state: ResMut<ScreenShakeState>,
+    mut camera_query: Query<&mut Transform, With<Camera>>,
+) {
+    if shake_state.trauma > 0.0 {
+        let mut camera_transform = camera_query.single_mut();
+        
+        let time = time.elapsed_seconds();
+        let shake_amount = shake_state.trauma * shake_state.trauma;
+        
+        camera_transform.translation.x = shake_amount * 10.0 * (time * 20.0).sin();
+        camera_transform.translation.y = shake_amount * 10.0 * (time * 21.0).sin();
+        
+        shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds())
+            .max(0.0);
+        
+        if shake_state.trauma == 0.0 {
+            camera_transform.translation = Vec3::ZERO;
+        }
+    }
+}
+
 fn update_explosion_particles(
     mut commands: Commands,
     time: Res<Time>,
@@ -199,10 +267,16 @@ fn update_explosion_particles(
                 commands.entity(entity).despawn();
             }
         } else {
-            // Fade out by adjusting alpha and scale
-            
-            let life_percent = particle.lifetime.elapsed_secs() / particle.lifetime.duration().as_secs_f32();
-            sprite.color.set_alpha(life_percent);
+            let life_percent = 1.0 - (particle.lifetime.elapsed_secs() / particle.lifetime.duration().as_secs_f32());
+                
+            // Update position based on velocity
+            transform.translation += particle.velocity.extend(0.0) * time.delta_seconds();
+                
+            // Update rotation
+            transform.rotate_z(particle.rotation_speed * time.delta_seconds());
+                
+            // Update color and scale with life
+            sprite.color = particle.initial_color.with_alpha(life_percent);
             transform.scale = Vec3::splat(life_percent);
         }
     }
@@ -329,6 +403,32 @@ struct CollisionEffect {
 #[derive(Component)]
 struct ExplosionParticle {
     lifetime: Timer,
+    initial_color: Color,
+    velocity: Vec2,
+    size: f32,
+    rotation_speed: f32,
+}
+
+#[derive(Component)]
+struct TrailEffect {
+    points: Vec<(Vec2, f32)>, // Position and age of trail points
+    max_points: usize,
+    lifetime: f32,
+}
+
+#[derive(Resource)]
+struct ScreenShakeState {
+    trauma: f32,
+    decay: f32,
+}
+
+impl Default for ScreenShakeState {
+    fn default() -> Self {
+        Self {
+            trauma: 0.0,
+            decay: 2.0,
+        }
+    }
 }
 
 
@@ -403,6 +503,7 @@ fn main() {
             ..default()
         }))
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+        .insert_resource(ScreenShakeState::default())
         .insert_resource(RapierConfiguration {
             gravity: Vec2::new(0.0, -1200.0),
             ..RapierConfiguration::new(1.0)
@@ -425,6 +526,8 @@ fn main() {
             handle_collision_effects,
             update_explosion_particles,
             update_ball_effects,
+            update_trail_effects,
+            update_screen_shake,
             check_danger_zone,
         ).run_if(in_state(GameState::Playing)))
         .add_systems(OnEnter(GameState::GameOver), setup_game_over)
@@ -864,7 +967,20 @@ fn handle_ball_collisions(
                         });
                             
                         // Trigger win effects
-                        spawn_explosion(&mut commands, position, Color::srgba(1.0, 1.0, 0.0, 1.0));
+                        // Add screen shake
+                        let shake_intensity = ball1.variant.size() / BASE_BALL_SIZE * 0.3;
+                        danger_zone.is_warning = true;
+                    
+                        // Spawn enhanced explosion
+                        let explosion_color = ColorGenerator::random_vibrant_srgba();
+                        spawn_explosion(&mut commands, position, explosion_color);
+                    
+                        // Add trail effect to new ball
+                        commands.entity(new_ball).insert(TrailEffect {
+                            points: Vec::new(),
+                            max_points: 10,
+                            lifetime: 0.5,
+                        });
                         commands.spawn(AudioBundle {
                             source: game_sounds.pop.clone(),
                             settings: PlaybackSettings::DESPAWN,
