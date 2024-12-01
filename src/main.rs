@@ -1014,6 +1014,7 @@ fn handle_game_over(
     balls: Query<Entity, With<Ball>>,
     game_over_text: Query<Entity, With<GameOverText>>,
     mut score: ResMut<Score>,
+    mut score_text_query: Query<&mut Text, With<ScoreText>>,
 ) {
     if keyboard.just_pressed(KeyCode::Space) {
         // Remove all balls
@@ -1030,6 +1031,9 @@ fn handle_game_over(
         
         // Reset score and state
         score.current = 0;
+        if let Ok(mut text) = score_text_query.get_single_mut() {
+            text.sections[0].value = format!("Score: {}\nHigh Score: {}", score.current, score.high_score);
+        }
         next_state.set(GameState::Playing);
     }
 }
@@ -1195,6 +1199,8 @@ fn handle_win_screen(
     mut next_state: ResMut<NextState<GameState>>,
     balls: Query<Entity, With<Ball>>,
     win_text: Query<Entity, With<WinText>>,
+    mut score: ResMut<Score>,
+    mut score_text_query: Query<&mut Text, With<ScoreText>>,
 ) {
     if keyboard.just_pressed(KeyCode::Space) {
         // Remove all balls
@@ -1207,7 +1213,11 @@ fn handle_win_screen(
             commands.entity(entity).despawn();
         }
         
-        // Reset to playing state
+        // Reset score and state
+        score.current = 0;
+        if let Ok(mut text) = score_text_query.get_single_mut() {
+            text.sections[0].value = format!("Score: {}\nHigh Score: {}", score.current, score.high_score);
+        }
         next_state.set(GameState::Playing);
     }
 }
