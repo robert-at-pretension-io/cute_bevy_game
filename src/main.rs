@@ -39,6 +39,7 @@ struct Settings {
     background_brightness: f32,
     explosion_intensity: f32,
     screen_shake_intensity: f32,
+    screen_shake_decay: f32,
     is_fullscreen: bool,
 }
 
@@ -58,6 +59,7 @@ impl Default for Settings {
             background_brightness: 0.5,
             explosion_intensity: 0.5,
             screen_shake_intensity: 0.5,
+            screen_shake_decay: 3.0,
             is_fullscreen: false,
         }
     }
@@ -271,7 +273,7 @@ fn update_screen_shake(
     shake_state.trauma = shake_state.trauma.clamp(0.0, 1.0);
     
     // Decay trauma over time
-    shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds())
+    shake_state.trauma = (shake_state.trauma - settings.screen_shake_decay * time.delta_seconds())
         .max(0.0);
     
     // Calculate shake amount with quadratic falloff
@@ -879,6 +881,7 @@ fn settings_menu_interaction(
                         settings.background_brightness = 0.3;     // Darker background
                         settings.explosion_intensity = 0.2;       // Small explosions
                         settings.screen_shake_intensity = 0.2;    // Minimal shake
+                        settings.screen_shake_decay = 4.0;        // Fast decay
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                     SettingButton::NormalEffects => {
@@ -891,6 +894,7 @@ fn settings_menu_interaction(
                         settings.background_brightness = 0.5;     // Normal brightness
                         settings.explosion_intensity = 0.5;       // Medium explosions
                         settings.screen_shake_intensity = 0.5;    // Medium shake
+                        settings.screen_shake_decay = 3.0;        // Normal decay
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                     SettingButton::HighEffects => {
@@ -903,6 +907,7 @@ fn settings_menu_interaction(
                         settings.background_brightness = 0.8;     // Brighter
                         settings.explosion_intensity = 4.0;       // MASSIVE explosions
                         settings.screen_shake_intensity = 5.0;    // EXTREME shake
+                        settings.screen_shake_decay = 1.0;        // Very slow decay
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                 }
