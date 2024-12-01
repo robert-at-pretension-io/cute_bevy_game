@@ -315,6 +315,7 @@ fn update_explosion_particles(
     mut commands: Commands,
     time: Res<Time>,
     mut particles: Query<(Entity, &mut Transform, &mut Sprite, &mut ExplosionParticle)>,
+    mut particle_count: ResMut<ParticleCount>,
 ) {
     for (entity, mut transform, mut sprite, mut particle) in &mut particles {
         particle.lifetime.tick(time.delta());
@@ -1470,7 +1471,7 @@ fn handle_ball_collisions(
 
                         // Add explosion effect
                         let explosion_color = Color::srgba(1.0, 0.5, 0.0, 1.0);
-                        spawn_explosion(&mut commands, position, explosion_color, &settings);
+                        spawn_explosion(&mut commands, position, explosion_color, &settings, &mut particle_count);
                         
                         commands.entity(new_ball).insert(CollisionEffect {
                             timer: Timer::from_seconds(0.3, TimerMode::Once),
