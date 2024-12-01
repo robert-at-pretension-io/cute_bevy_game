@@ -778,9 +778,9 @@ fn settings_menu_interaction(
                 SettingButton::SoundToggle => {
                     settings.sound_enabled = !settings.sound_enabled;
                     *color = BackgroundColor(if settings.sound_enabled {
-                        Color::rgb(0.2, 0.8, 0.2)
+                        Color::srgb(0.2, 0.8, 0.2)
                     } else {
-                        Color::rgb(0.8, 0.2, 0.2)
+                        Color::srgb(0.8, 0.2, 0.2)
                     });
                     // Update button text
                     if let Some(child) = children.first() {
