@@ -1377,6 +1377,7 @@ fn handle_ball_collisions(
     game_sounds: Res<GameSounds>,
     settings: Res<Settings>,
     mut next_state: ResMut<NextState<GameState>>,
+    effects: Res<VisualEffects>,
 ) {
     for pair in rapier_context.contact_pairs() {
         let entity1 = pair.collider1();
