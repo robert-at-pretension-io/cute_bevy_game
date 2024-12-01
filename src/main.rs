@@ -34,6 +34,9 @@ struct Settings {
     pulse_speed: f32,
     color_speed: f32,
     background_animation_speed: f32,
+    background_strip_count: i32,
+    background_saturation: f32,
+    background_brightness: f32,
     explosion_intensity: f32,
     screen_shake_intensity: f32,
     is_fullscreen: bool,
@@ -50,6 +53,9 @@ impl Default for Settings {
             pulse_speed: 0.4,
             color_speed: 0.15,
             background_animation_speed: 0.5,
+            background_strip_count: 10,
+            background_saturation: 1.0,
+            background_brightness: 0.5,
             explosion_intensity: 0.5,
             screen_shake_intensity: 0.5,
             is_fullscreen: false,
@@ -498,9 +504,9 @@ struct BackgroundStrip {
     width: f32,       // Width of the strip
 }
 
-fn setup_background(mut commands: Commands) {
-    // Create several vertical strips
-    let num_strips = 10;
+fn setup_background(mut commands: Commands, settings: Res<Settings>) {
+    // Create several vertical strips based on settings
+    let num_strips = settings.background_strip_count;
     let strip_width = 500.0 / num_strips as f32;
     
     for i in 0..num_strips {
@@ -536,8 +542,8 @@ fn animate_background(
             strip.hue -= 360.0;
         }
         
-        // Update the color (hue in degrees)
-        sprite.color = Color::hsl(strip.hue, 1.0, 0.5);
+        // Update the color with settings-based saturation and brightness
+        sprite.color = Color::hsl(strip.hue, settings.background_saturation, settings.background_brightness);
     }
 }
 
@@ -866,6 +872,9 @@ fn settings_menu_interaction(
                         settings.pulse_magnitude = 0.005; // Minimal pulse
                         settings.color_speed = 0.05;      // Very slow, almost static
                         settings.background_animation_speed = 0.1; // Slow background
+                        settings.background_strip_count = 5;      // Fewer strips
+                        settings.background_saturation = 0.5;     // Muted colors
+                        settings.background_brightness = 0.3;     // Darker background
                         settings.explosion_intensity = 0.2;       // Small explosions
                         settings.screen_shake_intensity = 0.2;    // Minimal shake
                         commands.insert_resource(SelectedEffectsSetting(*button));
@@ -875,6 +884,9 @@ fn settings_menu_interaction(
                         settings.pulse_magnitude = 0.02;  // Default subtle pulse
                         settings.color_speed = 0.15;      // Default moderate speed
                         settings.background_animation_speed = 0.5; // Normal background
+                        settings.background_strip_count = 10;     // Normal strips
+                        settings.background_saturation = 1.0;     // Normal saturation
+                        settings.background_brightness = 0.5;     // Normal brightness
                         settings.explosion_intensity = 0.5;       // Medium explosions
                         settings.screen_shake_intensity = 0.5;    // Medium shake
                         commands.insert_resource(SelectedEffectsSetting(*button));
@@ -884,6 +896,9 @@ fn settings_menu_interaction(
                         settings.pulse_magnitude = 0.15;  // Dramatic pulsing
                         settings.color_speed = 1.0;       // Chaotic color changes
                         settings.background_animation_speed = 1.0; // Fast background
+                        settings.background_strip_count = 15;     // More strips
+                        settings.background_saturation = 1.5;     // Oversaturated
+                        settings.background_brightness = 0.7;     // Brighter
                         settings.explosion_intensity = 1.0;       // Large explosions
                         settings.screen_shake_intensity = 1.0;    // Maximum shake
                         commands.insert_resource(SelectedEffectsSetting(*button));
