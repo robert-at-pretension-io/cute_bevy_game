@@ -529,8 +529,8 @@ fn spawn_ball_at(
             angvel: angular_velocity,
         },
         Collider::ball(ball_size / 2.0),
-        Restitution::coefficient(0.7),
-        Friction::coefficient(0.5), // Add moderate friction
+        Restitution::coefficient(0.3), // Less bouncy
+        Friction::coefficient(0.8), // More friction to help settle faster
         // Add initial collision effect
         CollisionEffect {
             timer: Timer::from_seconds(0.3, TimerMode::Once),
