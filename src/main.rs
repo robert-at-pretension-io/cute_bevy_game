@@ -1,4 +1,4 @@
-use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
+use bevy::prelude::*;
 
 #[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 enum GameState {
@@ -189,44 +189,45 @@ fn spawn_explosion(
 fn update_trail_effects(
     mut commands: Commands,
     time: Res<Time>,
-    mut trail_query: Query<(Entity, &Transform, &mut TrailEffect)>,
+    mut trail_query: Query<(&Transform, &mut TrailEffect)>,
 ) {
-    for (entity, transform, mut trail) in trail_query.iter_mut() {
+    for (transform, mut trail) in trail_query.iter_mut() {
+        let lifetime = trail.lifetime;
+        let pos = transform.translation.truncate();
+        
         // Add new point
-        trail.points.push((
-            transform.translation.truncate(),
-            0.0, // Age starts at 0
-        ));
-
-        // Update age and remove old points
-        trail.points.retain_mut(|(_, age)| {
+        trail.points.push((pos, 0.0));
+        
+        // Update ages
+        for (_, age) in trail.points.iter_mut() {
             *age += time.delta_seconds();
-            *age < trail.lifetime
-        });
-
-        // Limit number of points
+        }
+        
+        // Remove old points
+        trail.points.retain(|(_, age)| *age < lifetime);
+        
+        // Limit points
         while trail.points.len() > trail.max_points {
             trail.points.remove(0);
         }
-
-        // Spawn trail sprites
+        
+        // Spawn sprites
         for (pos, age) in trail.points.iter() {
-            let alpha = 1.0 - (age / trail.lifetime);
-            commands.spawn(SpriteBundle {
-                sprite: Sprite {
-                    color: Color::rgba(1.0, 1.0, 1.0, alpha),
-                    custom_size: Some(Vec2::splat(5.0 * alpha)),
+            let alpha = 1.0 - (age / lifetime);
+            commands.spawn((
+                SpriteBundle {
+                    sprite: Sprite {
+                        color: Color::srgba(1.0, 1.0, 1.0, alpha),
+                        custom_size: Some(Vec2::splat(5.0 * alpha)),
+                        ..default()
+                    },
+                    transform: Transform::from_xyz(pos.x, pos.y, 0.0),
                     ..default()
                 },
-                transform: Transform::from_xyz(pos.x, pos.y, 0.0),
-                ..default()
-            }).insert(ExplosionParticle {
-                lifetime: Timer::from_seconds(0.05, TimerMode::Once),
-                initial_color: Color::WHITE,
-                velocity: Vec2::ZERO,
-                size: 5.0 * alpha,
-                rotation_speed: 0.0,
-            });
+                ExplosionParticle {
+                    lifetime: Timer::from_seconds(0.05, TimerMode::Once),
+                },
+            ));
         }
     }
 }
@@ -403,10 +404,6 @@ struct CollisionEffect {
 #[derive(Component)]
 struct ExplosionParticle {
     lifetime: Timer,
-    initial_color: Color,
-    velocity: Vec2,
-    size: f32,
-    rotation_speed: f32,
 }
 
 #[derive(Component)]
@@ -969,10 +966,8 @@ fn handle_ball_collisions(
                         // Trigger win effects
                         // Add screen shake
                         let shake_intensity = ball1.variant.size() / BASE_BALL_SIZE * 0.3;
-                        danger_zone.is_warning = true;
-                    
                         // Spawn enhanced explosion
-                        let explosion_color = ColorGenerator::random_vibrant_srgba();
+                        let explosion_color = Color::srgba(1.0, 0.5, 0.0, 1.0);
                         spawn_explosion(&mut commands, position, explosion_color);
                     
                         // Add trail effect to new ball
