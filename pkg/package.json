@@ -1,0 +1,15 @@
+{
+  "name": "ball_drop_rust",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "ball_drop_rust_bg.wasm",
+    "ball_drop_rust.js",
+    "ball_drop_rust.d.ts"
+  ],
+  "main": "ball_drop_rust.js",
+  "types": "ball_drop_rust.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
