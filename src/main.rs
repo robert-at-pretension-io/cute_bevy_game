@@ -374,8 +374,8 @@ impl BallVariant {
 
 impl BallVariant {
     fn size(&self) -> f32 {
-        // Start at 0.9 and grow by 15% each step
-        let ratio = 0.9 * (1.15f32.powf((self.order() - 1) as f32));
+        // Start at 0.9 and grow by 25% each step
+        let ratio = 0.9 * (1.25f32.powf((self.order() - 1) as f32));
         BASE_BALL_SIZE * ratio
     }
 
