@@ -1062,8 +1062,9 @@ fn spawn_ball(
     windows: Query<&Window>,
     asset_server: Res<AssetServer>,
     mut preview_query: Query<(&mut BallPreview, &mut Handle<Image>, &mut Sprite)>,
+    game_state: Res<State<GameState>>,
 ) {
-    if mouse.just_pressed(MouseButton::Left) {
+    if mouse.just_pressed(MouseButton::Left) && *game_state.get() == GameState::Playing {
         let (camera, camera_transform) = camera_q.single();
         let window = windows.single();
         
