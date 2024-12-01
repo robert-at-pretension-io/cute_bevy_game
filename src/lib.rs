@@ -131,7 +131,7 @@ struct ScoreText;
 
 #[derive(Component)]
 struct GameOverText;
-use bevy_rapier2d::{na::ComplexField, plugin::RapierPhysicsPlugin, prelude::*};
+use bevy_rapier2d::{plugin::RapierPhysicsPlugin, prelude::*};
 use std::f32::consts::PI;
 
 use rand::Rng;
@@ -591,11 +591,6 @@ struct GameAudio;
 fn toggle_settings_menu(
     keyboard: Res<ButtonInput<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
-    balls: Query<Entity, With<Ball>>,
-    game_over_text: Query<Entity, With<GameOverText>>,
-    win_text: Query<Entity, With<WinText>>,
-    mut score: ResMut<Score>,
-    mut score_text_query: Query<&mut Text, With<ScoreText>>,
     current_state: Res<State<GameState>>,
 ) {
     if keyboard.just_pressed(KeyCode::Escape) {
@@ -671,6 +666,19 @@ fn main() {
             update_button_colors,
             update_audio_volume,
         ).run_if(in_state(GameState::Settings)))
+
+fn update_audio_volume(
+    settings: Res<Settings>,
+    audio_query: Query<&AudioSink, With<GameAudio>>,
+) {
+    for sink in audio_query.iter() {
+        if settings.sound_enabled {
+            sink.set_volume(settings.volume);
+        } else {
+            sink.set_volume(0.0);
+        }
+    }
+}
         .run();
 
 #[derive(Component)]
@@ -1648,13 +1656,13 @@ fn setup_win_screen(mut commands: Commands) {
 }
 
 fn handle_win_screen(
-    mut commands: Commands,
+    commands: Commands,
     keyboard: Res<ButtonInput<KeyCode>>,
-    mut next_state: ResMut<NextState<GameState>>,
+    next_state: ResMut<NextState<GameState>>,
     balls: Query<Entity, With<Ball>>,
     win_text: Query<Entity, With<WinText>>,
-    mut score: ResMut<Score>,
-    mut score_text_query: Query<&mut Text, With<ScoreText>>,
+    score: ResMut<Score>,
+    score_text_query: Query<&mut Text, With<ScoreText>>,
 ) {
     if keyboard.just_pressed(KeyCode::Space) {
         // Remove all balls
