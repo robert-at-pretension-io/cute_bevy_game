@@ -192,12 +192,16 @@ fn spawn_explosion(
     use rand::Rng;
     let mut rng = rand::thread_rng();
     
-    // Further reduced particles and made count more consistent
-    let num_particles = rng.gen_range(10..20); // Fewer particles
+    // Scale particle count with explosion intensity
+    let effects = commands.get_resource::<VisualEffects>().unwrap();
+    let base_particles = (10.0 + effects.explosion_intensity * 30.0) as i32;
+    let num_particles = rng.gen_range(base_particles..base_particles + 10);
     
     for _ in 0..num_particles {
         let angle = rng.gen::<f32>() * PI * 2.0;
-        let speed = rng.gen_range(50.0..600.0); // Wider speed range for more variety
+        // Scale particle speed with explosion intensity
+        let effects = commands.get_resource::<VisualEffects>().unwrap();
+        let speed = rng.gen_range(50.0..200.0 + 800.0 * effects.explosion_intensity);
         let velocity = Vec2::new(angle.cos(), angle.sin()) * speed;
         
         // More varied sizes with exponential distribution for visual interest
@@ -264,7 +268,7 @@ fn update_screen_shake(
         .max(0.0);
     
     // Calculate shake amount with quadratic falloff
-    let shake_amount = shake_state.trauma * shake_state.trauma;
+    let shake_amount = shake_state.trauma * shake_state.trauma * effects.screen_shake_intensity;
     
     if shake_amount > 0.0 {
         let time = time.elapsed_seconds();
