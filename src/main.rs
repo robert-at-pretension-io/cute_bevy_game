@@ -6,6 +6,26 @@ enum GameState {
     Playing,
     GameOver,
     Win,
+    Settings,
+}
+
+#[derive(Resource)]
+struct Settings {
+    volume: f32,
+    glow_intensity: f32,
+    pulse_magnitude: f32,
+    is_fullscreen: bool,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            volume: 0.5,
+            glow_intensity: 0.1,
+            pulse_magnitude: 0.03,
+            is_fullscreen: false,
+        }
+    }
 }
 
 #[derive(Resource)]
@@ -467,8 +487,24 @@ struct GameSounds {
     game_over: Handle<AudioSource>,
 }
 
+fn toggle_settings_menu(
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mut next_state: ResMut<NextState<GameState>>,
+    current_state: Res<State<GameState>>,
+) {
+    if keyboard.just_pressed(KeyCode::Escape) {
+        match current_state.get() {
+            GameState::Playing => next_state.set(GameState::Settings),
+            GameState::Settings => next_state.set(GameState::Playing),
+            _ => {},
+        }
+    }
+}
+
 fn main() {
+    
     App::new()
+        .insert_resource(Settings::default())
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 resolution: (500.0, 600.0).into(),
@@ -497,6 +533,8 @@ fn main() {
         .add_systems(Update, (
             spawn_ball,
             handle_ball_collisions,
+        ).run_if(not(in_state(GameState::Settings)))
+        .add_systems(Update, (
             (
                 update_preview,
                 animate_background,
@@ -511,7 +549,69 @@ fn main() {
         .add_systems(OnEnter(GameState::Win), setup_win_screen)
         .add_systems(Update, handle_game_over.run_if(in_state(GameState::GameOver)))
         .add_systems(Update, handle_win_screen.run_if(in_state(GameState::Win)))
+        .add_systems(Update, toggle_settings_menu)
+        .add_systems(OnEnter(GameState::Settings), setup_settings_menu)
+        .add_systems(OnExit(GameState::Settings), cleanup_settings_menu)
+        .add_systems(Update, (
+            settings_menu_interaction,
+            apply_settings_changes,
+        ).run_if(in_state(GameState::Settings)))
         .run();
+
+#[derive(Component)]
+struct SettingsMenu;
+
+fn setup_settings_menu(mut commands: Commands) {
+    commands
+        .spawn((
+            NodeBundle {
+                style: Style {
+                    width: Val::Percent(100.0),
+                    height: Val::Percent(100.0),
+                    position_type: PositionType::Absolute,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
+                background_color: BackgroundColor(Color::rgba(0.0, 0.0, 0.0, 0.7)),
+                ..default()
+            },
+            SettingsMenu,
+        ))
+        .with_children(|parent| {
+            parent.spawn(TextBundle::from_section(
+                "Settings Menu\nPress ESC to return",
+                TextStyle {
+                    font_size: 40.0,
+                    color: Color::WHITE,
+                    ..default()
+                },
+            ));
+        });
+}
+
+fn settings_menu_interaction(
+    settings: Res<Settings>,
+) {
+    // TODO: Add interaction handling for settings controls
+}
+
+fn apply_settings_changes(
+    settings: Res<Settings>,
+    mut visual_effects: ResMut<VisualEffects>,
+) {
+    visual_effects.glow_intensity = settings.glow_intensity;
+    visual_effects.pulse_magnitude = settings.pulse_magnitude;
+}
+
+fn cleanup_settings_menu(
+    mut commands: Commands,
+    query: Query<Entity, With<SettingsMenu>>,
+) {
+    for entity in query.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+}
 }
 
 
