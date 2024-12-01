@@ -68,6 +68,9 @@ impl Default for DangerZone {
 struct DangerZoneWarning;
 
 #[derive(Component)]
+struct ScoreText;
+
+#[derive(Component)]
 struct GameOverText;
 use bevy_rapier2d::{na::ComplexField, plugin::RapierPhysicsPlugin, prelude::*};
 use std::f32::consts::PI;
@@ -757,9 +760,10 @@ fn handle_collision_effects(
 
 fn setup(mut commands: Commands, score: Res<Score>) {
     // Score display
-    commands.spawn(
+    commands.spawn((
+        ScoreText,
         TextBundle::from_section(
-            format!("Score: {}", score.current),
+            format!("Score: {}\nHigh Score: {}", score.current, score.high_score),
             TextStyle {
                 font_size: 30.0,
                 color: Color::WHITE,
@@ -772,7 +776,7 @@ fn setup(mut commands: Commands, score: Res<Score>) {
             top: Val::Px(10.0),
             ..default()
         }),
-    );
+    ));
     // Add 2D camera
     commands.spawn(Camera2dBundle::default());
 
@@ -1036,6 +1040,7 @@ fn handle_ball_collisions(
     asset_server: Res<AssetServer>,
     rapier_context: Res<RapierContext>, 
     query: Query<(Entity, &Ball, &Transform)>,
+    score_text_query: Query<&mut Text, With<ScoreText>>,
     mut score: ResMut<Score>,
     game_sounds: Res<GameSounds>,
     mut next_state: ResMut<NextState<GameState>>,
@@ -1086,6 +1091,10 @@ fn handle_ball_collisions(
                     score.current += score_value;
                     score.high_score = score.high_score.max(score.current);
                     
+                    // Update score display
+                    if let Ok(mut text) = query.get_single_mut::<Text>(score_text_query) {
+                        text.sections[0].value = format!("Score: {}\nHigh Score: {}", score.current, score.high_score);
+                    }
 
                     if next_variant == BallVariant::Win {
                         // Create the Ultimate ball
