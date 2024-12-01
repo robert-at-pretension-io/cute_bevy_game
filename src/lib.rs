@@ -666,6 +666,7 @@ fn main() {
             update_button_colors,
             update_audio_volume,
         ).run_if(in_state(GameState::Settings)))
+        .run();
 
 fn update_audio_volume(
     settings: Res<Settings>,
@@ -679,7 +680,6 @@ fn update_audio_volume(
         }
     }
 }
-        .run();
 
 #[derive(Component)]
 struct SettingsMenu;
