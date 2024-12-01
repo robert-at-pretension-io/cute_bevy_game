@@ -60,6 +60,10 @@ struct Settings {
     background_saturation: f32,
     background_brightness: f32,
     explosion_intensity: f32,
+    explosion_particle_speed: f32,
+    explosion_particle_size: f32,
+    explosion_particle_count: f32,
+    explosion_particle_lifetime: f32,
     screen_shake_intensity: f32,
     screen_shake_decay: f32,
     is_fullscreen: bool,
@@ -84,6 +88,10 @@ impl Default for Settings {
             background_saturation: 1.0,
             background_brightness: 0.5,
             explosion_intensity: 0.5,
+            explosion_particle_speed: 350.0,
+            explosion_particle_size: 4.0,
+            explosion_particle_count: 15.0,
+            explosion_particle_lifetime: 0.4,
             screen_shake_intensity: 0.5,
             screen_shake_decay: 3.0,
             is_fullscreen: false,
@@ -206,7 +214,7 @@ fn spawn_explosion(
     let mut rng = rand::thread_rng();
     
     // Scale particle count with explosion intensity, but cap it for performance
-    let base_particles = (10.0 + (settings.explosion_intensity * 15.0).min(30.0)) as i32;
+    let base_particles = (settings.explosion_particle_count * (1.0 + settings.explosion_intensity)).min(30.0) as i32;
     let available_slots = particle_count.max.saturating_sub(particle_count.current);
     let max_new_particles = base_particles.min(available_slots as i32);
     let num_particles = if max_new_particles > 0 {
@@ -218,11 +226,13 @@ fn spawn_explosion(
     for _ in 0..num_particles {
         let angle = rng.gen::<f32>() * PI * 2.0;
         // Scale particle speed with explosion intensity
-        let speed = rng.gen_range(200.0..500.0 + 1500.0 * settings.explosion_intensity);
+        let base_speed = settings.explosion_particle_speed * (1.0 + settings.explosion_intensity);
+        let speed = rng.gen_range(base_speed * 0.5..base_speed * 1.5);
         let velocity = Vec2::new(angle.cos(), angle.sin()) * speed;
         
-        // Larger particles for more impact
-        let size = rng.gen_range(2.0..7.0).powf(2.0) + 2.0;
+        // Size based on settings
+        let base_size = settings.explosion_particle_size * (1.0 + settings.explosion_intensity * 0.5);
+        let size = rng.gen_range(base_size * 0.5..base_size * 1.5);
         let new_color = color.to_srgba();
         
         // Vary the color components directly
@@ -234,7 +244,10 @@ fn spawn_explosion(
         );
         
         // Shorter lifetimes for better performance
-        let lifetime = rng.gen_range(0.2..0.6);
+        let lifetime = rng.gen_range(
+            settings.explosion_particle_lifetime * 0.8..
+            settings.explosion_particle_lifetime * 1.2
+        );
         
         // Use only ball colliders for better performance
         let collider = Collider::cuboid(size / 2.0, size / 2.0);
