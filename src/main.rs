@@ -159,11 +159,11 @@ struct VisualEffects {
 impl Default for VisualEffects {
     fn default() -> Self {
         Self {
-            glow_speed: 1.0,      // Slower glow
-            color_speed: 0.2,     // Slower color change
-            pulse_speed: 0.8,     // Slower pulse
-            glow_intensity: 0.1,  // Less intense glow
-            pulse_magnitude: 0.03, // Much smaller size change
+            glow_speed: 0.5,      // Even slower glow
+            color_speed: 0.1,     // Much slower color change
+            pulse_speed: 0.4,     // Much slower pulse
+            glow_intensity: 0.05, // Very subtle glow
+            pulse_magnitude: 0.02, // Minimal size change
         }
     }
 }
@@ -177,7 +177,7 @@ fn spawn_explosion(
     let mut rng = rand::thread_rng();
     
     // Further reduced particles and made count more consistent
-    let num_particles = rng.gen_range(20..40);
+    let num_particles = rng.gen_range(10..20); // Fewer particles
     
     for _ in 0..num_particles {
         let angle = rng.gen::<f32>() * PI * 2.0;
@@ -465,7 +465,7 @@ fn setup_background(mut commands: Commands) {
         commands.spawn((
             BackgroundStrip {
                 hue: (i as f32 / num_strips as f32) * 360.0, // Starting hue in degrees
-                speed: 0.3, // Reduced speed since we're using degrees now
+                speed: 0.15, // Much slower background color changes
                 width: strip_width,
             },
             SpriteBundle {
@@ -767,19 +767,19 @@ fn settings_menu_interaction(
                     }
                 }
                 SettingButton::LowEffects => {
-                    settings.glow_intensity = 0.05;
+                    settings.glow_intensity = 0.02;
                     settings.pulse_magnitude = 0.01;
-                    settings.color_speed = 0.1;
+                    settings.color_speed = 0.05;
                 }
                 SettingButton::NormalEffects => {
-                    settings.glow_intensity = 0.1;
-                    settings.pulse_magnitude = 0.03;
-                    settings.color_speed = 0.2;
+                    settings.glow_intensity = 0.05;
+                    settings.pulse_magnitude = 0.02;
+                    settings.color_speed = 0.1;
                 }
                 SettingButton::HighEffects => {
-                    settings.glow_intensity = 0.15;
-                    settings.pulse_magnitude = 0.05;
-                    settings.color_speed = 0.3;
+                    settings.glow_intensity = 0.08;
+                    settings.pulse_magnitude = 0.03;
+                    settings.color_speed = 0.15;
                 }
             }
         }
