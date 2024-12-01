@@ -204,20 +204,20 @@ fn update_screen_shake(
         
         // Combine multiple frequencies with different weights
         camera_transform.translation.x = shake_amount * (
-            20.0 * (time * 15.0 + 0.0).sin() + 
-            10.0 * (time * 27.0 + 1.3).sin() +
-            7.0 * (time * 45.0 + 2.6).sin()
+            40.0 * (time * 15.0 + 0.0).sin() + 
+            20.0 * (time * 27.0 + 1.3).sin() +
+            15.0 * (time * 45.0 + 2.6).sin()
         );
         
         camera_transform.translation.y = shake_amount * (
-            20.0 * (time * 17.0 + 3.9).sin() + 
-            10.0 * (time * 32.0 + 5.2).sin() +
-            7.0 * (time * 52.0 + 6.5).sin()
+            40.0 * (time * 17.0 + 3.9).sin() + 
+            20.0 * (time * 32.0 + 5.2).sin() +
+            15.0 * (time * 52.0 + 6.5).sin()
         );
         
-        // Add slight rotation shake
+        // Add more significant rotation shake
         camera_transform.rotation = Quat::from_rotation_z(
-            shake_amount * 0.05 * (time * 25.0).sin()
+            shake_amount * 0.2 * (time * 25.0).sin()
         );
         
         println!("Applying shake - Trauma: {:.3}, Shake Amount: {:.3}", 
@@ -966,11 +966,11 @@ fn handle_ball_collisions(
                         let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
 
                         // Add screen shake effect
-                        let trauma = ball1.variant.size() / BASE_BALL_SIZE * 0.5; // Increased multiplier
+                        let trauma = ball1.variant.size() / BASE_BALL_SIZE * 1.5; // Much higher multiplier
                         println!("Setting shake trauma: {:.3} for ball size: {}", trauma, ball1.variant.size());
                         commands.insert_resource(ScreenShakeState {
                             trauma,
-                            decay: 3.0,
+                            decay: 1.5, // Slower decay
                         });
 
                         // Add explosion effect
