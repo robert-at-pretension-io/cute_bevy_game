@@ -10,6 +10,21 @@ enum GameState {
 }
 
 #[derive(Resource)]
+struct ParticleCount {
+    current: usize,
+    max: usize,
+}
+
+impl Default for ParticleCount {
+    fn default() -> Self {
+        Self {
+            current: 0,
+            max: 1000, // Maximum particles allowed
+        }
+    }
+}
+
+#[derive(Resource)]
 struct Score {
     current: u32,
     high_score: u32,
@@ -180,13 +195,20 @@ fn spawn_explosion(
     position: Vec3,
     color: Color,
     settings: &Settings,
+    particle_count: &mut ResMut<ParticleCount>,
 ) {
     use rand::Rng;
     let mut rng = rand::thread_rng();
     
     // Scale particle count with explosion intensity, but cap it for performance
     let base_particles = (10.0 + (settings.explosion_intensity * 15.0).min(30.0)) as i32;
-    let num_particles = rng.gen_range(base_particles..base_particles + 5);
+    let available_slots = particle_count.max.saturating_sub(particle_count.current);
+    let max_new_particles = base_particles.min(available_slots as i32);
+    let num_particles = if max_new_particles > 0 {
+        rng.gen_range(1..=max_new_particles)
+    } else {
+        0
+    };
     
     for _ in 0..num_particles {
         let angle = rng.gen::<f32>() * PI * 2.0;
@@ -212,6 +234,7 @@ fn spawn_explosion(
         // Use only ball colliders for better performance
         let collider = Collider::ball(size / 2.0);
         
+        particle_count.current += 1;
         commands.spawn((
             SpriteBundle {
                 sprite: Sprite {
@@ -299,6 +322,7 @@ fn update_explosion_particles(
         if particle.lifetime.finished() {
             if commands.get_entity(entity).is_some() {
                 commands.entity(entity).despawn();
+                particle_count.current = particle_count.current.saturating_sub(1);
             }
         } else {
             let life_percent = 1.0 - (particle.lifetime.elapsed_secs() / particle.lifetime.duration().as_secs_f32());
@@ -572,6 +596,7 @@ fn main() {
             ..default()
         }))
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+        .insert_resource(ParticleCount::default())
         .insert_resource(ScreenShakeState::default())
         .insert_resource(RapierConfiguration {
             gravity: Vec2::new(0.0, -1200.0),
@@ -1419,7 +1444,7 @@ fn handle_ball_collisions(
                         });
                         // Spawn enhanced explosion
                         let explosion_color = Color::srgba(1.0, 0.5, 0.0, 1.0);
-                        spawn_explosion(&mut commands, position, explosion_color, &settings);
+                        spawn_explosion(&mut commands, position, explosion_color, &settings, &mut particle_count);
                     
                         if settings.sound_enabled {
                             commands.spawn(AudioBundle {
