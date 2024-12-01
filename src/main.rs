@@ -218,11 +218,11 @@ fn spawn_explosion(
     for _ in 0..num_particles {
         let angle = rng.gen::<f32>() * PI * 2.0;
         // Scale particle speed with explosion intensity
-        let speed = rng.gen_range(50.0..200.0 + 800.0 * settings.explosion_intensity);
+        let speed = rng.gen_range(200.0..500.0 + 1500.0 * settings.explosion_intensity);
         let velocity = Vec2::new(angle.cos(), angle.sin()) * speed;
         
-        // More varied sizes with exponential distribution for visual interest
-        let size = rng.gen_range(1.0..5.0).powf(2.0) + 1.0;
+        // Larger particles for more impact
+        let size = rng.gen_range(2.0..7.0).powf(2.0) + 2.0;
         let new_color = color.to_srgba();
         
         // Vary the color components directly
@@ -259,11 +259,11 @@ fn spawn_explosion(
             RigidBody::Dynamic,
             Velocity::linear(velocity),
             collider,
-            Restitution::coefficient(0.5), // Fixed restitution
-            Friction::coefficient(0.5),    // Increased friction
+            Restitution::coefficient(0.8), // Higher restitution for more bounce
+            Friction::coefficient(0.2),    // Less friction for more movement
             Damping {
-                linear_damping: 0.8,      // Fixed damping values
-                angular_damping: 0.8,
+                linear_damping: 0.4,      // Less damping for longer-lasting effects
+                angular_damping: 0.4,
             },
         ));
     }
