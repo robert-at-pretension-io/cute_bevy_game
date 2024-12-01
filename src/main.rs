@@ -64,6 +64,9 @@ struct Settings {
     screen_shake_decay: f32,
     is_fullscreen: bool,
     visual_effects: VisualEffectsLevel,
+    // Physics settings
+    ball_bounciness: f32,
+    ball_friction: f32,
 }
 
 impl Default for Settings {
@@ -85,6 +88,8 @@ impl Default for Settings {
             screen_shake_decay: 3.0,
             is_fullscreen: false,
             visual_effects: VisualEffectsLevel::Normal,
+            ball_bounciness: 0.5,
+            ball_friction: 0.5,
         }
     }
 }
@@ -893,6 +898,8 @@ fn settings_menu_interaction(
                         settings.screen_shake_intensity = 0.2;    // Minimal shake
                         settings.screen_shake_decay = 4.0;        // Fast decay
                         settings.visual_effects = VisualEffectsLevel::Low;
+                        settings.ball_bounciness = 0.3; // Less bouncy
+                        settings.ball_friction = 0.7;   // More friction
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                     SettingButton::NormalEffects => {
@@ -907,6 +914,8 @@ fn settings_menu_interaction(
                         settings.screen_shake_intensity = 0.5;    // Medium shake
                         settings.screen_shake_decay = 3.0;        // Normal decay
                         settings.visual_effects = VisualEffectsLevel::Normal;
+                        settings.ball_bounciness = 0.5; // Medium bounce
+                        settings.ball_friction = 0.5;   // Medium friction
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                     SettingButton::HighEffects => {
@@ -921,6 +930,8 @@ fn settings_menu_interaction(
                         settings.screen_shake_intensity = 5.0;    // EXTREME shake
                         settings.screen_shake_decay = 1.0;        // Very slow decay
                         settings.visual_effects = VisualEffectsLevel::High;
+                        settings.ball_bounciness = 0.8; // Very bouncy
+                        settings.ball_friction = 0.2;   // Low friction
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                 }
@@ -1015,6 +1026,7 @@ fn spawn_ball_at(
     asset_server: &AssetServer,
     variant: BallVariant,
     position: Vec3,
+    settings: &Settings,
 ) -> Entity {
     let ball_size = variant.size();
 
@@ -1052,8 +1064,8 @@ fn spawn_ball_at(
             angvel: angular_velocity,
         },
         Collider::cuboid(ball_size / 2.0, ball_size / 2.0),
-        Restitution::coefficient(0.1), // Even less bouncy
-        Friction::coefficient(0.9), // Higher friction to help settle faster
+        Restitution::coefficient(settings.ball_bounciness),
+        Friction::coefficient(settings.ball_friction),
         // Add initial collision effect
         CollisionEffect {
             timer: Timer::from_seconds(0.3, TimerMode::Once),
@@ -1183,7 +1195,8 @@ fn spawn_ball(
                     &mut commands,
                     &asset_server,
                     preview.next_size,
-                    Vec3::new(x_pos, 300.0, 0.0)
+                    Vec3::new(x_pos, 300.0, 0.0),
+                    &settings
                 );
                 
                 // Generate next preview
@@ -1485,7 +1498,7 @@ fn handle_ball_collisions(
 
                     if next_variant == BallVariant::Win {
                         // Create the Ultimate ball
-                        let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
+                        let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position, &settings);
                         commands.entity(new_ball).insert(CollisionEffect {
                             timer: Timer::from_seconds(0.3, TimerMode::Once),
                             initial_scale: Vec3::ONE,
@@ -1513,7 +1526,7 @@ fn handle_ball_collisions(
                         next_state.set(GameState::Win);
                     } else {
                         // Normal combination
-                        let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
+                        let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position, &settings);
 
                         // Add screen shake effect
                         let trauma = ball1.variant.size() / BASE_BALL_SIZE * 0.5; // Reduced multiplier
