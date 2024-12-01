@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::input::Input;
 
 #[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 enum GameState {
@@ -570,7 +571,7 @@ struct GameSounds {
 
 fn toggle_settings_menu(
     keyboard: Res<ButtonInput<KeyCode>>,
-    keyboard_input: Res<Input<KeyCode>>,
+    keyboard: Res<Input<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
     balls: Query<Entity, With<Ball>>,
     game_over_text: Query<Entity, With<GameOverText>>,
@@ -1385,12 +1386,11 @@ fn handle_game_over(
     mut score: ResMut<Score>,
     mut score_text_query: Query<&mut Text, With<ScoreText>>,
 ) {
-    if keyboard_input.just_pressed(KeyCode::Space) || keyboard_input.just_pressed(KeyCode::R) {
+    if keyboard.just_pressed(KeyCode::Space) || keyboard.just_pressed(KeyCode::R) {
         restart_game(
             commands,
             balls,
             game_over_text,
-            win_text,
             score,
             score_text_query,
             next_state,
