@@ -29,8 +29,13 @@ struct Settings {
     volume: f32,
     sound_enabled: bool,
     glow_intensity: f32,
+    glow_speed: f32,
     pulse_magnitude: f32,
+    pulse_speed: f32,
     color_speed: f32,
+    background_animation_speed: f32,
+    explosion_intensity: f32,
+    screen_shake_intensity: f32,
     is_fullscreen: bool,
 }
 
@@ -39,9 +44,14 @@ impl Default for Settings {
         Self {
             volume: 0.5,
             sound_enabled: true,
-            glow_intensity: 0.05,   // Default moderate glow
-            pulse_magnitude: 0.02,  // Default subtle pulse
-            color_speed: 0.15,     // Default moderate color changes
+            glow_intensity: 0.05,
+            glow_speed: 0.5,
+            pulse_magnitude: 0.02,
+            pulse_speed: 0.4,
+            color_speed: 0.15,
+            background_animation_speed: 0.05,
+            explosion_intensity: 1.0,
+            screen_shake_intensity: 1.0,
             is_fullscreen: false,
         }
     }
@@ -154,16 +164,22 @@ struct VisualEffects {
     pulse_speed: f32,
     glow_intensity: f32,
     pulse_magnitude: f32,
+    background_animation_speed: f32,
+    explosion_intensity: f32,
+    screen_shake_intensity: f32,
 }
 
 impl Default for VisualEffects {
     fn default() -> Self {
         Self {
-            glow_speed: 0.5,      // Even slower glow
-            color_speed: 0.1,     // Much slower color change
-            pulse_speed: 0.4,     // Much slower pulse
-            glow_intensity: 0.05, // Very subtle glow
-            pulse_magnitude: 0.02, // Minimal size change
+            glow_speed: 0.5,
+            color_speed: 0.15,
+            pulse_speed: 0.4,
+            glow_intensity: 0.05,
+            pulse_magnitude: 0.02,
+            background_animation_speed: 0.05,
+            explosion_intensity: 1.0,
+            screen_shake_intensity: 1.0,
         }
     }
 }
