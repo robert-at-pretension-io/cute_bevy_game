@@ -337,28 +337,22 @@ enum BallVariant {
 
 impl BallVariant {
     fn size(&self) -> f32 {
-        let ratio = match self {
+        let tier = match self {
             // Tier 1 (smallest)
-            BallVariant::Sad => 0.8,
-            BallVariant::Angry => 1.2,
-            BallVariant::Surprised => 1.6,
-            
+            BallVariant::Sad | BallVariant::Angry | BallVariant::Surprised => 1,
             // Tier 2 (medium)
-            BallVariant::Embarrassed => 2.2,
-            BallVariant::Happy => 2.8,
-            BallVariant::Joyful => 3.4,
-            
+            BallVariant::Embarrassed | BallVariant::Happy | BallVariant::Joyful => 2,
             // Tier 3 (large)
-            BallVariant::Spite => 4.0,
-            BallVariant::Love => 4.5,
-            BallVariant::Pride => 5.0,
-            
+            BallVariant::Spite | BallVariant::Love | BallVariant::Pride => 3,
             // Tier 4 (extra large)
-            BallVariant::Rage => 7.0,
-            
-            // Victory size
-            BallVariant::Win => 8.5,
+            BallVariant::Rage => 4,
+            // Victory tier
+            BallVariant::Win => 5,
         };
+        
+        // Base size is multiplied by e^(tier-1), normalized to start at ~0.8
+        // This creates an exponential growth curve: 0.8, 2.17, 5.91, 16.07, 43.69
+        let ratio = 0.8 * (std::f32::consts::E.powf((tier - 1) as f32));
         BASE_BALL_SIZE * ratio
     }
 
