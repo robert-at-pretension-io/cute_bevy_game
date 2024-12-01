@@ -49,9 +49,9 @@ impl Default for Settings {
             pulse_magnitude: 0.02,
             pulse_speed: 0.4,
             color_speed: 0.15,
-            background_animation_speed: 0.05,
-            explosion_intensity: 1.0,
-            screen_shake_intensity: 1.0,
+            background_animation_speed: 0.5,
+            explosion_intensity: 0.5,
+            screen_shake_intensity: 0.5,
             is_fullscreen: false,
         }
     }
@@ -860,19 +860,28 @@ fn settings_menu_interaction(
                     SettingButton::LowEffects => {
                         settings.glow_intensity = 0.01;   // Extremely subtle glow
                         settings.pulse_magnitude = 0.005; // Minimal pulse
-                        settings.color_speed = 0.05;     // Very slow, almost static
+                        settings.color_speed = 0.05;      // Very slow, almost static
+                        settings.background_animation_speed = 0.1; // Slow background
+                        settings.explosion_intensity = 0.2;       // Small explosions
+                        settings.screen_shake_intensity = 0.2;    // Minimal shake
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                     SettingButton::NormalEffects => {
                         settings.glow_intensity = 0.05;   // Default moderate glow
                         settings.pulse_magnitude = 0.02;  // Default subtle pulse
-                        settings.color_speed = 0.15;     // Default moderate speed
+                        settings.color_speed = 0.15;      // Default moderate speed
+                        settings.background_animation_speed = 0.5; // Normal background
+                        settings.explosion_intensity = 0.5;       // Medium explosions
+                        settings.screen_shake_intensity = 0.5;    // Medium shake
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                     SettingButton::HighEffects => {
                         settings.glow_intensity = 0.3;    // Extremely intense glow
                         settings.pulse_magnitude = 0.15;  // Dramatic pulsing
-                        settings.color_speed = 1.0;      // Chaotic color changes
+                        settings.color_speed = 1.0;       // Chaotic color changes
+                        settings.background_animation_speed = 1.0; // Fast background
+                        settings.explosion_intensity = 1.0;       // Large explosions
+                        settings.screen_shake_intensity = 1.0;    // Maximum shake
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                 }
@@ -904,6 +913,9 @@ fn apply_settings_changes(
 ) {
     visual_effects.glow_intensity = settings.glow_intensity;
     visual_effects.pulse_magnitude = settings.pulse_magnitude;
+    visual_effects.background_animation_speed = settings.background_animation_speed;
+    visual_effects.explosion_intensity = settings.explosion_intensity;
+    visual_effects.screen_shake_intensity = settings.screen_shake_intensity;
 }
 
 fn cleanup_settings_menu(
