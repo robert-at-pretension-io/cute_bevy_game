@@ -798,7 +798,7 @@ fn settings_menu_interaction(
                     settings.pulse_magnitude = 0.01;
                     settings.color_speed = 0.05;
                     let selected = SettingButton::LowEffects;
-                    update_button_colors(&mut interaction_query, selected);
+                    update_button_colors(interaction_query, selected);
                 }
                 SettingButton::NormalEffects => {
                     settings.glow_intensity = 0.05;
@@ -819,11 +819,8 @@ fn settings_menu_interaction(
     }
 }
 
-fn update_button_colors(
-    interaction_query: &mut Query<(&Interaction, &SettingButton, &mut BackgroundColor, &Children)>,
-    selected: SettingButton,
-) {
-    for (_, button, mut color, _) in interaction_query.iter_mut() {
+fn update_button_colors(mut query: Query<(&SettingButton, &mut BackgroundColor)>, selected: SettingButton) {
+    for (button, mut color) in query.iter_mut() {
         color.0 = if *button == selected {
             Color::srgb(0.2, 0.8, 0.2)
         } else {
