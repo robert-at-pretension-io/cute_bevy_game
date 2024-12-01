@@ -1,0 +1,10 @@
+[package]
+name = "ball_drop_rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.14.2"
+bevy_color = "0.15.1"
+bevy_rapier2d = "0.27.0"
+rand = "0.8.5"

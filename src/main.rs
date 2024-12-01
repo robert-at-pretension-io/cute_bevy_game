@@ -249,9 +249,7 @@ fn spawn_explosion(
             settings.explosion_particle_lifetime * 1.2
         );
         
-        // Use only ball colliders for better performance
-        // Make collision box 80% of visual size
-        let collider = Collider::cuboid(size * 0.4, size * 0.4);
+        let collider = Collider::cuboid(size * 0.49, size * 0.49);
         
         particle_count.current += 1;
         commands.spawn((
@@ -951,8 +949,8 @@ fn settings_menu_interaction(
                         settings.background_saturation = 1.2;     // Very saturated
                         settings.background_brightness = 0.8;     // Brighter
                         // Intense explosion effects
-                        settings.explosion_intensity = 4.0;       // MASSIVE explosions
-                        settings.explosion_particle_speed = 800.0; // Fast particles
+                        settings.explosion_intensity = 2.0;       // MASSIVE explosions
+                        settings.explosion_particle_speed = 400.0; // Fast particles
                         settings.explosion_particle_size = 8.0;    // Large particles
                         settings.explosion_particle_count = 25.0;  // Many particles
                         settings.explosion_particle_lifetime = 0.8; // Long lifetime
@@ -1092,8 +1090,8 @@ fn spawn_ball_at(
             linvel: velocity,
             angvel: angular_velocity,
         },
-        // Make collision box 80% of visual size
-        Collider::cuboid(ball_size * 0.4, ball_size * 0.4),
+        
+        Collider::cuboid(ball_size * 0.49, ball_size * 0.49),
         Restitution::coefficient(settings.ball_bounciness),
         Friction::coefficient(settings.ball_friction),
         // Add initial collision effect
