@@ -226,7 +226,7 @@ fn update_screen_shake(
         );
         
         // Decay trauma over time using delta_seconds
-        shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds())
+        shake_state.trauma = (shake_state.trauma - shake_state.decay * time)
             .max(0.0);
         
         // Reset transform when shake is done
