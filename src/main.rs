@@ -615,7 +615,7 @@ fn main() {
         .add_systems(Update, (
             spawn_ball,
             handle_ball_collisions,
-        ).run_if(not(in_state(GameState::Settings))))
+        ).chain().run_if(not(in_state(GameState::Settings))))
         .add_systems(Update, (
             update_preview,
             animate_background,
@@ -623,7 +623,7 @@ fn main() {
             update_explosion_particles,
             update_screen_shake,
             check_danger_zone,
-        ).after(handle_ball_collisions).run_if(in_state(GameState::Playing)))
+        ).run_if(in_state(GameState::Playing)))
         .add_systems(Update, update_ball_effects.run_if(in_state(GameState::Playing)))
         .add_systems(OnEnter(GameState::GameOver), setup_game_over)
         .add_systems(OnEnter(GameState::Win), setup_win_screen)
