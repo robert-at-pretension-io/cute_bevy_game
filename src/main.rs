@@ -217,8 +217,11 @@ fn update_screen_shake(
 ) {
     let mut camera_transform = camera_query.single_mut();
     
+    // Clamp trauma between 0 and 1
+    shake_state.trauma = shake_state.trauma.clamp(0.0, 1.0);
+    
     // Decay trauma over time
-    shake_state.trauma = (shake_state.trauma - shake_state.decay * time.elapsed_seconds())
+    shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds())
         .max(0.0);
     
     // Calculate shake amount with quadratic falloff
@@ -228,7 +231,7 @@ fn update_screen_shake(
         let time = time.elapsed_seconds();
         
         // Scale the shake effect based on screen size (assuming 500x600 window)
-        let screen_scale = 5.0; // Reduced pixels to shake
+        let screen_scale = 8.0; // Slightly increased shake intensity
         
         camera_transform.translation.x = shake_amount * screen_scale * (
             (time * 15.0 + 0.0).sin() + 
@@ -243,15 +246,9 @@ fn update_screen_shake(
         );
         
         camera_transform.rotation = Quat::from_rotation_z(
-            shake_amount * 0.02 * (time * 25.0).sin()
+            shake_amount * 0.03 * (time * 25.0).sin()
         );
-        
-        // println!("Applying shake - Trauma: {:.3}, Shake Amount: {:.3}", 
-        //     shake_state.trauma,
-        //     shake_amount
-        // );
-    } else if shake_state.trauma <= 0.0 {
-        // Only reset when actually needed
+    } else {
         camera_transform.translation = Vec3::ZERO;
         camera_transform.rotation = Quat::IDENTITY;
     }
