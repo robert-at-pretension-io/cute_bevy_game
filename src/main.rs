@@ -689,7 +689,7 @@ fn spawn_slider(
                     height: Val::Px(20.0),
                     ..default()
                 },
-                background_color: Color::rgb(0.3, 0.3, 0.3).into(),
+                background_color: Color::srgb(0.3, 0.3, 0.3).into(),
                 ..default()
             },
             slider_type,
@@ -901,11 +901,13 @@ fn settings_menu_interaction(
         Changed<Interaction>,
     >,
     mut text_query: Query<&mut Text>,
+    windows: Query<&Window>,
 ) {
     for (interaction, button, mut slider, slider_type, mut color, children) in &mut interaction_query {
         if *interaction == Interaction::Pressed {
-            match button {
-                SettingButton::SoundToggle => {
+            if let Some(button) = button {
+                match button {
+                    SettingButton::SoundToggle => {
                     settings.sound_enabled = !settings.sound_enabled;
                     *color = BackgroundColor(if settings.sound_enabled {
                         Color::srgb(0.2, 0.8, 0.2)
@@ -923,23 +925,24 @@ fn settings_menu_interaction(
                         }
                     }
                 }
-                SettingButton::LowEffects => {
-                    settings.glow_intensity = 0.01;   // Extremely subtle glow
-                    settings.pulse_magnitude = 0.005; // Minimal pulse
-                    settings.color_speed = 0.05;     // Very slow, almost static
-                    commands.insert_resource(SelectedEffectsSetting(*button));
-                }
-                SettingButton::NormalEffects => {
-                    settings.glow_intensity = 0.05;   // Default moderate glow
-                    settings.pulse_magnitude = 0.02;  // Default subtle pulse
-                    settings.color_speed = 0.15;     // Default moderate speed
-                    commands.insert_resource(SelectedEffectsSetting(*button));
-                }
-                SettingButton::HighEffects => {
-                    settings.glow_intensity = 0.3;    // Extremely intense glow
-                    settings.pulse_magnitude = 0.15;  // Dramatic pulsing
-                    settings.color_speed = 1.0;      // Chaotic color changes
-                    commands.insert_resource(SelectedEffectsSetting(*button));
+                    SettingButton::LowEffects => {
+                        settings.glow_intensity = 0.01;   // Extremely subtle glow
+                        settings.pulse_magnitude = 0.005; // Minimal pulse
+                        settings.color_speed = 0.05;     // Very slow, almost static
+                        commands.insert_resource(SelectedEffectsSetting(*button));
+                    }
+                    SettingButton::NormalEffects => {
+                        settings.glow_intensity = 0.05;   // Default moderate glow
+                        settings.pulse_magnitude = 0.02;  // Default subtle pulse
+                        settings.color_speed = 0.15;     // Default moderate speed
+                        commands.insert_resource(SelectedEffectsSetting(*button));
+                    }
+                    SettingButton::HighEffects => {
+                        settings.glow_intensity = 0.3;    // Extremely intense glow
+                        settings.pulse_magnitude = 0.15;  // Dramatic pulsing
+                        settings.color_speed = 1.0;      // Chaotic color changes
+                        commands.insert_resource(SelectedEffectsSetting(*button));
+                    }
                 }
             }
         }
@@ -948,9 +951,10 @@ fn settings_menu_interaction(
         if let (Some(mut slider), Some(slider_type)) = (slider, slider_type) {
             if *interaction == Interaction::Pressed {
                 // Update slider value based on click position
-                if let Some(position) = windows.primary().cursor_position() {
-                    if let Some(button_pos) = ui_scale.compute_position() {
-                        let relative_x = (position.x - button_pos.x) / 200.0; // 200 is slider width
+                if let Some(window) = windows.get_single().ok() {
+                    if let Some(position) = window.cursor_position() {
+                        // Calculate relative position within the slider (200px width)
+                        let relative_x = position.x / 200.0;
                         slider.value = relative_x.clamp(0.0, 1.0);
                         
                         // Update corresponding setting
