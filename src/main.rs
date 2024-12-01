@@ -907,7 +907,12 @@ fn settings_menu_interaction(
                         settings.background_strip_count = 5;      // Fewer strips
                         settings.background_saturation = 0.5;     // Muted colors
                         settings.background_brightness = 0.3;     // Darker background
+                        // Minimal explosion effects
                         settings.explosion_intensity = 0.2;       // Small explosions
+                        settings.explosion_particle_speed = 150.0; // Slower particles
+                        settings.explosion_particle_size = 2.0;    // Smaller particles
+                        settings.explosion_particle_count = 8.0;   // Fewer particles
+                        settings.explosion_particle_lifetime = 0.2; // Short lifetime
                         settings.screen_shake_intensity = 0.2;    // Minimal shake
                         settings.screen_shake_decay = 4.0;        // Fast decay
                         settings.visual_effects = VisualEffectsLevel::Low;
@@ -923,7 +928,12 @@ fn settings_menu_interaction(
                         settings.background_strip_count = 10;     // Normal strips
                         settings.background_saturation = 1.0;     // Normal saturation
                         settings.background_brightness = 0.5;     // Normal brightness
+                        // Default explosion effects
                         settings.explosion_intensity = 0.5;       // Medium explosions
+                        settings.explosion_particle_speed = 350.0; // Normal speed
+                        settings.explosion_particle_size = 4.0;    // Normal size
+                        settings.explosion_particle_count = 15.0;  // Normal count
+                        settings.explosion_particle_lifetime = 0.4; // Normal lifetime
                         settings.screen_shake_intensity = 0.5;    // Medium shake
                         settings.screen_shake_decay = 3.0;        // Normal decay
                         settings.visual_effects = VisualEffectsLevel::Normal;
@@ -939,7 +949,12 @@ fn settings_menu_interaction(
                         settings.background_strip_count = 40;     // Many strips
                         settings.background_saturation = 1.2;     // Very saturated
                         settings.background_brightness = 0.8;     // Brighter
+                        // Intense explosion effects
                         settings.explosion_intensity = 4.0;       // MASSIVE explosions
+                        settings.explosion_particle_speed = 800.0; // Fast particles
+                        settings.explosion_particle_size = 8.0;    // Large particles
+                        settings.explosion_particle_count = 25.0;  // Many particles
+                        settings.explosion_particle_lifetime = 0.8; // Long lifetime
                         settings.screen_shake_intensity = 5.0;    // EXTREME shake
                         settings.screen_shake_decay = 1.0;        // Very slow decay
                         settings.visual_effects = VisualEffectsLevel::High;
