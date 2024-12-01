@@ -10,6 +10,21 @@ enum GameState {
 }
 
 #[derive(Resource)]
+struct Score {
+    current: u32,
+    high_score: u32,
+}
+
+impl Default for Score {
+    fn default() -> Self {
+        Self {
+            current: 0,
+            high_score: 0,
+        }
+    }
+}
+
+#[derive(Resource)]
 struct Settings {
     volume: f32,
     glow_intensity: f32,
@@ -502,6 +517,7 @@ fn main() {
     
     App::new()
         .insert_resource(Settings::default())
+        .insert_resource(Score::default())
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 resolution: (500.0, 600.0).into(),
@@ -739,7 +755,24 @@ fn handle_collision_effects(
 }
 
 
-fn setup(mut commands: Commands) {
+fn setup(mut commands: Commands, score: Res<Score>) {
+    // Score display
+    commands.spawn(
+        TextBundle::from_section(
+            format!("Score: {}", score.current),
+            TextStyle {
+                font_size: 30.0,
+                color: Color::WHITE,
+                ..default()
+            },
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            left: Val::Px(10.0),
+            top: Val::Px(10.0),
+            ..default()
+        }),
+    );
     // Add 2D camera
     commands.spawn(Camera2dBundle::default());
 
@@ -976,6 +1009,7 @@ fn handle_game_over(
     mut next_state: ResMut<NextState<GameState>>,
     balls: Query<Entity, With<Ball>>,
     game_over_text: Query<Entity, With<GameOverText>>,
+    mut score: ResMut<Score>,
 ) {
     if keyboard.just_pressed(KeyCode::Space) {
         // Remove all balls
@@ -990,7 +1024,8 @@ fn handle_game_over(
             commands.entity(entity).despawn();
         }
         
-        // Reset to playing state
+        // Reset score and state
+        score.current = 0;
         next_state.set(GameState::Playing);
     }
 }
@@ -1031,6 +1066,26 @@ fn handle_ball_collisions(
                     // Despawn the colliding balls
                     commands.entity(e1).despawn();
                     commands.entity(e2).despawn();
+
+                    // Calculate score based on ball variant
+                    let score_value = match ball1.variant {
+                        BallVariant::Sad => 10,
+                        BallVariant::Angry => 20,
+                        BallVariant::Surprised => 30,
+                        BallVariant::Embarrassed => 50,
+                        BallVariant::Happy => 80,
+                        BallVariant::Joyful => 120,
+                        BallVariant::Spite => 200,
+                        BallVariant::Love => 300,
+                        BallVariant::Pride => 500,
+                        BallVariant::Rage => 1000,
+                        BallVariant::Win => 5000,
+                    };
+                    
+                    if let Some(mut score) = commands.get_resource_mut::<Score>() {
+                        score.current += score_value;
+                        score.high_score = score.high_score.max(score.current);
+                    }
 
                     if next_variant == BallVariant::Win {
                         // Create the Ultimate ball
