@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{math::vec2, prelude::*};
 
 #[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 enum GameState {
@@ -229,6 +229,9 @@ fn update_trail_effects(
                 },
                 ExplosionParticle {
                     lifetime: Timer::from_seconds(0.05, TimerMode::Once),
+                    velocity: vec2(0.5, 0.5),
+                    rotation_speed: 0.5,
+                    initial_color: Color::srgba(0.1, 0.5, 0.1, 0.2),
                 },
             ));
         }
@@ -249,7 +252,7 @@ fn update_screen_shake(
         camera_transform.translation.x = shake_amount * 10.0 * (time * 20.0).sin();
         camera_transform.translation.y = shake_amount * 10.0 * (time * 21.0).sin();
         
-        shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds)
+        shake_state.trauma = (shake_state.trauma - shake_state.decay * time)
             .max(0.0);
         
         if shake_state.trauma == 0.0 {
