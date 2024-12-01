@@ -24,6 +24,13 @@ impl Default for Score {
     }
 }
 
+#[derive(Resource, PartialEq, Clone, Copy)]
+enum VisualEffectsLevel {
+    Low,
+    Normal,
+    High,
+}
+
 #[derive(Resource)]
 struct Settings {
     volume: f32,
@@ -41,6 +48,7 @@ struct Settings {
     screen_shake_intensity: f32,
     screen_shake_decay: f32,
     is_fullscreen: bool,
+    visual_effects: VisualEffectsLevel,
 }
 
 impl Default for Settings {
@@ -48,11 +56,11 @@ impl Default for Settings {
         Self {
             volume: 0.5,
             sound_enabled: true,
-            glow_intensity: 0.02,
+            glow_intensity: 0.05,
             glow_speed: 0.2,
-            pulse_magnitude: 0.01,
+            pulse_magnitude: 0.02,
             pulse_speed: 0.2,
-            color_speed: 0.05,
+            color_speed: 0.15,
             background_animation_speed: 0.5,
             background_strip_count: 10,
             background_saturation: 1.0,
@@ -61,6 +69,7 @@ impl Default for Settings {
             screen_shake_intensity: 0.5,
             screen_shake_decay: 3.0,
             is_fullscreen: false,
+            visual_effects: VisualEffectsLevel::Normal,
         }
     }
 }
@@ -612,11 +621,10 @@ enum SettingButton {
 struct SelectedEffectsSetting(SettingButton);
 
 fn get_current_effects_level(settings: &Settings) -> SettingButton {
-    match (settings.glow_intensity, settings.pulse_magnitude, settings.color_speed) {
-        (0.02, 0.01, 0.05) => SettingButton::LowEffects,
-        (0.05, 0.02, 0.1) => SettingButton::NormalEffects,
-        (0.08, 0.03, 0.15) => SettingButton::HighEffects,
-        _ => SettingButton::NormalEffects, // Default to normal if values don't match exactly
+    match settings.visual_effects {
+        VisualEffectsLevel::Low => SettingButton::LowEffects,
+        VisualEffectsLevel::Normal => SettingButton::NormalEffects,
+        VisualEffectsLevel::High => SettingButton::HighEffects,
     }
 }
 
@@ -846,6 +854,7 @@ fn settings_menu_interaction(
                         settings.explosion_intensity = 0.2;       // Small explosions
                         settings.screen_shake_intensity = 0.2;    // Minimal shake
                         settings.screen_shake_decay = 4.0;        // Fast decay
+                        settings.visual_effects = VisualEffectsLevel::Low;
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                     SettingButton::NormalEffects => {
@@ -859,6 +868,7 @@ fn settings_menu_interaction(
                         settings.explosion_intensity = 0.5;       // Medium explosions
                         settings.screen_shake_intensity = 0.5;    // Medium shake
                         settings.screen_shake_decay = 3.0;        // Normal decay
+                        settings.visual_effects = VisualEffectsLevel::Normal;
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                     SettingButton::HighEffects => {
@@ -872,6 +882,7 @@ fn settings_menu_interaction(
                         settings.explosion_intensity = 4.0;       // MASSIVE explosions
                         settings.screen_shake_intensity = 5.0;    // EXTREME shake
                         settings.screen_shake_decay = 1.0;        // Very slow decay
+                        settings.visual_effects = VisualEffectsLevel::High;
                         commands.insert_resource(SelectedEffectsSetting(*button));
                     }
                 }
