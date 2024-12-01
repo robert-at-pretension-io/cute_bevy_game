@@ -1,4 +1,4 @@
-use bevy::{prelude::*, math::Vec3Swizzles};
+use bevy::prelude::*;
 
 #[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 enum GameState {
@@ -1092,7 +1092,7 @@ fn handle_ball_collisions(
                     score.high_score = score.high_score.max(score.current);
                     
                     // Update score display
-                    if let Ok(mut text) = query.get_single_mut::<Text>(score_text_query) {
+                    if let Ok(mut text) = score_text_query.get_single_mut() {
                         text.sections[0].value = format!("Score: {}\nHigh Score: {}", score.current, score.high_score);
                     }
 
