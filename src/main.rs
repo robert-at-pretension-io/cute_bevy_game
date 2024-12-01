@@ -189,51 +189,6 @@ fn spawn_explosion(
     }
 }
 
-fn update_trail_effects(
-    mut commands: Commands,
-    time: Res<Time>,
-    mut trail_query: Query<(&Transform, &mut TrailEffect)>,
-) {
-    for (transform, mut trail) in trail_query.iter_mut() {
-        let lifetime = trail.lifetime;
-        let pos = transform.translation.truncate();
-        
-        // Add new point with current position and color
-        let base_color = trail.base_color;
-        trail.points.push((
-            pos, 
-            0.0,
-            base_color
-        ));
-        
-        // Update ages and remove old points
-        trail.points.retain_mut(|(_, age, _)| {
-            *age += time.delta_seconds();
-            *age < lifetime
-        });
-        
-        // Limit points
-        while trail.points.len() > trail.max_points {
-            trail.points.remove(0);
-        }
-        
-        // Spawn trail particles
-        for (pos, age, color) in trail.points.iter() {
-            let alpha = 1.0 - (*age / lifetime);
-            let size = 15.0 * alpha;
-            
-            commands.spawn(SpriteBundle {
-                sprite: Sprite {
-                    color: color.with_alpha(alpha * 0.5),
-                    custom_size: Some(Vec2::splat(size)),
-                    ..default()
-                },
-                transform: Transform::from_xyz(pos.x, pos.y, -0.1),
-                ..default()
-            });
-        }
-    }
-}
 
 fn update_screen_shake(
     time: Res<Time>,
@@ -412,13 +367,6 @@ struct ExplosionParticle {
     initial_color: Color,
 }
 
-#[derive(Component)]
-struct TrailEffect {
-    points: Vec<(Vec2, f32, Color)>, // Position, age, and color of trail points
-    max_points: usize,
-    lifetime: f32,
-    base_color: Color,
-}
 
 #[derive(Resource)]
 struct ScreenShakeState {
@@ -530,7 +478,6 @@ fn main() {
             handle_collision_effects,
             update_explosion_particles,
             update_ball_effects,
-            update_trail_effects,
             update_screen_shake,
             check_danger_zone,
         ).run_if(in_state(GameState::Playing)))
@@ -980,13 +927,6 @@ fn handle_ball_collisions(
                         let explosion_color = Color::srgba(1.0, 0.5, 0.0, 1.0);
                         spawn_explosion(&mut commands, position, explosion_color);
                     
-                        // Add trail effect to new ball
-                        commands.entity(new_ball).insert(TrailEffect {
-                            points: Vec::new(),
-                            max_points: 20,
-                            lifetime: 0.5,
-                            base_color: Color::rgb(1.0, 0.84, 0.0), // Gold color
-                        });
                         commands.spawn(AudioBundle {
                             source: game_sounds.pop.clone(),
                             settings: PlaybackSettings::DESPAWN,
