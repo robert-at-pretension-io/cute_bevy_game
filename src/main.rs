@@ -198,17 +198,36 @@ fn update_screen_shake(
     if shake_state.trauma > 0.0 {
         let mut camera_transform = camera_query.single_mut();
         
+        // Use multiple frequencies for more organic motion
         let time = time.elapsed_seconds();
-        let shake_amount = shake_state.trauma * shake_state.trauma;
+        let shake_amount = shake_state.trauma * shake_state.trauma; // Quadratic falloff
         
-        camera_transform.translation.x = shake_amount * 10.0 * (time * 20.0).sin();
-        camera_transform.translation.y = shake_amount * 10.0 * (time * 21.0).sin();
+        // Combine multiple frequencies with different weights
+        camera_transform.translation.x = shake_amount * (
+            20.0 * (time * 15.0 + 0.0).sin() + 
+            10.0 * (time * 27.0 + 1.3).sin() +
+            7.0 * (time * 45.0 + 2.6).sin()
+        );
         
-        shake_state.trauma = (shake_state.trauma - shake_state.decay * time)
+        camera_transform.translation.y = shake_amount * (
+            20.0 * (time * 17.0 + 3.9).sin() + 
+            10.0 * (time * 32.0 + 5.2).sin() +
+            7.0 * (time * 52.0 + 6.5).sin()
+        );
+        
+        // Add slight rotation shake
+        camera_transform.rotation = Quat::from_rotation_z(
+            shake_amount * 0.05 * (time * 25.0).sin()
+        );
+        
+        // Decay trauma over time
+        shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds())
             .max(0.0);
         
+        // Reset transform when shake is done
         if shake_state.trauma == 0.0 {
             camera_transform.translation = Vec3::ZERO;
+            camera_transform.rotation = Quat::IDENTITY;
         }
     }
 }
@@ -378,7 +397,7 @@ impl Default for ScreenShakeState {
     fn default() -> Self {
         Self {
             trauma: 0.0,
-            decay: 2.0,
+            decay: 3.0, // Faster decay for snappier feel
         }
     }
 }
