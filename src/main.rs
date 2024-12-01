@@ -829,11 +829,14 @@ fn update_button_colors(
 ) {
     for (button, mut color) in &mut query {
         if matches!(button, SettingButton::LowEffects | SettingButton::NormalEffects | SettingButton::HighEffects) {
-            *color = BackgroundColor(if *button == selected.0 {
-            Color::srgb(0.2, 0.8, 0.2)
-        } else {
-            Color::srgb(0.4, 0.4, 0.4)
-        };
+            *color = BackgroundColor(
+                if *button == selected.0 {
+                    Color::srgb(0.2, 0.8, 0.2)
+                } else {
+                    Color::srgb(0.4, 0.4, 0.4)
+                }
+            );
+        }
     }
 }
 
