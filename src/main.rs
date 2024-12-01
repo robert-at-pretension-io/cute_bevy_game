@@ -1376,7 +1376,7 @@ fn handle_ball_collisions(
     rapier_context: Res<RapierContext>, 
     query: Query<(Entity, &Ball, &Transform)>,
     mut score_text_query: Query<&mut Text, With<ScoreText>>,
-    mut particle_count: &mut ResMut<ParticleCount>,
+    mut particle_count: ResMut<ParticleCount>,
     mut score: ResMut<Score>,
     game_sounds: Res<GameSounds>,
     settings: Res<Settings>,
