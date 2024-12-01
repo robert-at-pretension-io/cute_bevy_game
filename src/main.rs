@@ -220,12 +220,17 @@ fn update_screen_shake(
             shake_amount * 0.05 * (time * 25.0).sin()
         );
         
-        // Decay trauma over time
-        shake_state.trauma = (shake_state.trauma - shake_state.decay * time)
+        println!("Applying shake - Trauma: {:.3}, Shake Amount: {:.3}", 
+            shake_state.trauma, 
+            shake_state.trauma * shake_state.trauma
+        );
+        
+        // Decay trauma over time using delta_seconds
+        shake_state.trauma = (shake_state.trauma - shake_state.decay * time.delta_seconds())
             .max(0.0);
         
         // Reset transform when shake is done
-        if shake_state.trauma == 0.0 {
+        if shake_state.trauma <= 0.0 {
             camera_transform.translation = Vec3::ZERO;
             camera_transform.rotation = Quat::IDENTITY;
         }
@@ -961,9 +966,11 @@ fn handle_ball_collisions(
                         let new_ball = spawn_ball_at(&mut commands, &asset_server, next_variant, position);
 
                         // Add screen shake effect
-                        commands.insert_resource(ScreenShakeState {                                                                  
-                            trauma: ball1.variant.size() / BASE_BALL_SIZE * 0.2, // Scale shake with ball size                       
-                            decay: 3.0,                                                                                              
+                        let trauma = ball1.variant.size() / BASE_BALL_SIZE * 0.5; // Increased multiplier
+                        println!("Setting shake trauma: {:.3} for ball size: {}", trauma, ball1.variant.size());
+                        commands.insert_resource(ScreenShakeState {
+                            trauma,
+                            decay: 3.0,
                         });
 
                         // Add explosion effect
