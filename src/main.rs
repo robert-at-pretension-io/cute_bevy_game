@@ -351,9 +351,9 @@ impl BallVariant {
             BallVariant::Win => 11,
         };
         
-        // Start at 0.8 and grow by ~25% each step
-        // Creates a more moderate growth curve: 0.8, 1.0, 1.25, 1.56, 1.95, 2.44, 3.05, 3.81, 4.77, 5.96, 7.45
-        let ratio = 0.8 * (1.25f32.powf((order - 1) as f32));
+        // Start at 0.8 and grow by ~15% each step
+        // Creates a gentler growth curve: 0.8, 0.92, 1.06, 1.22, 1.40, 1.61, 1.85, 2.13, 2.45, 2.82, 3.24
+        let ratio = 0.8 * (1.15f32.powf((order - 1) as f32));
         BASE_BALL_SIZE * ratio
     }
 
