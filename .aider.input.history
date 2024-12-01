@@ -3933,3 +3933,15 @@
 
 # 2024-12-01 14:50:13.375667
 +/git add .
+
+# 2024-12-01 14:50:17.384395
++/git commit -m "fixed?"
+
+# 2024-12-01 14:50:19.182210
++/git push
+
+# 2024-12-01 14:51:52.425392
++ok edit the dist/index.html so that it makes the site ask for audio permission
+
+# 2024-12-01 14:53:13.290593
++/git add .
