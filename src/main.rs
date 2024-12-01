@@ -346,9 +346,9 @@ impl BallVariant {
             BallVariant::Joyful => 3.4,
             
             // Tier 3 (large)
-            BallVariant::Spite => 3.7,
-            BallVariant::Love => 4.0,
-            BallVariant::Pride => 4.5,
+            BallVariant::Spite => 4.0,
+            BallVariant::Love => 4.5,
+            BallVariant::Pride => 5.0,
             
             // Tier 4 (extra large)
             BallVariant::Rage => 7.0,
@@ -1256,8 +1256,8 @@ fn update_ball_effects(
         let mut color = sprite.color;
         color.set_hue(color.hue() + hue_shift);
         // Also modify saturation slightly for more vibrant effects at high settings
-        color.set_saturation((color.saturation() + effects.glow_intensity * 0.2).clamp(0.5, 1.0));
-        sprite.color = color;
+        // color.set_saturation((color.saturation() + effects.glow_intensity * 0.2).clamp(0.5, 1.0));
+        // sprite.color = color;
 
         // Size pulsing (with enhanced effect at high settings)
         let pulse_effect = effects.pulse_magnitude * (1.0 + effects.glow_intensity);
