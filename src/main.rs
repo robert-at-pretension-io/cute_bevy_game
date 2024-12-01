@@ -1310,10 +1310,10 @@ fn handle_ball_collisions(
                     
                 if let Some(next_variant) = ball1.variant.next_variant() {
                     // Only despawn if the entities still exist
-                    if let Some(entity1) = commands.get_entity(e1) {
+                    if let Some(mut entity1) = commands.get_entity(e1) {
                         entity1.despawn();
                     }
-                    if let Some(entity2) = commands.get_entity(e2) {
+                    if let Some(mut entity2) = commands.get_entity(e2) {
                         entity2.despawn();
                     }
 
