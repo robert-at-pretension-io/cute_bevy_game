@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, input::touch::Touches};
 
 #[derive(States, Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 enum GameState {
@@ -1048,13 +1048,21 @@ fn update_preview(
     mut preview_query: Query<(&mut Transform, &mut Visibility, &BallPreview)>,
     camera_q: Query<(&Camera, &GlobalTransform)>,
     windows: Query<&Window>,
+    touches: Res<Touches>,
 ) {
     let (camera, camera_transform) = camera_q.single();
     let window = windows.single();
     
-    if let Some(world_position) = window.cursor_position()
-        .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
-        .map(|ray| ray.origin.truncate())
+    // Get position from either touch or mouse
+    let input_position = if let Some(touch) = touches.first_pressed_position() {
+        Some(touch)
+    } else {
+        window.cursor_position()
+    };
+    
+    if let Some(position) = input_position {
+        if let Some(world_position) = camera.viewport_to_world(camera_transform, position)
+            .map(|ray| ray.origin.truncate())
     {
         if let Ok((mut transform, mut visibility, preview)) = preview_query.get_single_mut() {
             transform.translation.x = world_position.x;
@@ -1218,6 +1226,7 @@ fn setup(mut commands: Commands, score: Res<Score>) {
 fn spawn_ball(
     mut commands: Commands,
     mouse: Res<ButtonInput<MouseButton>>,
+    touches: Res<Touches>,
     camera_q: Query<(&Camera, &GlobalTransform)>,
     windows: Query<&Window>,
     asset_server: Res<AssetServer>,
@@ -1225,12 +1234,21 @@ fn spawn_ball(
     game_state: Res<State<GameState>>,
     settings: Res<Settings>
 ) {
-    if mouse.just_pressed(MouseButton::Left) && *game_state.get() == GameState::Playing {
+    let should_spawn = (mouse.just_pressed(MouseButton::Left) || touches.any_just_pressed()) 
+        && *game_state.get() == GameState::Playing;
+
+    if should_spawn {
         let (camera, camera_transform) = camera_q.single();
         let window = windows.single();
         
-        if let Some(world_position) = window.cursor_position()
-            .and_then(|cursor| camera.viewport_to_world(camera_transform, cursor))
+        // Get position from either mouse or touch
+        let input_position = if let Some(touch) = touches.first_pressed_position() {
+            touch
+        } else {
+            window.cursor_position().unwrap_or_default()
+        };
+        
+        if let Some(world_position) = camera.viewport_to_world(camera_transform, input_position)
             .map(|ray| ray.origin.truncate())
         {
             // Get the size from preview and spawn that ball
