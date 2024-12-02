@@ -82,6 +82,27 @@
             height: 100%;
             object-fit: contain;
         }
+        #settings-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 1000;
+            padding: 0;
+        }
+        #settings-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
         #click-to-start {
             position: absolute;
             color: white;
@@ -92,6 +113,7 @@
     </style>
 </head>
 <body>
+    <button id="settings-button">⚙️</button>
     <div id="instructions">
         <h2>How to Play</h2>
         <button id="minimize-btn">×</button>
@@ -104,7 +126,14 @@
     </div>
     <script type="module">
         import init from './ball_drop_rust.js';
-        init();
+        init().then(() => {
+            // Settings button click handler
+            const settingsBtn = document.getElementById('settings-button');
+            settingsBtn.addEventListener('click', () => {
+                // Set a flag in WASM memory that Rust can check
+                window.settingsClicked = true;
+            });
+        });
 
         // Instructions minimize functionality
         const instructions = document.getElementById('instructions');

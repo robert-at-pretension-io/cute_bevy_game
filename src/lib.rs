@@ -588,17 +588,23 @@ struct GameSounds {
 #[derive(Component)]
 struct GameAudio;
 
+#[derive(Resource, Default)]
+struct SettingsButtonClicked(bool);
+
 fn toggle_settings_menu(
     keyboard: Res<ButtonInput<KeyCode>>,
     mut next_state: ResMut<NextState<GameState>>,
     current_state: Res<State<GameState>>,
+    mut settings_clicked: ResMut<SettingsButtonClicked>,
+    windows: Query<&Window>,
 ) {
-    if keyboard.just_pressed(KeyCode::Escape) {
+    if keyboard.just_pressed(KeyCode::Escape) || settings_clicked.0 {
         match current_state.get() {
             GameState::Playing => next_state.set(GameState::Settings),
             GameState::Settings => next_state.set(GameState::Playing),
             _ => {},
         }
+        settings_clicked.0 = false;
     }
 }
 
@@ -658,6 +664,7 @@ pub fn main() {
         .add_systems(OnEnter(GameState::Win), setup_win_screen)
         .add_systems(Update, handle_game_over.run_if(in_state(GameState::GameOver)))
         .add_systems(Update, handle_win_screen.run_if(in_state(GameState::Win)))
+        .insert_resource(SettingsButtonClicked::default())
         .add_systems(Update, (toggle_settings_menu, handle_global_restart))
         .add_systems(OnEnter(GameState::Settings), setup_settings_menu)
         .add_systems(OnExit(GameState::Settings), cleanup_settings_menu)
