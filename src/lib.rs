@@ -1057,10 +1057,8 @@ fn update_preview(
     // Get position from either touch or mouse
     let input_position = if touches.iter().next().is_some() {
         touches.iter().next().map(|touch| touch.position())
-    } else if mouse.pressed(MouseButton::Left) {
-        window.cursor_position()
     } else {
-        None
+        window.cursor_position()
     };
     
     if let Some(position) = input_position {
