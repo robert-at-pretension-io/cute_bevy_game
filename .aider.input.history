@@ -3996,3 +3996,731 @@
 
 # 2024-12-01 18:05:27.955425
 +/git add .
+
+# 2024-12-01 18:05:34.657785
++/git commit -m "fixed more"
+
+# 2024-12-01 18:05:36.182896
++/git push
+
+# 2024-12-02 18:00:21.468742
++N
+
+# 2024-12-02 18:00:26.976477
++/add src/main.rs
+
+# 2024-12-02 18:00:39.095512
++/add dist/index.html
+
+# 2024-12-02 18:00:48.877548
++/ask how do I make this game work with touch screens?
+
+# 2024-12-02 18:01:45.002490
++Yeah, try that out
+
+# 2024-12-02 18:02:19.378949
++/add src/lib.rs
+
+# 2024-12-02 18:02:28.074292
++Edit the input handle to handle touch too
+
+# 2024-12-02 18:04:14.726708
++/run cargo run
+
+# 2024-12-02 18:05:09.719348
++N
+
+# 2024-12-02 18:05:13.440475
++/run cargo run
+
+# 2024-12-02 18:06:46.621013
++N
+
+# 2024-12-02 18:07:13.468483
++Ok, pressing and holding should show the preview of the next block, releasing the touch should drop it:  Docs.rs
++ bevy-0.15.0 
++ Platform 
++ Feature flags
++Rust
++ 
++Find crate
++logo
++bevy
++0.15.0
++Touches
++Sections
++Usage
++Updating
++Methods
++any_just_canceled
++any_just_pressed
++any_just_released
++clear
++clear_just_canceled
++clear_just_pressed
++clear_just_released
++first_pressed_position
++get_pressed
++get_released
++iter
++iter_just_canceled
++iter_just_pressed
++iter_just_released
++just_canceled
++just_pressed
++just_released
++release
++release_all
++reset_all
++Trait Implementations
++Clone
++Debug
++Default
++Resource
++Auto Trait Implementations
++Freeze
++RefUnwindSafe
++Send
++Sync
++Unpin
++UnwindSafe
++Blanket Implementations
++Any
++AsBindGroupShaderType<U>
++Borrow<T>
++BorrowMut<T>
++CloneToUninit
++ConditionalSend
++Conv
++Downcast
++Downcast<T>
++DowncastSync
++Duplex<S>
++FmtForward
++From<T>
++FromSample<S>
++FromWorld
++Instrument
++Into<U>
++IntoEither
++IntoSample<T>
++NoneValue
++Pipe
++Pointable
++ReadPrimitive<R>
++Same
++Settings
++Tap
++ToOwned
++ToSample<U>
++TryConv
++TryFrom<U>
++TryInto<U>
++TypeData
++Upcast<T>
++VZip<V>
++WasmNotSend
++WasmNotSendSync
++WasmNotSync
++WithSubscriber
++In bevy::input::touch
++Structs
++Touch
++TouchInput
++Touches
++Enums
++ForceTouch
++TouchPhase
++Functions
++touch_screen_input_system
++Type ‘S’ or ‘/’ to search, ‘?’ for more options…
++bevy
++::
++input
++::
++touch
++Struct TouchesCopy item path
++Settings
++Help
++
++Summary
++Source
++pub struct Touches { /* private fields */ }
++A collection of Touches.
++
++Usage
++It is used to create a bevy resource that stores the data of the touches on a touchscreen and can be accessed inside of a system.
++
++Updating
++The resource is updated inside of the touch_screen_input_system.
++
++Implementations
++Source
++impl Touches
++Source
++pub fn iter(&self) -> impl Iterator<Item = &Touch>
++An iterator visiting every pressed Touch input in arbitrary order.
++
++Examples found in repository?
++examples/input/touch_input.rs (line 34)
++fn touch_system(touches: Res<Touches>) {
++    for touch in touches.iter_just_pressed() {
++        info!(
++            "just pressed touch with id: {:?}, at: {:?}",
++            touch.id(),
++            touch.position()
++        );
++    }
++
++    for touch in touches.iter_just_released() {
++        info!(
++            "just released touch with id: {:?}, at: {:?}",
++            touch.id(),
++            touch.position()
++        );
++    }
++
++    for touch in touches.iter_just_canceled() {
++        info!("canceled touch with id: {:?}", touch.id());
++    }
++
++    // you can also iterate all current touches and retrieve their state like this:
++    for touch in touches.iter() {
++        info!("active touch: {:?}", touch);
++        info!("  just_pressed: {}", touches.just_pressed(touch.id()));
++    }
++}
++Source
++pub fn get_pressed(&self, id: u64) -> Option<&Touch>
++Returns the Touch input corresponding to the id if it is being pressed.
++
++Source
++pub fn any_just_pressed(&self) -> bool
++Checks if any touch input was just pressed.
++
++Examples found in repository?
++examples/ecs/run_conditions.rs (line 75)
++fn has_user_input(
++    keyboard_input: Res<ButtonInput<KeyCode>>,
++    mouse_button_input: Res<ButtonInput<MouseButton>>,
++    touch_input: Res<Touches>,
++) -> bool {
++    keyboard_input.just_pressed(KeyCode::Space)
++        || keyboard_input.just_pressed(KeyCode::Enter)
++        || mouse_button_input.just_pressed(MouseButton::Left)
++        || mouse_button_input.just_pressed(MouseButton::Right)
++        || touch_input.any_just_pressed()
++}
++Source
++pub fn release(&mut self, id: u64)
++Register a release for a given touch input.
++
++Source
++pub fn release_all(&mut self)
++Registers a release for all currently pressed touch inputs.
++
++Source
++pub fn just_pressed(&self, id: u64) -> bool
++Returns true if the input corresponding to the id has just been pressed.
++
++Examples found in repository?
++examples/input/touch_input.rs (line 36)
++fn touch_system(touches: Res<Touches>) {
++    for touch in touches.iter_just_pressed() {
++        info!(
++            "just pressed touch with id: {:?}, at: {:?}",
++            touch.id(),
++            touch.position()
++        );
++    }
++
++    for touch in touches.iter_just_released() {
++        info!(
++            "just released touch with id: {:?}, at: {:?}",
++            touch.id(),
++            touch.position()
++        );
++    }
++
++    for touch in touches.iter_just_canceled() {
++        info!("canceled touch with id: {:?}", touch.id());
++    }
++
++    // you can also iterate all current touches and retrieve their state like this:
++    for touch in touches.iter() {
++        info!("active touch: {:?}", touch);
++        info!("  just_pressed: {}", touches.just_pressed(touch.id()));
++    }
++}
++Source
++pub fn clear_just_pressed(&mut self, id: u64) -> bool
++Clears the just_pressed state of the touch input and returns true if the touch input has just been pressed.
++
++Future calls to Touches::just_pressed for the given touch input will return false until a new press event occurs.
++
++Source
++pub fn iter_just_pressed(&self) -> impl Iterator<Item = &Touch>
++An iterator visiting every just pressed Touch input in arbitrary order.
++
++Examples found in repository?
++examples/input/touch_input.rs (line 13)
++fn touch_system(touches: Res<Touches>) {
++    for touch in touches.iter_just_pressed() {
++        info!(
++            "just pressed touch with id: {:?}, at: {:?}",
++            touch.id(),
++            touch.position()
++        );
++    }
++
++    for touch in touches.iter_just_released() {
++        info!(
++            "just released touch with id: {:?}, at: {:?}",
++            touch.id(),
++            touch.position()
++        );
++    }
++
++    for touch in touches.iter_just_canceled() {
++        info!("canceled touch with id: {:?}", touch.id());
++    }
++
++    // you can also iterate all current touches and retrieve their state like this:
++    for touch in touches.iter() {
++        info!("active touch: {:?}", touch);
++        info!("  just_pressed: {}", touches.just_pressed(touch.id()));
++    }
++}
++Source
++pub fn get_released(&self, id: u64) -> Option<&Touch>
++Returns the Touch input corresponding to the id if it has just been released.
++
++Source
++pub fn any_just_released(&self) -> bool
++Checks if any touch input was just released.
++
++Source
++pub fn just_released(&self, id: u64) -> bool
++Returns true if the input corresponding to the id has just been released.
++
++Source
++pub fn clear_just_released(&mut self, id: u64) -> bool
++Clears the just_released state of the touch input and returns true if the touch input has just been released.
++
++Future calls to Touches::just_released for the given touch input will return false until a new release event occurs.
++
++Source
++pub fn iter_just_released(&self) -> impl Iterator<Item = &Touch>
++An iterator visiting every just released Touch input in arbitrary order.
++
++Examples found in repository?
++examples/input/touch_input.rs (line 21)
++fn touch_system(touches: Res<Touches>) {
++    for touch in touches.iter_just_pressed() {
++        info!(
++            "just pressed touch with id: {:?}, at: {:?}",
++            touch.id(),
++            touch.position()
++        );
++    }
++
++    for touch in touches.iter_just_released() {
++        info!(
++            "just released touch with id: {:?}, at: {:?}",
++            touch.id(),
++            touch.position()
++        );
++    }
++
++    for touch in touches.iter_just_canceled() {
++        info!("canceled touch with id: {:?}", touch.id());
++    }
++
++    // you can also iterate all current touches and retrieve their state like this:
++    for touch in touches.iter() {
++        info!("active touch: {:?}", touch);
++        info!("  just_pressed: {}", touches.just_pressed(touch.id()));
++    }
++}
++Source
++pub fn any_just_canceled(&self) -> bool
++Checks if any touch input was just canceled.
++
++Source
++pub fn just_canceled(&self, id: u64) -> bool
++Returns true if the input corresponding to the id has just been canceled.
++
++Source
++pub fn clear_just_canceled(&mut self, id: u64) -> bool
++Clears the just_canceled state of the touch input and returns true if the touch input has just been canceled.
++
++Future calls to Touches::just_canceled for the given touch input will return false until a new cancel event occurs.
++
++Source
++pub fn iter_just_canceled(&self) -> impl Iterator<Item = &Touch>
++An iterator visiting every just canceled Touch input in arbitrary order.
++
++Examples found in repository?
++examples/input/touch_input.rs (line 29)
++fn touch_system(touches: Res<Touches>) {
++    for touch in touches.iter_just_pressed() {
++        info!(
++            "just pressed touch with id: {:?}, at: {:?}",
++            touch.id(),
++            touch.position()
++        );
++    }
++
++    for touch in touches.iter_just_released() {
++        info!(
++            "just released touch with id: {:?}, at: {:?}",
++            touch.id(),
++            touch.position()
++        );
++    }
++
++    for touch in touches.iter_just_canceled() {
++        info!("canceled touch with id: {:?}", touch.id());
++    }
++
++    // you can also iterate all current touches and retrieve their state like this:
++    for touch in touches.iter() {
++        info!("active touch: {:?}", touch);
++        info!("  just_pressed: {}", touches.just_pressed(touch.id()));
++    }
++}
++Source
++pub fn first_pressed_position(&self) -> Option<Vec2>
++Retrieves the position of the first currently pressed touch, if any
++
++Source
++pub fn clear(&mut self)
++Clears just_pressed, just_released, and just_canceled data for every touch input.
++
++See also Touches::reset_all for a full reset.
++
++Source
++pub fn reset_all(&mut self)
++Clears pressed, just_pressed, just_released, and just_canceled data for every touch input.
++
++See also Touches::clear for clearing only touches that have just been pressed, released or canceled.
++
++Trait Implementations
++Source
++impl Clone for Touches
++Source
++fn clone(&self) -> Touches
++Returns a copy of the value. Read more
++1.0.0 · Source
++fn clone_from(&mut self, source: &Self)
++Performs copy-assignment from source. Read more
++Source
++impl Debug for Touches
++Source
++fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error>
++Formats the value using the given formatter. Read more
++Source
++impl Default for Touches
++Source
++fn default() -> Touches
++Returns the “default value” for a type. Read more
++Source
++impl Resource for Touches
++where
++    Touches: Send + Sync + 'static,
++Auto Trait Implementations
++impl Freeze for Touches
++impl RefUnwindSafe for Touches
++impl Send for Touches
++impl Sync for Touches
++impl Unpin for Touches
++impl UnwindSafe for Touches
++Blanket Implementations
++Source
++impl<T> Any for T
++where
++    T: 'static + ?Sized,
++Source
++impl<T, U> AsBindGroupShaderType<U> for T
++where
++    U: ShaderType,
++    &'a T: for<'a> Into<U>,
++Source
++impl<T> Borrow<T> for T
++where
++    T: ?Sized,
++Source
++impl<T> BorrowMut<T> for T
++where
++    T: ?Sized,
++Source
++impl<T> CloneToUninit for T
++where
++    T: Clone,
++Source
++impl<T> Conv for T
++Source
++impl<T> Downcast<T> for T
++Source
++impl<T> Downcast for T
++where
++    T: Any,
++Source
++impl<T> DowncastSync for T
++where
++    T: Any + Send + Sync,
++Source
++impl<T> FmtForward for T
++Source
++impl<T> From<T> for T
++Source
++impl<S> FromSample<S> for S
++Source
++impl<T> FromWorld for T
++where
++    T: Default,
++Source
++impl<T> Instrument for T
++Source
++impl<T, U> Into<U> for T
++where
++    U: From<T>,
++Source
++impl<T> IntoEither for T
++Source
++impl<F, T> IntoSample<T> for F
++where
++    T: FromSample<F>,
++Source
++impl<T> NoneValue for T
++where
++    T: Default,
++Source
++impl<T> Pipe for T
++where
++    T: ?Sized,
++Source
++impl<T> Pointable for T
++Source
++impl<R, P> ReadPrimitive<R> for P
++where
++    R: Read + ReadEndian<P>,
++    P: Default,
++Source
++impl<T> Same for T
++Source
++impl<T> Tap for T
++Source
++impl<T> ToOwned for T
++where
++    T: Clone,
++Source
++impl<T, U> ToSample<U> for T
++where
++    U: FromSample<T>,
++Source
++impl<T> TryConv for T
++Source
++impl<T, U> TryFrom<U> for T
++where
++    U: Into<T>,
++Source
++impl<T, U> TryInto<U> for T
++where
++    U: TryFrom<T>,
++Source
++impl<T> TypeData for T
++where
++    T: 'static + Send + Sync + Clone,
++Source
++impl<T> Upcast<T> for T
++Source
++impl<V, T> VZip<V> for T
++where
++    V: MultiLane<T>,
++Source
++impl<T> WithSubscriber for T
++Source
++impl<T> ConditionalSend for T
++where
++    T: Send,
++Source
++impl<S, T> Duplex<S> for T
++where
++    T: FromSample<S> + ToSample<S>,
++Source
++impl<T> Settings for T
++where
++    T: 'static + Send + Sync,
++Source
++impl<T> WasmNotSend for T
++where
++    T: Send,
++Source
++impl<T> WasmNotSendSync for T
++where
++    T: WasmNotSend + WasmNotSync,
++Source
++impl<T> WasmNotSync for T
++where
++    T: Sync,
+
+# 2024-12-02 18:08:13.305085
++/run cargo run
+
+# 2024-12-02 18:10:37.477211
++N
+
+# 2024-12-02 18:10:38.592175
++/run cargo run
+
+# 2024-12-02 18:11:32.246977
++N
+
+# 2024-12-02 18:11:45.318048
++Ok, before being pressed, the preview should still follow the mouse position
+
+# 2024-12-02 18:12:02.394000
++/run cargo run
+
+# 2024-12-02 18:12:48.278547
++N
+
+# 2024-12-02 18:14:17.170662
++Ok, add game instructions to the index.html 
+
+# 2024-12-02 18:14:49.589444
++/run open dist/index.html
+
+# 2024-12-02 18:14:49.589864
++/run open dist/index.html
+
+# 2024-12-02 18:16:40.126396
++/ask how do I test it on a python server?
+
+# 2024-12-02 18:17:05.316685
++/run python3.12 -m SimpleHTTPServer 8080
+
+# 2024-12-02 18:17:15.263616
++N
+
+# 2024-12-02 18:17:23.709545
++> /run python3.12 -m SimpleHTTPServer 8080                                           
++
++/usr/local/opt/python@3.12/bin/python3.12: No module named SimpleHTTPServer
+
+# 2024-12-02 18:17:32.262722
++N
+
+# 2024-12-02 18:17:37.473030
++/run python3.12 -m SimpleHTTPServer 8080
+
+# 2024-12-02 18:17:41.665695
++N
+
+# 2024-12-02 18:17:53.062181
++/run python3.12 -m http.server 8000
+
+# 2024-12-02 18:18:25.913498
++N
+
+# 2024-12-02 18:18:37.552714
++Fantastic, we need to make a button on the instructions that will "minimize" them
+
+# 2024-12-02 18:19:03.734701
++N
+
+# 2024-12-02 18:19:11.268693
++/run python3.12 -m http.server 8000
+
+# 2024-12-02 18:19:28.278190
++N
+
+# 2024-12-02 18:19:53.271093
++Ok, it's functional but I want the button to not overlap with "how to play". Also. when clicked, it needs to hide entirely
+
+# 2024-12-02 18:20:26.964986
++N
+
+# 2024-12-02 18:20:28.723369
++/run python3.12 -m http.server 8000
+
+# 2024-12-02 18:21:08.525910
++N
+
+# 2024-12-02 18:21:12.810985
++/ask how do I build for wasm?
+
+# 2024-12-02 18:21:33.181697
++/run cargo build --release --target wasm32-unknown-unknown 
+
+# 2024-12-02 18:25:59.636648
++N
+
+# 2024-12-02 18:26:00.723828
++wasm-bindgen --out-dir ./dist --target web                              
++ ./target/wasm32-unknown-unknown/release/ball_drop_rust.wasm
+
+# 2024-12-02 18:26:08.371131
++N
+
+# 2024-12-02 18:26:12.174160
++/run wasm-bindgen --out-dir ./dist --target web                              
++ ./target/wasm32-unknown-unknown/release/ball_drop_rust.wasm
+
+# 2024-12-02 18:26:23.910716
++/run wasm-bindgen --out-dir ./dist --target web
+
+# 2024-12-02 18:26:25.747933
++n
+
+# 2024-12-02 18:26:27.403069
++/run wasm-bindgen --out-dir ./dist --target web
+
+# 2024-12-02 18:26:45.089630
++/run wasm-bindgen --out-dir ./dist --target web                                                      
++ ./target/wasm32-unknown-unknown/release/ball_drop_rust.wasm
+
+# 2024-12-02 18:26:49.584801
++Fix that?
+
+# 2024-12-02 18:27:21.593583
++N
+
+# 2024-12-02 18:27:22.263648
++wasm-bindgen --out-dir ./dist --target web \                                                    
++ ./target/wasm32-unknown-unknown/release/ball_drop_rust.wasm
+
+# 2024-12-02 18:27:25.871834
++/run wasm-bindgen --out-dir ./dist --target web \                                                    
++ ./target/wasm32-unknown-unknown/release/ball_drop_rust.wasm
+
+# 2024-12-02 18:27:38.687718
++N
+
+# 2024-12-02 18:27:40.233331
++/run ls -l target/wasm32-unknown-unknown/release/*.wasm
+
+# 2024-12-02 18:28:33.945320
++N
+
+# 2024-12-02 18:28:50.324745
++/run wasm-bindgen --out-dir ./dist --target web
+
+# 2024-12-02 18:28:52.739779
++N
+
+# 2024-12-02 18:29:05.966498
++so the file IS there ... how do I make it work?
+
+# 2024-12-02 18:29:18.503236
++/run wasm-bindgen --out-dir ./dist --target web ./target/wasm32-unknown-unknown/release/ball_drop_rust.wasm
+
+# 2024-12-02 18:29:18.503572
++/run wasm-bindgen --out-dir ./dist --target web ./target/wasm32-unknown-unknown/release/ball_drop_rust.wasm
+
+# 2024-12-02 18:29:32.845846
++N
+
+# 2024-12-02 18:29:34.883391
++/git add .
