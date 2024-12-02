@@ -608,7 +608,7 @@ fn toggle_settings_menu(
             GameState::Settings => next_state.set(GameState::Playing),
             _ => {},
         }
-        settings_clicked.0 = false;
+        settings_clicked.clicked = false;
     }
 }
 
