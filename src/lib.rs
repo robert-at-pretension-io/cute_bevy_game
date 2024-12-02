@@ -1076,6 +1076,7 @@ fn update_preview(
         }
     }
 }
+}
 
 fn spawn_ball_at(
     commands: &mut Commands,
