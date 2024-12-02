@@ -1244,11 +1244,11 @@ fn spawn_ball(
         let window = windows.single();
         
         // Get position from either mouse or touch
-        let input_position = if let Some(touch) = touches.first_pressed_position() {
-            touch
+        let input_position = if touches.any_just_released() {
+            touches.iter_just_released().next().map(|touch| touch.position())
         } else {
-            window.cursor_position().unwrap_or_default()
-        };
+            window.cursor_position()
+        }.unwrap_or_default();
         
         if let Some(world_position) = camera.viewport_to_world(camera_transform, input_position)
             .map(|ray| ray.origin.truncate())
