@@ -32,7 +32,30 @@
             font-size: 14px;
             max-width: 250px;
             z-index: 1000;
-            pointer-events: none;
+            pointer-events: auto;
+            transition: transform 0.3s ease;
+        }
+        #instructions.minimized {
+            transform: translateX(calc(100% - 40px));
+        }
+        #minimize-btn {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        #minimize-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
         #instructions h2 {
             margin: 0 0 10px 0;
@@ -64,6 +87,7 @@
 </head>
 <body>
     <div id="instructions">
+        <button id="minimize-btn">≡</button>
         <h2>How to Play</h2>
         <p>Drop balls from the top to combine matching emotions!</p>
         <p>Combine smaller emotions to create bigger ones.</p>
@@ -75,6 +99,15 @@
     <script type="module">
         import init from './ball_drop_rust.js';
         init();
+
+        // Instructions minimize functionality
+        const instructions = document.getElementById('instructions');
+        const minimizeBtn = document.getElementById('minimize-btn');
+        
+        minimizeBtn.addEventListener('click', () => {
+            instructions.classList.toggle('minimized');
+            minimizeBtn.textContent = instructions.classList.contains('minimized') ? '≡' : '×';
+        });
         
         // async function requestAudioPermission() {
         //     try {
