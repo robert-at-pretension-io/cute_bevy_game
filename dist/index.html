@@ -130,8 +130,8 @@
             // Settings button click handler
             const settingsBtn = document.getElementById('settings-button');
             settingsBtn.addEventListener('click', () => {
-                // Set a flag in WASM memory that Rust can check
-                window.settingsClicked = true;
+                // Access Rust's WASM memory through the resource
+                window.rustWasm.settings_clicked();
             });
         });
 

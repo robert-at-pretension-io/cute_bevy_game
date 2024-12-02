@@ -589,7 +589,11 @@ struct GameSounds {
 struct GameAudio;
 
 #[derive(Resource, Default)]
-struct SettingsButtonClicked(bool);
+struct SettingsButtonClicked {
+    clicked: bool,
+    #[cfg(target_arch = "wasm32")]
+    js_memory: Option<js_sys::WebAssembly::Memory>,
+}
 
 fn toggle_settings_menu(
     keyboard: Res<ButtonInput<KeyCode>>,
@@ -598,7 +602,7 @@ fn toggle_settings_menu(
     mut settings_clicked: ResMut<SettingsButtonClicked>,
     windows: Query<&Window>,
 ) {
-    if keyboard.just_pressed(KeyCode::Escape) || settings_clicked.0 {
+    if keyboard.just_pressed(KeyCode::Escape) || settings_clicked.clicked {
         match current_state.get() {
             GameState::Playing => next_state.set(GameState::Settings),
             GameState::Settings => next_state.set(GameState::Playing),
