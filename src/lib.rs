@@ -1054,10 +1054,12 @@ fn update_preview(
     let window = windows.single();
     
     // Get position from either touch or mouse
-    let input_position = if let Some(touch) = touches.first_pressed_position() {
-        Some(touch)
-    } else {
+    let input_position = if touches.iter().next().is_some() {
+        touches.iter().next().map(|touch| touch.position())
+    } else if mouse.pressed(MouseButton::Left) {
         window.cursor_position()
+    } else {
+        None
     };
     
     if let Some(position) = input_position {
@@ -1235,7 +1237,7 @@ fn spawn_ball(
     game_state: Res<State<GameState>>,
     settings: Res<Settings>
 ) {
-    let should_spawn = (mouse.just_pressed(MouseButton::Left) || touches.any_just_pressed()) 
+    let should_spawn = (mouse.just_released(MouseButton::Left) || touches.any_just_released()) 
         && *game_state.get() == GameState::Playing;
 
     if should_spawn {
