@@ -4724,3 +4724,36 @@
 
 # 2024-12-02 18:29:34.883391
 +/git add .
+
+# 2024-12-02 18:29:40.343296
++/git commit -m "fixed touch?"
+
+# 2024-12-02 18:29:41.999367
++/git push
+
+# 2024-12-02 18:32:27.183591
++ok, the touch is SOMEWHAT working now. The position of the preview is working by matching the finger. BUT when the press is released it always drops them on the far left
+
+# 2024-12-02 18:32:49.275934
++/run cargo build --release --target wasm32-unknown-unknown
+
+# 2024-12-02 18:32:49.276285
++/run cargo build --release --target wasm32-unknown-unknown
+
+# 2024-12-02 18:36:37.888320
++/run wasm-bindgen --out-dir ./dist --target web ./target/wasm32-unknown-unknown/release/ball_drop_rust.wasm
+
+# 2024-12-02 18:36:37.892077
++/run wasm-bindgen --out-dir ./dist --target web ./target/wasm32-unknown-unknown/release/ball_drop_rust.wasm
+
+# 2024-12-02 18:36:40.508664
++/run python3 -m http.server 8080
+
+# 2024-12-02 18:36:40.508865
++/run python3 -m http.server 8080
+
+# 2024-12-02 18:37:36.245512
++N
+
+# 2024-12-02 18:37:37.788903
++/git add .
