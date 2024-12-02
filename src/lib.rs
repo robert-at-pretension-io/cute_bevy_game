@@ -1049,6 +1049,7 @@ fn update_preview(
     camera_q: Query<(&Camera, &GlobalTransform)>,
     windows: Query<&Window>,
     touches: Res<Touches>,
+    mouse: Res<ButtonInput<MouseButton>>,
 ) {
     let (camera, camera_transform) = camera_q.single();
     let window = windows.single();
