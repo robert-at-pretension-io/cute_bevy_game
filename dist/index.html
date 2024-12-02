@@ -8,6 +8,7 @@
         body {
             margin: 0;
             background-color: black;
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,6 +20,34 @@
             -ms-user-select: none;
             user-select: none;
             overscroll-behavior: none;
+        }
+        #instructions {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            max-width: 250px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        #instructions h2 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #ffd700;
+        }
+        #instructions p {
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+        #instructions .key {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
         }
         canvas {
             background-color: #333;
@@ -34,7 +63,15 @@
     </style>
 </head>
 <body>
-    <!-- <div id="click-to-start">Click anywhere to start</div> -->
+    <div id="instructions">
+        <h2>How to Play</h2>
+        <p>Drop balls from the top to combine matching emotions!</p>
+        <p>Combine smaller emotions to create bigger ones.</p>
+        <p><span class="key">ESC</span> - Settings Menu</p>
+        <p><span class="key">R</span> - Restart Game</p>
+        <p><span class="key">SPACE</span> - New Game (after win/loss)</p>
+        <p>Don't let balls stay at the top too long!</p>
+    </div>
     <script type="module">
         import init from './ball_drop_rust.js';
         init();
