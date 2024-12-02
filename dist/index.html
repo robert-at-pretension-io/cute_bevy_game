@@ -36,11 +36,11 @@
             transition: transform 0.3s ease;
         }
         #instructions.minimized {
-            transform: translateX(calc(100% - 40px));
+            transform: translateX(100%);
         }
         #minimize-btn {
             position: absolute;
-            left: 10px;
+            right: 10px;
             top: 10px;
             background: rgba(255, 255, 255, 0.2);
             border: none;
@@ -87,8 +87,8 @@
 </head>
 <body>
     <div id="instructions">
-        <button id="minimize-btn">≡</button>
         <h2>How to Play</h2>
+        <button id="minimize-btn">×</button>
         <p>Drop balls from the top to combine matching emotions!</p>
         <p>Combine smaller emotions to create bigger ones.</p>
         <p><span class="key">ESC</span> - Settings Menu</p>
