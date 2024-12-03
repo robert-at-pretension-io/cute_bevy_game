@@ -1440,13 +1440,13 @@ fn update_ball_effects(
 }
 
 fn restart_game(
-    commands: Commands,
+    mut commands: Commands,
     balls: Query<Entity, With<Ball>>,
     game_over_text: Query<Entity, With<GameOverText>>,
     win_text: Query<Entity, With<WinText>>,
-    score: ResMut<Score>,
-    score_text_query: Query<&mut Text, With<ScoreText>>,
-    next_state: ResMut<NextState<GameState>>,
+    mut score: ResMut<Score>,
+    mut score_text_query: Query<&mut Text, With<ScoreText>>,
+    mut next_state: ResMut<NextState<GameState>>,
 ) {
     // Remove all balls
     for entity in balls.iter() {
