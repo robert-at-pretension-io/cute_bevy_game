@@ -263,6 +263,10 @@ function debugString(val) {
     return className;
 }
 
+export function settings_clicked() {
+    wasm.settings_clicked();
+}
+
 export function wasm_main() {
     wasm.wasm_main();
 }

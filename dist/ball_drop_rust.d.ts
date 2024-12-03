@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export function settings_clicked(): void;
 export function wasm_main(): void;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -8,6 +9,7 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly main: (a: number, b: number) => number;
   readonly wasm_main: () => void;
+  readonly settings_clicked: () => void;
   readonly wgpu_render_bundle_set_pipeline: (a: number, b: bigint) => void;
   readonly wgpu_render_bundle_set_bind_group: (a: number, b: number, c: bigint, d: number, e: number) => void;
   readonly wgpu_render_bundle_set_vertex_buffer: (a: number, b: number, c: bigint, d: bigint, e: bigint) => void;

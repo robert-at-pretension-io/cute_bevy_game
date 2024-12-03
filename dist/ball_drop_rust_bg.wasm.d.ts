@@ -3,6 +3,7 @@
 export const memory: WebAssembly.Memory;
 export const main: (a: number, b: number) => number;
 export const wasm_main: () => void;
+export const settings_clicked: () => void;
 export const wgpu_render_bundle_set_pipeline: (a: number, b: bigint) => void;
 export const wgpu_render_bundle_set_bind_group: (a: number, b: number, c: bigint, d: number, e: number) => void;
 export const wgpu_render_bundle_set_vertex_buffer: (a: number, b: number, c: bigint, d: bigint, e: bigint) => void;

@@ -302,6 +302,7 @@ dependencies = [
  "bevy",
  "bevy_color 0.15.1",
  "bevy_rapier2d",
+ "js-sys",
  "rand",
  "wasm-bindgen",
 ]
