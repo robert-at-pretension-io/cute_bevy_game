@@ -125,13 +125,12 @@
         <p>Don't let balls stay at the top too long!</p>
     </div>
     <script type="module">
-        import init from './ball_drop_rust.js';
+        import init, { settings_clicked } from './ball_drop_rust.js';
         init().then(() => {
             // Settings button click handler
             const settingsBtn = document.getElementById('settings-button');
             settingsBtn.addEventListener('click', () => {
-                // Access Rust's WASM memory through the resource
-                window.rustWasm.settings_clicked();
+                settings_clicked();
             });
         });
 
